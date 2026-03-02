@@ -40,13 +40,15 @@ jobs:
       - run: uv venv
 
       - name: Install dependencies + PyInstaller
-        run: uv pip install . pyinstaller
+        run: uv pip install . "pyinstaller>=6.9.0"
 
       - name: Build binary
         shell: bash
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          uv run pyinstaller --onefile --name "xrpl-camp" --console xrpl_camp/__main__.py
+          uv run pyinstaller --onefile --name "xrpl-camp" --console \
+            --collect-submodules rich \
+            xrpl_camp/__main__.py
           OUTNAME="xrpl-camp-${VERSION}-${{ matrix.target }}${{ matrix.ext }}"
           mv "dist/xrpl-camp${{ matrix.ext }}" "dist/${OUTNAME}"
           echo "ASSET_NAME=${OUTNAME}" >> "$GITHUB_ENV"
