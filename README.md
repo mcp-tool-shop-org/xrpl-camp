@@ -1,5 +1,5 @@
 <p align="center">
-  <strong>XRPL Camp</strong>
+  <img src="https://raw.githubusercontent.com/mcp-tool-shop-org/brand/main/logos/xrpl-camp/readme.png" width="400" alt="XRPL Camp">
 </p>
 
 <p align="center">
