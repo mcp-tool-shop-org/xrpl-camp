@@ -2,12 +2,18 @@
 
 from __future__ import annotations
 
+import platform
 import shutil
+import sys
+import tempfile
+from pathlib import Path
 from typing import Annotated
 
 import typer
 from rich.console import Console
+from rich.table import Table
 
+import xrpl_camp
 from xrpl_camp import lessons, wallet
 from xrpl_camp.models import STATE_DIR, Session
 
@@ -166,3 +172,65 @@ def reset() -> None:
     shutil.rmtree(STATE_DIR)
     console.print("  [green]Reset complete. All XRPL Camp state has been deleted.[/green]")
     console.print("  [dim]Run 'xrpl-camp start' to begin again.[/dim]")
+
+
+# ---------------------------------------------------------------------------
+# Self-check command
+# ---------------------------------------------------------------------------
+
+
+@app.command("self-check")
+def self_check() -> None:
+    """Diagnose your environment. Paste output into a bug report."""
+    checks: list[tuple[str, str, str]] = []  # (status, label, detail)
+
+    # 1. App version
+    checks.append(("ok", "Version", xrpl_camp.__version__))
+
+    # 2. Platform
+    py = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+    checks.append(("ok", "Platform", f"{platform.system()} {platform.machine()} · Python {py}"))
+
+    # 3. Rich rendering
+    try:
+        t = Table(title="Rich")
+        t.add_column("A")
+        t.add_row("ok")
+        with console.capture() as _:
+            console.print(t)
+        checks.append(("ok", "Rich rendering", "Table renders correctly"))
+    except Exception as exc:
+        checks.append(("fail", "Rich rendering", str(exc)))
+
+    # 4. Workspace write test
+    try:
+        probe = Path(tempfile.mkdtemp(prefix="xrpl-camp-"))
+        (probe / "probe.txt").write_text("ok", encoding="utf-8")
+        shutil.rmtree(probe)
+        checks.append(("ok", "Filesystem write", "Temp write succeeded"))
+    except Exception as exc:
+        checks.append(("fail", "Filesystem write", str(exc)))
+
+    # 5. State directory
+    if STATE_DIR.exists():
+        items = list(STATE_DIR.iterdir())
+        checks.append(("ok", "State directory", f"{len(items)} file(s) in {STATE_DIR}"))
+    else:
+        checks.append(("info", "State directory", "Not yet created (run: xrpl-camp start)"))
+
+    # 6. Dependencies
+    for mod_name in ("xrpl", "typer", "rich"):
+        try:
+            mod = __import__(mod_name)
+            ver = getattr(mod, "__version__", getattr(mod, "VERSION", "?"))
+            checks.append(("ok", mod_name, str(ver)))
+        except ImportError:
+            checks.append(("fail", mod_name, "NOT INSTALLED"))
+
+    # Print
+    icons = {"ok": "[green]OK[/green]", "fail": "[red]FAIL[/red]", "info": "[dim]--[/dim]"}
+    console.print()
+    for status, label, detail in checks:
+        icon = icons.get(status, "[dim]--[/dim]")
+        console.print(f"  {icon}  [bold]{label}[/bold]  {detail}")
+    console.print()
