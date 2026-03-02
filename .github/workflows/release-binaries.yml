@@ -25,9 +25,7 @@ jobs:
           - os: macos-latest
             target: darwin-arm64
             ext: ""
-          - os: macos-13
-            target: darwin-x64
-            ext: ""
+          # darwin-x64 omitted: macos-13 deprecated, arm64 binary works via Rosetta
           - os: windows-latest
             target: win-x64
             ext: ".exe"
