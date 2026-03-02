@@ -2,8 +2,17 @@
 
 from __future__ import annotations
 
+import os
+
 TESTNET_URL = "https://s.altnet.rippletest.net:51234/"
 EXPLORER_URL = "https://testnet.xrpl.org/transactions/"
+
+DRY_RUN_TXID = "DRY_RUN_TX_0000000000000000"
+
+
+def get_rpc_url() -> str:
+    """Resolve RPC endpoint. Env var XRPL_CAMP_RPC_URL overrides default."""
+    return os.environ.get("XRPL_CAMP_RPC_URL") or TESTNET_URL
 
 
 def _to_hex(text: str) -> str:
@@ -16,24 +25,30 @@ def _from_hex(hex_str: str) -> str:
     return bytes.fromhex(hex_str).decode("utf-8") if hex_str else ""
 
 
-def fund_wallet(seed: str, url: str = TESTNET_URL) -> str:
+def fund_wallet(seed: str, url: str | None = None, *, dry_run: bool = False) -> str:
     """Fund an existing wallet via testnet faucet. Returns funded address."""
-    from xrpl.clients import JsonRpcClient
-    from xrpl.wallet import Wallet, generate_faucet_wallet
+    from xrpl.wallet import Wallet
 
-    client = JsonRpcClient(url)
     wallet = Wallet.from_seed(seed)
-    # Use faucet to fund — generate_faucet_wallet creates and funds
-    # But we already have a wallet, so we use the faucet endpoint directly
+
+    if dry_run:
+        return wallet.address
+
+    from xrpl.clients import JsonRpcClient
+    from xrpl.wallet import generate_faucet_wallet
+
+    url = url or get_rpc_url()
+    client = JsonRpcClient(url)
     funded = generate_faucet_wallet(client, wallet=wallet)
     return funded.address
 
 
-def get_balance(address: str, url: str = TESTNET_URL) -> int:
+def get_balance(address: str, url: str | None = None) -> int:
     """Get account balance in drops. Returns 0 if account not found."""
     from xrpl.clients import JsonRpcClient
     from xrpl.models import AccountInfo
 
+    url = url or get_rpc_url()
     client = JsonRpcClient(url)
     try:
         response = client.request(AccountInfo(account=address))
@@ -42,13 +57,19 @@ def get_balance(address: str, url: str = TESTNET_URL) -> int:
         return 0
 
 
-def send_memo_payment(seed: str, memo: str, url: str = TESTNET_URL) -> str:
+def send_memo_payment(
+    seed: str, memo: str, url: str | None = None, *, dry_run: bool = False,
+) -> str:
     """Self-payment (1 drop) with a memo. Returns transaction hash."""
+    if dry_run:
+        return DRY_RUN_TXID
+
     from xrpl.clients import JsonRpcClient
     from xrpl.models import Memo, Payment
     from xrpl.transaction import submit_and_wait
     from xrpl.wallet import Wallet
 
+    url = url or get_rpc_url()
     client = JsonRpcClient(url)
     wallet = Wallet.from_seed(seed)
 
@@ -70,11 +91,25 @@ def send_memo_payment(seed: str, memo: str, url: str = TESTNET_URL) -> str:
     return tx_hash
 
 
-def lookup_tx(txid: str, url: str = TESTNET_URL) -> dict:
+def lookup_tx(txid: str, url: str | None = None, *, dry_run: bool = False) -> dict:
     """Look up a transaction and return parsed fields."""
+    if dry_run:
+        return {
+            "hash": txid,
+            "amount": "1",
+            "destination": "(dry run)",
+            "account": "(dry run)",
+            "fee": "12",
+            "memo": "(dry run — no lookup performed)",
+            "ledger_index": 0,
+            "result": "tesSUCCESS",
+            "date": 0,
+        }
+
     from xrpl.clients import JsonRpcClient
     from xrpl.models import Tx
 
+    url = url or get_rpc_url()
     client = JsonRpcClient(url)
     response = client.request(Tx(transaction=txid))
     result = response.result

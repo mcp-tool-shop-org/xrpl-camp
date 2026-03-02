@@ -13,8 +13,9 @@ venv/
 # XRPL Camp state (contains seed — never commit)
 .xrpl-camp/
 
-# Certificate output (user artifact, not repo content)
+# Output artifacts (user artifacts, not repo content)
 xrpl_camp_certificate.json
+xrpl_camp_proof_pack.json
 
 # IDE
 .idea/

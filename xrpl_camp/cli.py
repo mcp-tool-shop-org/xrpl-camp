@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
+import shutil
 from typing import Annotated
 
 import typer
 from rich.console import Console
 
 from xrpl_camp import lessons, wallet
-from xrpl_camp.models import Session
+from xrpl_camp.models import STATE_DIR, Session
 
 app = typer.Typer(
     name="xrpl-camp",
@@ -19,9 +20,13 @@ console = Console()
 
 
 @app.command()
-def start() -> None:
+def start(
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Simulate network steps (no real transactions)")
+    ] = False,
+) -> None:
     """Guided flow through all 6 lessons."""
-    lessons.run_guided_flow()
+    lessons.run_guided_flow(dry_run=dry_run)
 
 
 # ---------------------------------------------------------------------------
@@ -69,10 +74,14 @@ def wallet_cmd(
 
 
 @app.command()
-def fund() -> None:
+def fund(
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Simulate the faucet request")
+    ] = False,
+) -> None:
     """Fund your wallet via the Testnet faucet."""
     session = Session.get_or_create()
-    lessons.lesson_3_fund_wallet(session)
+    lessons.lesson_3_fund_wallet(session, dry_run=dry_run)
 
 
 # ---------------------------------------------------------------------------
@@ -83,10 +92,13 @@ def fund() -> None:
 @app.command()
 def send(
     memo: Annotated[str, typer.Option("--memo", "-m", help="Memo text")] = "",
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Simulate the payment")
+    ] = False,
 ) -> None:
     """Send a self-payment with a memo to the XRPL Testnet."""
     session = Session.get_or_create()
-    lessons.lesson_4_send_payment(session, memo=memo)
+    lessons.lesson_4_send_payment(session, memo=memo, dry_run=dry_run)
 
 
 # ---------------------------------------------------------------------------
@@ -97,10 +109,13 @@ def send(
 @app.command()
 def verify(
     tx: Annotated[str, typer.Option("--tx", help="Transaction hash to verify")] = "",
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="Simulate the lookup")
+    ] = False,
 ) -> None:
     """Verify a transaction on the XRPL Testnet."""
     session = Session.get_or_create()
-    lessons.lesson_5_verify_tx(session, txid=tx)
+    lessons.lesson_5_verify_tx(session, txid=tx, dry_run=dry_run)
 
 
 # ---------------------------------------------------------------------------
@@ -110,7 +125,7 @@ def verify(
 
 @app.command()
 def certificate() -> None:
-    """Generate a completion certificate."""
+    """Generate a completion certificate and proof pack."""
     session = Session.get_or_create()
 
     if not session.progress:
@@ -118,3 +133,36 @@ def certificate() -> None:
         raise typer.Exit(1)
 
     lessons.lesson_6_certificate(session)
+
+
+# ---------------------------------------------------------------------------
+# Reset command
+# ---------------------------------------------------------------------------
+
+
+@app.command()
+def reset() -> None:
+    """Wipe all XRPL Camp state (.xrpl-camp/ directory).
+
+    Requires you to type RESET to confirm. This cannot be undone.
+    """
+    if not STATE_DIR.exists():
+        console.print("  [dim]Nothing to reset. No .xrpl-camp/ directory found.[/dim]")
+        return
+
+    # Show what will be deleted
+    console.print("\n  [bold yellow]This will delete:[/bold yellow]")
+    for item in sorted(STATE_DIR.iterdir()):
+        console.print(f"    {item.name}")
+    console.print()
+
+    confirmation = console.input(
+        "  Type [bold red]RESET[/bold red] to confirm (anything else cancels): ",
+    )
+    if confirmation.strip() != "RESET":
+        console.print("  [dim]Cancelled. Nothing was deleted.[/dim]")
+        return
+
+    shutil.rmtree(STATE_DIR)
+    console.print("  [green]Reset complete. All XRPL Camp state has been deleted.[/green]")
+    console.print("  [dim]Run 'xrpl-camp start' to begin again.[/dim]")

@@ -155,3 +155,85 @@ def test_explorer_url():
     from xrpl_camp.transport import EXPLORER_URL
     assert "testnet" in EXPLORER_URL
     assert EXPLORER_URL.endswith("/")
+
+
+# ---------------------------------------------------------------------------
+# get_rpc_url + env var override
+# ---------------------------------------------------------------------------
+
+
+def test_get_rpc_url_default():
+    from xrpl_camp.transport import TESTNET_URL, get_rpc_url
+    assert get_rpc_url() == TESTNET_URL
+
+
+def test_get_rpc_url_env_override(monkeypatch):
+    from xrpl_camp.transport import get_rpc_url
+    monkeypatch.setenv("XRPL_CAMP_RPC_URL", "https://custom.endpoint:51234/")
+    assert get_rpc_url() == "https://custom.endpoint:51234/"
+
+
+def test_get_rpc_url_env_empty_falls_back(monkeypatch):
+    from xrpl_camp.transport import TESTNET_URL, get_rpc_url
+    monkeypatch.setenv("XRPL_CAMP_RPC_URL", "")
+    assert get_rpc_url() == TESTNET_URL
+
+
+# ---------------------------------------------------------------------------
+# Dry-run mode
+# ---------------------------------------------------------------------------
+
+
+def test_fund_wallet_dry_run():
+    from xrpl_camp.transport import fund_wallet
+    from xrpl_camp.wallet import create_wallet
+
+    address, seed = create_wallet()
+    result = fund_wallet(seed, dry_run=True)
+    assert result == address  # Returns the wallet's own address
+
+
+def test_send_memo_payment_dry_run():
+    from xrpl_camp.transport import DRY_RUN_TXID, send_memo_payment
+    from xrpl_camp.wallet import create_wallet
+
+    _, seed = create_wallet()
+    txid = send_memo_payment(seed, "test memo", dry_run=True)
+    assert txid == DRY_RUN_TXID
+
+
+def test_send_memo_payment_dry_run_memo_accepted():
+    """Dry-run accepts any memo without network call."""
+    from xrpl_camp.transport import send_memo_payment
+    from xrpl_camp.wallet import create_wallet
+
+    _, seed = create_wallet()
+    txid = send_memo_payment(seed, "any memo works here", dry_run=True)
+    assert isinstance(txid, str)
+    assert len(txid) > 0
+
+
+def test_lookup_tx_dry_run():
+    from xrpl_camp.transport import lookup_tx
+
+    result = lookup_tx("SOME_TXID", dry_run=True)
+    assert result["hash"] == "SOME_TXID"
+    assert result["result"] == "tesSUCCESS"
+    assert "dry run" in result["memo"].lower()
+
+
+def test_lookup_tx_dry_run_has_expected_keys():
+    from xrpl_camp.transport import lookup_tx
+
+    result = lookup_tx("SOME_TXID", dry_run=True)
+    expected_keys = {
+        "hash", "amount", "destination", "account", "fee",
+        "memo", "ledger_index", "result", "date",
+    }
+    assert set(result.keys()) == expected_keys
+
+
+def test_dry_run_txid_constant():
+    from xrpl_camp.transport import DRY_RUN_TXID
+    assert isinstance(DRY_RUN_TXID, str)
+    assert "DRY_RUN" in DRY_RUN_TXID

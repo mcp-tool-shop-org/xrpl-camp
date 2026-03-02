@@ -10,7 +10,9 @@ from rich.table import Table
 
 from xrpl_camp import transport, wallet
 from xrpl_camp.certificate import generate_certificate, save_certificate
+from xrpl_camp.errors import faucet_error, lookup_error, send_error
 from xrpl_camp.models import Session
+from xrpl_camp.proof_pack import generate_proof_pack, save_proof_pack
 
 console = Console()
 
@@ -32,6 +34,16 @@ def _pause() -> None:
     """Pause between lessons in guided mode."""
     console.input("\n  [dim]Press Enter to continue...[/dim]")
     console.print()
+
+
+def _dry_run_banner() -> None:
+    """Print a dry-run indicator."""
+    console.print("  [bold yellow][DRY RUN][/bold yellow] No network calls will be made.\n")
+
+
+def _show_endpoint() -> None:
+    """Print which RPC endpoint will be used."""
+    console.print(f"  [dim]Endpoint: {transport.get_rpc_url()}[/dim]")
 
 
 def lesson_1_mental_model(session: Session) -> None:
@@ -108,7 +120,7 @@ def lesson_2_create_wallet(session: Session) -> None:
     )
 
 
-def lesson_3_fund_wallet(session: Session) -> None:
+def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> None:
     """Lesson 3: Fund the wallet via Testnet faucet."""
     w = wallet.load_wallet()
     if not w:
@@ -125,22 +137,30 @@ def lesson_3_fund_wallet(session: Session) -> None:
         border_style="blue",
     ))
 
+    if dry_run:
+        _dry_run_banner()
+    _show_endpoint()
+
     console.print("\n  Requesting funds from Testnet faucet...", end="")
     try:
-        transport.fund_wallet(w["seed"])
+        transport.fund_wallet(w["seed"], dry_run=dry_run)
         console.print(" [green]funded.[/green]")
     except Exception as e:
-        console.print(f" [red]failed: {e}[/red]")
-        console.print("  [dim]The faucet may be temporarily unavailable. Try again.[/dim]")
+        err = faucet_error(str(e))
+        console.print(f" [red]{err.message}[/red]")
+        console.print(f"  [dim]{err.hint}[/dim]")
         return
 
-    balance = transport.get_balance(w["address"])
-    xrp = balance / 1_000_000
+    if dry_run:
+        console.print("\n  [bold]Balance:[/bold] (skipped — dry run)")
+    else:
+        balance = transport.get_balance(w["address"])
+        xrp = balance / 1_000_000
+        console.print(f"\n  [bold]Balance:[/bold] {xrp:.2f} XRP ({balance:,} drops)")
 
-    console.print(f"\n  [bold]Balance:[/bold] {xrp:.2f} XRP ({balance:,} drops)")
-
-    session.mark_complete(3, LESSON_NAMES[3])
-    session.save()
+    if not dry_run:
+        session.mark_complete(3, LESSON_NAMES[3])
+        session.save()
 
     console.print(
         "\n  [green]What you just proved:[/green] "
@@ -148,7 +168,9 @@ def lesson_3_fund_wallet(session: Session) -> None:
     )
 
 
-def lesson_4_send_payment(session: Session, memo: str = "") -> str:
+def lesson_4_send_payment(
+    session: Session, memo: str = "", *, dry_run: bool = False,
+) -> str:
     """Lesson 4: Send a self-payment with a memo. Returns txid."""
     w = wallet.load_wallet()
     if not w:
@@ -169,11 +191,17 @@ def lesson_4_send_payment(session: Session, memo: str = "") -> str:
         border_style="blue",
     ))
 
+    if dry_run:
+        _dry_run_banner()
+    _show_endpoint()
+
     console.print("\n  Submitting transaction...", end="")
     try:
-        txid = transport.send_memo_payment(w["seed"], memo)
+        txid = transport.send_memo_payment(w["seed"], memo, dry_run=dry_run)
     except Exception as e:
-        console.print(f" [red]failed: {e}[/red]")
+        err = send_error(str(e))
+        console.print(f" [red]{err.message}[/red]")
+        console.print(f"  [dim]{err.hint}[/dim]")
         return ""
     console.print(" [green]confirmed.[/green]")
 
@@ -181,8 +209,9 @@ def lesson_4_send_payment(session: Session, memo: str = "") -> str:
     console.print(f"\n  [bold]Transaction:[/bold] {txid}")
     console.print(f"  [dim]Explorer: {explorer}[/dim]")
 
-    session.mark_complete(4, LESSON_NAMES[4], txid=txid)
-    session.save()
+    if not dry_run:
+        session.mark_complete(4, LESSON_NAMES[4], txid=txid)
+        session.save()
 
     console.print(
         "\n  [green]What you just proved:[/green] "
@@ -191,7 +220,9 @@ def lesson_4_send_payment(session: Session, memo: str = "") -> str:
     return txid
 
 
-def lesson_5_verify_tx(session: Session, txid: str = "") -> None:
+def lesson_5_verify_tx(
+    session: Session, txid: str = "", *, dry_run: bool = False,
+) -> None:
     """Lesson 5: Verify a transaction."""
     if not txid:
         txid = session.txids.get("lesson_4", "")
@@ -208,11 +239,17 @@ def lesson_5_verify_tx(session: Session, txid: str = "") -> None:
         border_style="blue",
     ))
 
+    if dry_run:
+        _dry_run_banner()
+    _show_endpoint()
+
     console.print("\n  Looking up transaction...", end="")
     try:
-        tx = transport.lookup_tx(txid)
+        tx = transport.lookup_tx(txid, dry_run=dry_run)
     except Exception as e:
-        console.print(f" [red]failed: {e}[/red]")
+        err = lookup_error(str(e))
+        console.print(f" [red]{err.message}[/red]")
+        console.print(f"  [dim]{err.hint}[/dim]")
         return
     console.print(" [green]found.[/green]")
 
@@ -232,8 +269,9 @@ def lesson_5_verify_tx(session: Session, txid: str = "") -> None:
     console.print()
     console.print(table)
 
-    session.mark_complete(5, LESSON_NAMES[5])
-    session.save()
+    if not dry_run:
+        session.mark_complete(5, LESSON_NAMES[5])
+        session.save()
 
     console.print(
         "\n  [green]What you just proved:[/green] "
@@ -242,13 +280,14 @@ def lesson_5_verify_tx(session: Session, txid: str = "") -> None:
 
 
 def lesson_6_certificate(session: Session) -> None:
-    """Lesson 6: Generate a completion certificate."""
+    """Lesson 6: Generate a completion certificate and proof pack."""
     console.print(Panel(
         "[bold]Lesson 6: Your Certificate[/bold]\n\n"
         "Your certificate records what you did — which lessons you\n"
         "completed, which transactions you sent, and your public\n"
         "address. No seed. No private data. Safe to share.\n\n"
-        "It's a portable, verifiable record of learning.",
+        "The proof pack adds a SHA-256 hash so anyone can verify\n"
+        "the file hasn't been edited.",
         title="XRPL Camp",
         border_style="blue",
     ))
@@ -257,11 +296,16 @@ def lesson_6_certificate(session: Session) -> None:
     session.save()
 
     cert = generate_certificate(session)
-    filepath = save_certificate(cert)
+    cert_path = save_certificate(cert)
 
-    console.print(f"\n  [bold]Certificate saved:[/bold] {filepath}")
+    pack = generate_proof_pack(session)
+    pack_path = save_proof_pack(pack)
+
+    console.print(f"\n  [bold]Certificate saved:[/bold] {cert_path}")
+    console.print(f"  [bold]Proof pack saved:[/bold]  {pack_path}")
     console.print(f"  [dim]Address: {cert['address']}[/dim]")
     console.print(f"  [dim]Lessons: {len(cert['completed'])}[/dim]")
+    console.print(f"  [dim]SHA-256: {pack['sha256']}[/dim]")
 
     console.print(
         "\n  [green]What you just proved:[/green] "
@@ -274,7 +318,7 @@ def lesson_6_certificate(session: Session) -> None:
 # ---------------------------------------------------------------------------
 
 
-def run_guided_flow() -> None:
+def run_guided_flow(*, dry_run: bool = False) -> None:
     """Walk through all 6 lessons in sequence."""
     console.print(Panel(
         "[bold]Welcome to XRPL Camp[/bold]\n\n"
@@ -290,6 +334,9 @@ def run_guided_flow() -> None:
         border_style="green",
     ))
 
+    if dry_run:
+        _dry_run_banner()
+
     session = Session.get_or_create()
 
     _pause()
@@ -299,13 +346,17 @@ def run_guided_flow() -> None:
     lesson_2_create_wallet(session)
 
     _pause()
-    lesson_3_fund_wallet(session)
+    lesson_3_fund_wallet(session, dry_run=dry_run)
 
     _pause()
-    txid = lesson_4_send_payment(session)
+    txid = lesson_4_send_payment(session, dry_run=dry_run)
+
+    if dry_run and not txid:
+        # Dry-run send returns a placeholder — use it for verify
+        txid = transport.DRY_RUN_TXID
 
     _pause()
-    lesson_5_verify_tx(session, txid)
+    lesson_5_verify_tx(session, txid, dry_run=dry_run)
 
     _pause()
     lesson_6_certificate(session)
@@ -316,7 +367,7 @@ def run_guided_flow() -> None:
         "  - A funded Testnet wallet\n"
         "  - A confirmed payment on the ledger\n"
         "  - A verification report\n"
-        "  - A certificate you can share\n\n"
+        "  - A certificate and proof pack\n\n"
         "Next step: try Sovereignty.\n"
         "  [dim]pipx install sovereignty-game[/dim]\n"
         "  [dim]sov tutorial[/dim]",
