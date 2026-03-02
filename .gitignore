@@ -37,3 +37,11 @@ uv.lock
 
 # Ruff
 .ruff_cache/
+
+# Site (Astro landing page)
+site/.astro/
+site/dist/
+site/node_modules/
+
+# Polyglot translation cache
+.polyglot-cache.json
