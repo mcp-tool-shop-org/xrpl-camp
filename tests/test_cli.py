@@ -2,11 +2,18 @@
 
 from __future__ import annotations
 
+import re
+
 from typer.testing import CliRunner
 
 from xrpl_camp.cli import app
 
 runner = CliRunner()
+
+
+def _strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes from text."""
+    return re.sub(r"\x1b\[[0-9;]*m", "", text)
 
 
 # ---------------------------------------------------------------------------
@@ -19,7 +26,7 @@ def test_reset_no_state_dir(tmp_path, monkeypatch):
     monkeypatch.setattr("xrpl_camp.cli.STATE_DIR", tmp_path / "nonexistent")
     result = runner.invoke(app, ["reset"])
     assert result.exit_code == 0
-    assert "nothing to reset" in result.output.lower()
+    assert "nothing to reset" in _strip_ansi(result.output).lower()
 
 
 def test_reset_cancelled(tmp_path, monkeypatch):
@@ -31,7 +38,7 @@ def test_reset_cancelled(tmp_path, monkeypatch):
 
     result = runner.invoke(app, ["reset"], input="no\n")
     assert result.exit_code == 0
-    assert "cancelled" in result.output.lower()
+    assert "cancelled" in _strip_ansi(result.output).lower()
     assert state.exists()  # Not deleted
 
 
@@ -45,7 +52,7 @@ def test_reset_confirmed(tmp_path, monkeypatch):
 
     result = runner.invoke(app, ["reset"], input="RESET\n")
     assert result.exit_code == 0
-    assert "reset complete" in result.output.lower()
+    assert "reset complete" in _strip_ansi(result.output).lower()
     assert not state.exists()  # Deleted
 
 
@@ -58,8 +65,9 @@ def test_reset_shows_files_before_asking(tmp_path, monkeypatch):
     monkeypatch.setattr("xrpl_camp.cli.STATE_DIR", state)
 
     result = runner.invoke(app, ["reset"], input="no\n")
-    assert "session.json" in result.output
-    assert "wallet.json" in result.output
+    output = _strip_ansi(result.output)
+    assert "session.json" in output
+    assert "wallet.json" in output
 
 
 # ---------------------------------------------------------------------------
@@ -67,27 +75,30 @@ def test_reset_shows_files_before_asking(tmp_path, monkeypatch):
 # ---------------------------------------------------------------------------
 
 
-def test_start_dry_run_flag_accepted(tmp_path, monkeypatch):
+def test_start_dry_run_flag_accepted():
     """--dry-run flag is accepted by start command."""
-    # We can't run the full guided flow (needs stdin for _pause()),
-    # but we can verify the flag is parsed without error by checking --help
     result = runner.invoke(app, ["start", "--help"])
-    assert "--dry-run" in result.output
+    output = _strip_ansi(result.output)
+    assert "--dry-run" in output
+    assert "Simulate" in output
 
 
 def test_fund_dry_run_flag_accepted():
     """--dry-run flag is accepted by fund command."""
     result = runner.invoke(app, ["fund", "--help"])
-    assert "--dry-run" in result.output
+    output = _strip_ansi(result.output)
+    assert "--dry-run" in output
 
 
 def test_send_dry_run_flag_accepted():
     """--dry-run flag is accepted by send command."""
     result = runner.invoke(app, ["send", "--help"])
-    assert "--dry-run" in result.output
+    output = _strip_ansi(result.output)
+    assert "--dry-run" in output
 
 
 def test_verify_dry_run_flag_accepted():
     """--dry-run flag is accepted by verify command."""
     result = runner.invoke(app, ["verify", "--help"])
-    assert "--dry-run" in result.output
+    output = _strip_ansi(result.output)
+    assert "--dry-run" in output
