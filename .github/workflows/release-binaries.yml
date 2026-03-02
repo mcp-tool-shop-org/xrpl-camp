@@ -48,6 +48,7 @@ jobs:
           VERSION=${GITHUB_REF_NAME#v}
           uv run pyinstaller --onefile --name "xrpl-camp" --console \
             --collect-submodules rich \
+            --collect-data xrpl \
             xrpl_camp/__main__.py
           OUTNAME="xrpl-camp-${VERSION}-${{ matrix.target }}${{ matrix.ext }}"
           mv "dist/xrpl-camp${{ matrix.ext }}" "dist/${OUTNAME}"

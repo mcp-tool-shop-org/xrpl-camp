@@ -9,6 +9,7 @@ binaries for distribution via `npx @mcptoolshop/xrpl-camp`.
 uv venv && uv pip install . "pyinstaller>=6.9.0"
 uv run pyinstaller --onefile --name xrpl-camp --console \
   --collect-submodules rich \
+  --collect-data xrpl \
   xrpl_camp/__main__.py
 ```
 
@@ -34,6 +35,13 @@ PyInstaller's static analysis cannot detect dynamic imports, so the
 `rich/_unicode_data/unicode17-0-0.py` (and friends) are excluded from the
 bundle. The `--collect-submodules rich` flag forces PyInstaller to include
 all Rich submodules.
+
+## Why `--collect-data xrpl`?
+
+The `xrpl-py` library ships JSON data files (e.g. `definitions.json` for the
+binary codec). PyInstaller doesn't include data files by default, so without
+`--collect-data xrpl` the binary will crash with `FileNotFoundError` when
+accessing XRPL binary codec functions or the `self-check` command.
 
 ## Why `pyinstaller>=6.9.0`?
 

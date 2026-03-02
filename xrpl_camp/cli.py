@@ -218,14 +218,14 @@ def self_check() -> None:
     else:
         checks.append(("info", "State directory", "Not yet created (run: xrpl-camp start)"))
 
-    # 6. Dependencies
+    # 6. Dependencies (catch all exceptions — PyInstaller may partially bundle)
     for mod_name in ("xrpl", "typer", "rich"):
         try:
             mod = __import__(mod_name)
             ver = getattr(mod, "__version__", getattr(mod, "VERSION", "?"))
             checks.append(("ok", mod_name, str(ver)))
-        except ImportError:
-            checks.append(("fail", mod_name, "NOT INSTALLED"))
+        except Exception as exc:
+            checks.append(("fail", mod_name, type(exc).__name__ + ": " + str(exc)[:80]))
 
     # Print
     icons = {"ok": "[green]OK[/green]", "fail": "[red]FAIL[/red]", "info": "[dim]--[/dim]"}

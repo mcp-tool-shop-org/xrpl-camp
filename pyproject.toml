@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "xrpl-camp"
-version = "1.0.4"
+version = "1.0.5"
 description = "Learn the XRPL diary — wallet, payment, verification, certificate in one sitting."
 readme = "README.md"
 license = "MIT"
