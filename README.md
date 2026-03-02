@@ -18,14 +18,16 @@ XRPL Camp walks you through 6 lessons — from "what is a ledger?" to a funded w
 
 ## Install
 
+**No Python required** (downloads a prebuilt binary):
+
 ```bash
-pipx install xrpl-camp
+npx @mcptoolshop/xrpl-camp start
 ```
 
-Or with pip:
+Or with Python:
 
 ```bash
-pip install xrpl-camp
+pipx install xrpl-camp
 ```
 
 ## Quick Start
