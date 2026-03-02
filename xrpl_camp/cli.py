@@ -175,14 +175,13 @@ def reset() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Self-check command
+# Diagnostics (self-check + support-bundle)
 # ---------------------------------------------------------------------------
 
 
-@app.command("self-check")
-def self_check() -> None:
-    """Diagnose your environment. Paste output into a bug report."""
-    checks: list[tuple[str, str, str]] = []  # (status, label, detail)
+def _collect_checks() -> list[tuple[str, str, str]]:
+    """Collect diagnostic checks. Returns list of (status, label, detail)."""
+    checks: list[tuple[str, str, str]] = []
 
     # 1. App version
     checks.append(("ok", "Version", xrpl_camp.__version__))
@@ -227,10 +226,82 @@ def self_check() -> None:
         except Exception as exc:
             checks.append(("fail", mod_name, type(exc).__name__ + ": " + str(exc)[:80]))
 
-    # Print
+    return checks
+
+
+def _print_checks(checks: list[tuple[str, str, str]]) -> None:
+    """Pretty-print diagnostic checks to console."""
     icons = {"ok": "[green]OK[/green]", "fail": "[red]FAIL[/red]", "info": "[dim]--[/dim]"}
     console.print()
     for status, label, detail in checks:
         icon = icons.get(status, "[dim]--[/dim]")
         console.print(f"  {icon}  [bold]{label}[/bold]  {detail}")
     console.print()
+
+
+def _checks_to_text(checks: list[tuple[str, str, str]]) -> str:
+    """Render checks as plain text for support bundles."""
+    lines = []
+    icons = {"ok": "OK", "fail": "FAIL", "info": "--"}
+    for status, label, detail in checks:
+        icon = icons.get(status, "--")
+        lines.append(f"  {icon}  {label}  {detail}")
+    return "\n".join(lines)
+
+
+@app.command("self-check")
+def self_check() -> None:
+    """Diagnose your environment. Paste output into a bug report."""
+    _print_checks(_collect_checks())
+
+
+@app.command("support-bundle")
+def support_bundle() -> None:
+    """Write a diagnostic zip for bug reports. Attach it to your issue."""
+    import datetime
+    import json
+    import zipfile
+
+    checks = _collect_checks()
+    _print_checks(checks)
+
+    ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    bundle_name = f"xrpl-camp-support-{ts}.zip"
+    bundle_path = Path.cwd() / bundle_name
+
+    with zipfile.ZipFile(bundle_path, "w", zipfile.ZIP_DEFLATED) as zf:
+        # 1. Self-check output
+        zf.writestr("self-check.txt", _checks_to_text(checks))
+
+        # 2. Sanitized config (session state, no secrets)
+        if STATE_DIR.exists():
+            session_file = STATE_DIR / "session.json"
+            if session_file.exists():
+                try:
+                    data = json.loads(session_file.read_text(encoding="utf-8"))
+                    # Strip wallet secrets if present
+                    for key in ("seed", "secret", "private_key"):
+                        data.pop(key, None)
+                    zf.writestr("session.json", json.dumps(data, indent=2))
+                except Exception:
+                    zf.writestr("session.json", "(could not read)")
+
+            # 3. State file listing (names only, no content)
+            listing = "\n".join(f.name for f in sorted(STATE_DIR.iterdir()))
+            zf.writestr("state-listing.txt", listing)
+
+        # 4. Environment summary
+        env_info = {
+            "tool": "xrpl-camp",
+            "version": xrpl_camp.__version__,
+            "platform": platform.platform(),
+            "arch": platform.machine(),
+            "python": sys.version,
+            "cwd": str(Path.cwd()),
+            "state_dir": str(STATE_DIR),
+            "timestamp": ts,
+        }
+        zf.writestr("environment.json", json.dumps(env_info, indent=2))
+
+    console.print(f"  [green]Bundle written:[/green] {bundle_path}")
+    console.print("  [dim]Attach this file to your GitHub issue.[/dim]")
