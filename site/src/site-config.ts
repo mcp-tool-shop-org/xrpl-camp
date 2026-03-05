@@ -15,7 +15,7 @@ export const config: SiteConfig = {
     headlineAccent: 'learn the ledger in one sitting.',
     description: 'Walk through 6 lessons — from "what is a ledger?" to a funded wallet, a confirmed payment, and a portable certificate. No accounts. No real money. About 10 minutes.',
     primaryCta: { href: '#usage', label: 'Get started' },
-    secondaryCta: { href: '#features', label: 'Learn more' },
+    secondaryCta: { href: 'handbook/', label: 'Read the Handbook' },
     previews: [
       { label: 'Install', code: 'pipx install xrpl-camp' },
       { label: 'Start', code: 'xrpl-camp start' },
