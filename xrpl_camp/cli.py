@@ -15,6 +15,7 @@ from rich.table import Table
 
 import xrpl_camp
 from xrpl_camp import lessons, wallet
+from xrpl_camp.lessons import LESSON_NAMES, _format_duration
 from xrpl_camp.models import STATE_DIR, Session
 
 app = typer.Typer(
@@ -33,6 +34,54 @@ def start(
 ) -> None:
     """Guided flow through all 6 lessons."""
     lessons.run_guided_flow(dry_run=dry_run)
+
+
+# ---------------------------------------------------------------------------
+# Status command
+# ---------------------------------------------------------------------------
+
+
+@app.command()
+def status() -> None:
+    """Show your training progress."""
+    session = Session.load()
+    if session is None or not session.progress:
+        console.print("\n  [dim]No training started yet. Run: xrpl-camp start[/dim]\n")
+        return
+
+    console.print()
+    for num in range(1, 7):
+        name = LESSON_NAMES[num]
+        prog = session.get_progress(num)
+        if prog:
+            # Completed
+            duration = ""
+            if prog.duration_seconds > 0:
+                duration = f"  [dim]({_format_duration(prog.duration_seconds)})[/dim]"
+            txid = ""
+            if prog.txid:
+                txid = f"\n       [dim]tx: {prog.txid[:16]}…[/dim]"
+            console.print(f"  [green]✓[/green] [bold]{name}[/bold]{duration}{txid}")
+        else:
+            # Next up or pending
+            is_next = all(
+                session.is_complete(i) for i in range(1, num)
+            )
+            if is_next:
+                console.print(f"  [cyan]▸[/cyan] {name}  [cyan]← next[/cyan]")
+            else:
+                console.print(f"  [dim]◌ {name}[/dim]")
+
+    # Summary line
+    done = len(session.completed_lessons)
+    total = session.total_duration()
+    console.print()
+    if done == 6:
+        duration_str = f" in {_format_duration(total)}" if total > 0 else ""
+        console.print(f"  [bold green]All 6 lessons complete{duration_str}.[/bold green]")
+    else:
+        console.print(f"  [dim]{done}/6 lessons complete[/dim]")
+    console.print()
 
 
 # ---------------------------------------------------------------------------

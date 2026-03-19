@@ -5,6 +5,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-03-19
+
+### Added
+
+- Auto-resume: `start` skips completed lessons and picks up where you left off
+- Interactive memo prompt: guided flow asks what you want to write on the ledger
+- Lesson timing: each lesson tracks start time and duration
+- `status` command: rich visual checklist with completion times and next-up marker
+- Total training duration shown in certificate, proof pack, and completion banner
+- `Session.total_duration()` and `Session.get_progress()` helpers
+- 19 new tests covering timing, status, auto-resume, and backward compat
+
+### Changed
+
+- Certificate includes `duration_seconds` when timing data is available
+- Guided flow shows "Welcome back" when resuming, early-exits when all 6 done
+- Bumped to v1.1.0 (new features, fully backward-compatible session format)
+
 ## [1.0.0] - 2026-03-02
 
 ### Added

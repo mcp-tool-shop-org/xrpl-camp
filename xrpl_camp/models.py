@@ -20,6 +20,8 @@ class LessonProgress:
     name: str
     completed_at: str
     txid: str = ""
+    started_at: str = ""
+    duration_seconds: float = 0.0
 
 
 @dataclass
@@ -32,7 +34,14 @@ class Session:
     txids: dict[str, str] = field(default_factory=dict)
     progress: list[LessonProgress] = field(default_factory=list)
 
-    def mark_complete(self, lesson: int, name: str, txid: str = "") -> None:
+    def mark_complete(
+        self,
+        lesson: int,
+        name: str,
+        txid: str = "",
+        started_at: str = "",
+        duration_seconds: float = 0.0,
+    ) -> None:
         """Mark a lesson as completed."""
         if lesson not in self.completed_lessons:
             self.completed_lessons.append(lesson)
@@ -41,6 +50,8 @@ class Session:
                 name=name,
                 completed_at=datetime.now(UTC).isoformat(),
                 txid=txid,
+                started_at=started_at,
+                duration_seconds=duration_seconds,
             ))
         if txid:
             self.txids[f"lesson_{lesson}"] = txid
@@ -48,6 +59,17 @@ class Session:
     def is_complete(self, lesson: int) -> bool:
         """Check if a lesson has been completed."""
         return lesson in self.completed_lessons
+
+    def total_duration(self) -> float:
+        """Total training time in seconds across all completed lessons."""
+        return sum(p.duration_seconds for p in self.progress)
+
+    def get_progress(self, lesson: int) -> LessonProgress | None:
+        """Get progress record for a specific lesson."""
+        for p in self.progress:
+            if p.lesson == lesson:
+                return p
+        return None
 
     def save(self) -> None:
         """Persist session to disk."""
@@ -63,6 +85,8 @@ class Session:
                     "name": p.name,
                     "completed_at": p.completed_at,
                     "txid": p.txid,
+                    "started_at": p.started_at,
+                    "duration_seconds": p.duration_seconds,
                 }
                 for p in self.progress
             ],
@@ -89,6 +113,8 @@ class Session:
                 name=p["name"],
                 completed_at=p["completed_at"],
                 txid=p.get("txid", ""),
+                started_at=p.get("started_at", ""),
+                duration_seconds=p.get("duration_seconds", 0.0),
             ))
         return session
 

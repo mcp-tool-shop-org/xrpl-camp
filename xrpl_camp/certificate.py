@@ -24,13 +24,17 @@ def generate_certificate(session: Session) -> dict:
             entry["txid"] = p.txid
         completed.append(entry)
 
-    return {
+    total = session.total_duration()
+    cert: dict = {
         "schema": "xrpl-camp-certificate-v1",
         "network": "testnet",
         "address": session.wallet_address,
         "completed": completed,
         "issued_at": datetime.now(UTC).isoformat(),
     }
+    if total > 0:
+        cert["duration_seconds"] = round(total, 1)
+    return cert
 
 
 def save_certificate(cert: dict, path: str = CERTIFICATE_FILE) -> Path:

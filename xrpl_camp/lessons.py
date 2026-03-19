@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from datetime import UTC, datetime
 
 from rich.console import Console
 from rich.panel import Panel
@@ -15,6 +16,16 @@ from xrpl_camp.models import Session
 from xrpl_camp.proof_pack import generate_proof_pack, save_proof_pack
 
 console = Console()
+
+
+def _start_timer() -> tuple[str, float]:
+    """Start a lesson timer. Returns (iso_timestamp, monotonic_time)."""
+    return datetime.now(UTC).isoformat(), time.monotonic()
+
+
+def _elapsed(start_mono: float) -> float:
+    """Seconds elapsed since start_mono."""
+    return round(time.monotonic() - start_mono, 1)
 
 # ---------------------------------------------------------------------------
 # Lesson definitions
@@ -30,10 +41,26 @@ LESSON_NAMES = {
 }
 
 
+def _format_duration(seconds: float) -> str:
+    """Human-friendly duration string."""
+    if seconds < 60:
+        return f"{int(seconds)}s"
+    minutes = int(seconds // 60)
+    secs = int(seconds % 60)
+    if secs == 0:
+        return f"{minutes}m"
+    return f"{minutes}m {secs}s"
+
+
 def _pause() -> None:
     """Pause between lessons in guided mode."""
     console.input("\n  [dim]Press Enter to continue...[/dim]")
     console.print()
+
+
+def _skip_banner(lesson: int, name: str) -> None:
+    """Show a skip message for already-completed lessons."""
+    console.print(f"  [dim]✓ Lesson {lesson}: {name} — already completed[/dim]")
 
 
 def _dry_run_banner() -> None:
@@ -48,6 +75,8 @@ def _show_endpoint() -> None:
 
 def lesson_1_mental_model(session: Session) -> None:
     """Lesson 1: Explain the XRPL mental model."""
+    ts, t0 = _start_timer()
+
     console.print(Panel(
         "[bold]Lesson 1: The Mental Model[/bold]\n\n"
         "The XRP Ledger (XRPL) is a shared notebook.\n\n"
@@ -65,7 +94,7 @@ def lesson_1_mental_model(session: Session) -> None:
         border_style="blue",
     ))
 
-    session.mark_complete(1, LESSON_NAMES[1])
+    session.mark_complete(1, LESSON_NAMES[1], started_at=ts, duration_seconds=_elapsed(t0))
     session.save()
 
     console.print(
@@ -76,6 +105,8 @@ def lesson_1_mental_model(session: Session) -> None:
 
 def lesson_2_create_wallet(session: Session) -> None:
     """Lesson 2: Create a Testnet wallet."""
+    ts, t0 = _start_timer()
+
     if wallet.wallet_exists():
         w = wallet.load_wallet()
         if w:
@@ -83,7 +114,7 @@ def lesson_2_create_wallet(session: Session) -> None:
                 f"  [dim]Wallet already exists: {w['address']}[/dim]",
             )
             session.wallet_address = w["address"]
-            session.mark_complete(2, LESSON_NAMES[2])
+            session.mark_complete(2, LESSON_NAMES[2], started_at=ts, duration_seconds=_elapsed(t0))
             session.save()
             return
 
@@ -111,7 +142,7 @@ def lesson_2_create_wallet(session: Session) -> None:
     )
 
     session.wallet_address = address
-    session.mark_complete(2, LESSON_NAMES[2])
+    session.mark_complete(2, LESSON_NAMES[2], started_at=ts, duration_seconds=_elapsed(t0))
     session.save()
 
     console.print(
@@ -122,6 +153,8 @@ def lesson_2_create_wallet(session: Session) -> None:
 
 def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> None:
     """Lesson 3: Fund the wallet via Testnet faucet."""
+    ts, t0 = _start_timer()
+
     w = wallet.load_wallet()
     if not w:
         console.print("[red]No wallet found. Run lesson 2 first.[/red]")
@@ -159,7 +192,7 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> None:
         console.print(f"\n  [bold]Balance:[/bold] {xrp:.2f} XRP ({balance:,} drops)")
 
     if not dry_run:
-        session.mark_complete(3, LESSON_NAMES[3])
+        session.mark_complete(3, LESSON_NAMES[3], started_at=ts, duration_seconds=_elapsed(t0))
         session.save()
 
     console.print(
@@ -169,13 +202,38 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> None:
 
 
 def lesson_4_send_payment(
-    session: Session, memo: str = "", *, dry_run: bool = False,
+    session: Session,
+    memo: str = "",
+    *,
+    dry_run: bool = False,
+    interactive: bool = False,
 ) -> str:
     """Lesson 4: Send a self-payment with a memo. Returns txid."""
+    ts, t0 = _start_timer()
+
     w = wallet.load_wallet()
     if not w:
         console.print("[red]No wallet found. Run lesson 2 first.[/red]")
         return ""
+
+    # In guided mode, ask what the user wants to write on the ledger
+    if interactive and not memo:
+        console.print(Panel(
+            "[bold]Lesson 4: Send a Payment[/bold]\n\n"
+            "You're about to write something permanent on a public ledger.\n"
+            "The amount is just 1 drop (a fraction of a fraction of a penny).\n"
+            "What matters is the [cyan]memo[/cyan] — your message on the blockchain.\n\n"
+            "It can be anything: your name, a date, a thought, a joke.\n"
+            "Once submitted, anyone can read it and nobody can erase it.",
+            title="XRPL Camp",
+            border_style="blue",
+        ))
+        user_memo = console.input(
+            "\n  [bold]What do you want to write on the ledger?[/bold] ",
+        ).strip()
+        if user_memo:
+            memo = user_memo
+            console.print()
 
     if not memo:
         memo = f"XRPLCAMP|L4|{int(time.time())}"
@@ -210,7 +268,10 @@ def lesson_4_send_payment(
     console.print(f"  [dim]Explorer: {explorer}[/dim]")
 
     if not dry_run:
-        session.mark_complete(4, LESSON_NAMES[4], txid=txid)
+        session.mark_complete(
+            4, LESSON_NAMES[4], txid=txid,
+            started_at=ts, duration_seconds=_elapsed(t0),
+        )
         session.save()
 
     console.print(
@@ -224,6 +285,8 @@ def lesson_5_verify_tx(
     session: Session, txid: str = "", *, dry_run: bool = False,
 ) -> None:
     """Lesson 5: Verify a transaction."""
+    ts, t0 = _start_timer()
+
     if not txid:
         txid = session.txids.get("lesson_4", "")
     if not txid:
@@ -270,7 +333,7 @@ def lesson_5_verify_tx(
     console.print(table)
 
     if not dry_run:
-        session.mark_complete(5, LESSON_NAMES[5])
+        session.mark_complete(5, LESSON_NAMES[5], started_at=ts, duration_seconds=_elapsed(t0))
         session.save()
 
     console.print(
@@ -281,6 +344,8 @@ def lesson_5_verify_tx(
 
 def lesson_6_certificate(session: Session) -> None:
     """Lesson 6: Generate a completion certificate and proof pack."""
+    ts, t0 = _start_timer()
+
     console.print(Panel(
         "[bold]Lesson 6: Your Certificate[/bold]\n\n"
         "Your certificate records what you did — which lessons you\n"
@@ -292,7 +357,7 @@ def lesson_6_certificate(session: Session) -> None:
         border_style="blue",
     ))
 
-    session.mark_complete(6, LESSON_NAMES[6])
+    session.mark_complete(6, LESSON_NAMES[6], started_at=ts, duration_seconds=_elapsed(t0))
     session.save()
 
     cert = generate_certificate(session)
@@ -301,11 +366,15 @@ def lesson_6_certificate(session: Session) -> None:
     pack = generate_proof_pack(session)
     pack_path = save_proof_pack(pack)
 
+    total = session.total_duration()
+    duration_str = _format_duration(total) if total > 0 else "n/a"
+
     console.print(f"\n  [bold]Certificate saved:[/bold] {cert_path}")
     console.print(f"  [bold]Proof pack saved:[/bold]  {pack_path}")
-    console.print(f"  [dim]Address: {cert['address']}[/dim]")
-    console.print(f"  [dim]Lessons: {len(cert['completed'])}[/dim]")
-    console.print(f"  [dim]SHA-256: {pack['sha256']}[/dim]")
+    console.print(f"  [dim]Address:  {cert['address']}[/dim]")
+    console.print(f"  [dim]Lessons:  {len(cert['completed'])}[/dim]")
+    console.print(f"  [dim]Duration: {duration_str}[/dim]")
+    console.print(f"  [dim]SHA-256:  {pack['sha256']}[/dim]")
 
     console.print(
         "\n  [green]What you just proved:[/green] "
@@ -319,47 +388,94 @@ def lesson_6_certificate(session: Session) -> None:
 
 
 def run_guided_flow(*, dry_run: bool = False) -> None:
-    """Walk through all 6 lessons in sequence."""
-    console.print(Panel(
-        "[bold]Welcome to XRPL Camp[/bold]\n\n"
-        "In the next few minutes, you'll:\n"
-        "  1. Learn what the XRPL is\n"
-        "  2. Create a Testnet wallet\n"
-        "  3. Fund it with test XRP\n"
-        "  4. Send your first payment\n"
-        "  5. Verify it on the ledger\n"
-        "  6. Get a completion certificate\n\n"
-        "No real money. No accounts. Just you and the ledger.",
-        title="XRPL Camp",
-        border_style="green",
-    ))
+    """Walk through all 6 lessons in sequence, auto-skipping completed ones."""
+    session = Session.get_or_create()
+    skipped = sum(1 for i in range(1, 7) if session.is_complete(i))
+
+    if skipped > 0 and skipped < 6:
+        console.print(Panel(
+            "[bold]Welcome back to XRPL Camp[/bold]\n\n"
+            f"You've already completed {skipped} of 6 lessons.\n"
+            "Picking up where you left off.",
+            title="XRPL Camp",
+            border_style="green",
+        ))
+    elif skipped == 6:
+        console.print(Panel(
+            "[bold]Welcome back to XRPL Camp[/bold]\n\n"
+            "You've already completed all 6 lessons.\n"
+            "Run [bold]xrpl-camp status[/bold] to see your progress, or\n"
+            "[bold]xrpl-camp reset[/bold] to start fresh.",
+            title="XRPL Camp",
+            border_style="green",
+        ))
+        return
+    else:
+        console.print(Panel(
+            "[bold]Welcome to XRPL Camp[/bold]\n\n"
+            "In the next few minutes, you'll:\n"
+            "  1. Learn what the XRPL is\n"
+            "  2. Create a Testnet wallet\n"
+            "  3. Fund it with test XRP\n"
+            "  4. Send your first payment\n"
+            "  5. Verify it on the ledger\n"
+            "  6. Get a completion certificate\n\n"
+            "No real money. No accounts. Just you and the ledger.",
+            title="XRPL Camp",
+            border_style="green",
+        ))
 
     if dry_run:
         _dry_run_banner()
 
-    session = Session.get_or_create()
+    # Lesson 1
+    if session.is_complete(1):
+        _skip_banner(1, LESSON_NAMES[1])
+    else:
+        _pause()
+        lesson_1_mental_model(session)
 
-    _pause()
-    lesson_1_mental_model(session)
+    # Lesson 2
+    if session.is_complete(2):
+        _skip_banner(2, LESSON_NAMES[2])
+    else:
+        _pause()
+        lesson_2_create_wallet(session)
 
-    _pause()
-    lesson_2_create_wallet(session)
+    # Lesson 3
+    if session.is_complete(3):
+        _skip_banner(3, LESSON_NAMES[3])
+    else:
+        _pause()
+        lesson_3_fund_wallet(session, dry_run=dry_run)
 
-    _pause()
-    lesson_3_fund_wallet(session, dry_run=dry_run)
-
-    _pause()
-    txid = lesson_4_send_payment(session, dry_run=dry_run)
+    # Lesson 4 — interactive memo in guided mode
+    if session.is_complete(4):
+        _skip_banner(4, LESSON_NAMES[4])
+        txid = session.txids.get("lesson_4", "")
+    else:
+        _pause()
+        txid = lesson_4_send_payment(session, dry_run=dry_run, interactive=True)
 
     if dry_run and not txid:
-        # Dry-run send returns a placeholder — use it for verify
         txid = transport.DRY_RUN_TXID
 
-    _pause()
-    lesson_5_verify_tx(session, txid, dry_run=dry_run)
+    # Lesson 5
+    if session.is_complete(5):
+        _skip_banner(5, LESSON_NAMES[5])
+    else:
+        _pause()
+        lesson_5_verify_tx(session, txid, dry_run=dry_run)
 
-    _pause()
-    lesson_6_certificate(session)
+    # Lesson 6
+    if session.is_complete(6):
+        _skip_banner(6, LESSON_NAMES[6])
+    else:
+        _pause()
+        lesson_6_certificate(session)
+
+    total = session.total_duration()
+    duration_line = f"  - Completed in {_format_duration(total)}\n" if total > 0 else ""
 
     console.print(Panel(
         "[bold green]XRPL Camp Complete[/bold green]\n\n"
@@ -367,7 +483,8 @@ def run_guided_flow(*, dry_run: bool = False) -> None:
         "  - A funded Testnet wallet\n"
         "  - A confirmed payment on the ledger\n"
         "  - A verification report\n"
-        "  - A certificate and proof pack\n\n"
+        "  - A certificate and proof pack\n"
+        f"{duration_line}\n"
         "Next step: try Sovereignty.\n"
         "  [dim]pipx install sovereignty-game[/dim]\n"
         "  [dim]sov tutorial[/dim]",
