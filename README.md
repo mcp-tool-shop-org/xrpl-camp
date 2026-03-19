@@ -36,7 +36,7 @@ pipx install xrpl-camp
 xrpl-camp start
 ```
 
-This runs the guided flow through all 6 lessons:
+This runs the guided flow through all 6 lessons. If you restart, it picks up where you left off. Lesson 4 asks what you want to write on the blockchain — that's the moment people remember.
 
 1. **Mental Model** — What the XRPL is (accounts, balances, transactions, memos)
 2. **Create Wallet** — Generate a Testnet keypair
@@ -49,8 +49,9 @@ This runs the guided flow through all 6 lessons:
 
 | Command | What it does |
 |---------|-------------|
-| `xrpl-camp start` | Guided flow through all 6 lessons |
+| `xrpl-camp start` | Guided flow through all 6 lessons (auto-resumes if you restart) |
 | `xrpl-camp start --dry-run` | Walk the full flow without network calls |
+| `xrpl-camp status` | Show your progress — visual checklist with timing |
 | `xrpl-camp wallet create` | Create a Testnet wallet |
 | `xrpl-camp wallet show` | Display your wallet address |
 | `xrpl-camp fund` | Fund your wallet via the Testnet faucet |
@@ -68,6 +69,7 @@ This runs the guided flow through all 6 lessons:
 - A verification report showing exactly what the ledger recorded
 - A certificate (`xrpl_camp_certificate.json`) — safe to share, no private keys
 - A proof pack (`xrpl_camp_proof_pack.json`) — tamper-evident, SHA-256 hashed
+- Total training time tracked in your certificate
 
 ## Dry-Run Mode
 
