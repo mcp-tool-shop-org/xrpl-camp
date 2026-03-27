@@ -61,6 +61,8 @@ This runs the guided flow through all 6 lessons. If you restart, it picks up whe
 | `xrpl-camp verify --tx <hash>` | Verify a transaction on the ledger |
 | `xrpl-camp certificate` | Generate certificate + proof pack |
 | `xrpl-camp reset` | Wipe all state (requires typed confirmation) |
+| `xrpl-camp self-check` | Diagnose your environment (paste output into bug reports) |
+| `xrpl-camp support-bundle` | Write a diagnostic zip for bug reports |
 
 ## What You End Up With
 

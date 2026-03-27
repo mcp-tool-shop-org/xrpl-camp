@@ -11,6 +11,7 @@ XRPL Camp walks you through 6 lessons — from "what is a ledger?" to a funded w
 
 ## What's inside
 
+- **[Beginners](/xrpl-camp/handbook/beginners/)** — New to blockchain? Start here
 - **[Getting Started](/xrpl-camp/handbook/getting-started/)** — Install and start the guided flow
 - **[Lessons](/xrpl-camp/handbook/lessons/)** — All 6 lessons explained
 - **[Proof Pack](/xrpl-camp/handbook/proof-pack/)** — Certificates, proof packs, and verification

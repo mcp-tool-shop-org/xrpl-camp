@@ -20,6 +20,9 @@ sidebar:
 | `xrpl-camp verify --tx <hash>` | Verify a transaction on-ledger |
 | `xrpl-camp certificate` | Generate certificate + proof pack |
 | `xrpl-camp reset` | Wipe all state (typed confirmation) |
+| `xrpl-camp status` | Show training progress checklist |
+| `xrpl-camp self-check` | Diagnose your environment |
+| `xrpl-camp support-bundle` | Write a diagnostic zip for bug reports |
 
 ## Environment variables
 
@@ -34,6 +37,17 @@ sidebar:
 | `.xrpl-camp/wallet.json` | Local wallet (gitignored, never shared) |
 | `xrpl_camp_certificate.json` | Portable certificate (safe to share) |
 | `xrpl_camp_proof_pack.json` | Tamper-evident proof pack |
+| `.xrpl-camp/session.json` | Session progress (lesson completions, timing) |
+
+## Error codes
+
+| Code | Meaning |
+|------|---------|
+| `NET_FAUCET` | Testnet faucet request failed |
+| `NET_SEND` | Transaction submission failed |
+| `NET_LOOKUP` | Transaction lookup failed |
+| `NET_BALANCE` | Balance check failed |
+| `NET_CONNECT` | Could not connect to the RPC endpoint |
 
 ## Links
 
