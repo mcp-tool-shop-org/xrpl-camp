@@ -16,6 +16,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Completion banner: reworked as retrospective checklist with celebratory tone
 - Dry-run completion: shortened and softened
 - Reset: added Testnet-data reassurance, "Clean slate" replaces "Reset complete"
+- README: added positioning section ("Why this instead of a generic tutorial") and workshop/classroom section
+- Landing page: sharper hero copy, workshop-ready features, npx install, status/proof commands in table
+- Handbook: updated voice across getting-started, lessons, and index pages
+- GitHub repo metadata: updated description and topics
+
+### Added
+
+- `npm/` directory: @mcptoolshop/xrpl-camp npm wrapper for `npx` distribution
+- Published @mcptoolshop/xrpl-camp v1.3.1 to npm
 
 ## [1.3.0] - 2026-04-15
 
