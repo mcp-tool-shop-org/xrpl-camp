@@ -11,8 +11,14 @@ from rich.table import Table
 
 from xrpl_camp import transport, wallet
 from xrpl_camp.certificate import generate_certificate, save_certificate
-from xrpl_camp.errors import faucet_error, lookup_error, send_error
-from xrpl_camp.models import Session
+from xrpl_camp.errors import (
+    balance_error,
+    connection_error,
+    faucet_error,
+    lookup_error,
+    send_error,
+)
+from xrpl_camp.models import DryRunSession, Session
 from xrpl_camp.proof_pack import generate_proof_pack, save_proof_pack
 
 console = Console()
@@ -178,6 +184,11 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> None:
     try:
         transport.fund_wallet(w["seed"], dry_run=dry_run)
         console.print(" [green]funded.[/green]")
+    except transport.XRPLConnectionError:
+        err = connection_error(transport.get_rpc_url())
+        console.print(f" [red]{err.message}[/red]")
+        console.print(f"  [dim]{err.hint}[/dim]")
+        return
     except Exception as e:
         err = faucet_error(str(e))
         console.print(f" [red]{err.message}[/red]")
@@ -187,9 +198,20 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> None:
     if dry_run:
         console.print("\n  [bold]Balance:[/bold] (skipped — dry run)")
     else:
-        balance = transport.get_balance(w["address"])
-        xrp = balance / 1_000_000
-        console.print(f"\n  [bold]Balance:[/bold] {xrp:.2f} XRP ({balance:,} drops)")
+        try:
+            balance = transport.get_balance(w["address"])
+            xrp = balance / 1_000_000
+            console.print(f"\n  [bold]Balance:[/bold] {xrp:.2f} XRP ({balance:,} drops)")
+        except transport.XRPLAccountNotFound:
+            console.print(
+                "\n  [bold]Balance:[/bold] [yellow]Account not yet activated[/yellow]",
+            )
+        except transport.XRPLConnectionError:
+            err = connection_error(transport.get_rpc_url())
+            console.print(f"\n  [yellow]{err.message}[/yellow]")
+        except (transport.XRPLTransactionFailed, transport.XRPLMalformedResponse) as e:
+            err = balance_error(str(e))
+            console.print(f"\n  [yellow]{err.message}[/yellow]")
 
     if not dry_run:
         session.mark_complete(3, LESSON_NAMES[3], started_at=ts, duration_seconds=_elapsed(t0))
@@ -256,6 +278,11 @@ def lesson_4_send_payment(
     console.print("\n  Submitting transaction...", end="")
     try:
         txid = transport.send_memo_payment(w["seed"], memo, dry_run=dry_run)
+    except transport.XRPLConnectionError:
+        err = connection_error(transport.get_rpc_url())
+        console.print(f" [red]{err.message}[/red]")
+        console.print(f"  [dim]{err.hint}[/dim]")
+        return ""
     except Exception as e:
         err = send_error(str(e))
         console.print(f" [red]{err.message}[/red]")
@@ -309,6 +336,11 @@ def lesson_5_verify_tx(
     console.print("\n  Looking up transaction...", end="")
     try:
         tx = transport.lookup_tx(txid, dry_run=dry_run)
+    except transport.XRPLConnectionError:
+        err = connection_error(transport.get_rpc_url())
+        console.print(f" [red]{err.message}[/red]")
+        console.print(f"  [dim]{err.hint}[/dim]")
+        return
     except Exception as e:
         err = lookup_error(str(e))
         console.print(f" [red]{err.message}[/red]")
@@ -342,7 +374,7 @@ def lesson_5_verify_tx(
     )
 
 
-def lesson_6_certificate(session: Session) -> None:
+def lesson_6_certificate(session: Session, *, dry_run: bool = False) -> None:
     """Lesson 6: Generate a completion certificate and proof pack."""
     ts, t0 = _start_timer()
 
@@ -358,6 +390,18 @@ def lesson_6_certificate(session: Session) -> None:
     ))
 
     session.mark_complete(6, LESSON_NAMES[6], started_at=ts, duration_seconds=_elapsed(t0))
+
+    if dry_run:
+        console.print(
+            "\n  [bold yellow]⚠ SIMULATION[/bold yellow] — "
+            "No artifacts generated in dry-run mode.",
+        )
+        console.print(
+            "  [dim]Run without --dry-run to generate your certificate "
+            "and proof pack.[/dim]",
+        )
+        return
+
     session.save()
 
     cert = generate_certificate(session)
@@ -389,7 +433,7 @@ def lesson_6_certificate(session: Session) -> None:
 
 def run_guided_flow(*, dry_run: bool = False) -> None:
     """Walk through all 6 lessons in sequence, auto-skipping completed ones."""
-    session = Session.get_or_create()
+    session = DryRunSession.get_or_create() if dry_run else Session.get_or_create()
     skipped = sum(1 for i in range(1, 7) if session.is_complete(i))
 
     if skipped > 0 and skipped < 6:
@@ -472,22 +516,33 @@ def run_guided_flow(*, dry_run: bool = False) -> None:
         _skip_banner(6, LESSON_NAMES[6])
     else:
         _pause()
-        lesson_6_certificate(session)
+        lesson_6_certificate(session, dry_run=dry_run)
 
     total = session.total_duration()
     duration_line = f"  - Completed in {_format_duration(total)}\n" if total > 0 else ""
 
-    console.print(Panel(
-        "[bold green]XRPL Camp Complete[/bold green]\n\n"
-        "You now have:\n"
-        "  - A funded Testnet wallet\n"
-        "  - A confirmed payment on the ledger\n"
-        "  - A verification report\n"
-        "  - A certificate and proof pack\n"
-        f"{duration_line}\n"
-        "Next step: try Sovereignty.\n"
-        "  [dim]pipx install sovereignty-game[/dim]\n"
-        "  [dim]sov tutorial[/dim]",
-        title="Done",
-        border_style="green",
-    ))
+    if dry_run:
+        console.print(Panel(
+            "[bold yellow]XRPL Camp — Dry Run Complete[/bold yellow]\n\n"
+            "You walked through all 6 lessons in simulation mode.\n"
+            "No wallet was saved. No transactions were sent.\n"
+            "No artifacts were generated.\n\n"
+            "Run [bold]xrpl-camp start[/bold] (without --dry-run) to do it for real.",
+            title="Simulation",
+            border_style="yellow",
+        ))
+    else:
+        console.print(Panel(
+            "[bold green]XRPL Camp Complete[/bold green]\n\n"
+            "You now have:\n"
+            "  - A funded Testnet wallet\n"
+            "  - A confirmed payment on the ledger\n"
+            "  - A verification report\n"
+            "  - A certificate and proof pack\n"
+            f"{duration_line}\n"
+            "Next step: try Sovereignty.\n"
+            "  [dim]pipx install sovereignty-game[/dim]\n"
+            "  [dim]sov tutorial[/dim]",
+            title="Done",
+            border_style="green",
+        ))

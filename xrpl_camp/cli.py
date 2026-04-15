@@ -16,7 +16,14 @@ from rich.table import Table
 import xrpl_camp
 from xrpl_camp import lessons, wallet
 from xrpl_camp.lessons import LESSON_NAMES, _format_duration
-from xrpl_camp.models import STATE_DIR, Session
+from xrpl_camp.models import (
+    STATE_DIR,
+    DryRunSession,
+    ExecutionMode,
+    Session,
+    is_dry_run,
+    set_execution_mode,
+)
 
 app = typer.Typer(
     name="xrpl-camp",
@@ -29,10 +36,12 @@ console = Console()
 @app.command()
 def start(
     dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Simulate network steps (no real transactions)")
+        bool, typer.Option("--dry-run", help="Non-mutating simulation: no network calls, no disk writes, no artifacts")
     ] = False,
 ) -> None:
     """Guided flow through all 6 lessons."""
+    if dry_run:
+        set_execution_mode(ExecutionMode.DRY_RUN)
     lessons.run_guided_flow(dry_run=dry_run)
 
 
@@ -131,11 +140,13 @@ def wallet_cmd(
 @app.command()
 def fund(
     dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Simulate the faucet request")
+        bool, typer.Option("--dry-run", help="Simulate without network calls or state changes (reads existing wallet)")
     ] = False,
 ) -> None:
     """Fund your wallet via the Testnet faucet."""
-    session = Session.get_or_create()
+    if dry_run:
+        set_execution_mode(ExecutionMode.DRY_RUN)
+    session = DryRunSession.from_existing() if dry_run else Session.get_or_create()
     lessons.lesson_3_fund_wallet(session, dry_run=dry_run)
 
 
@@ -148,11 +159,13 @@ def fund(
 def send(
     memo: Annotated[str, typer.Option("--memo", "-m", help="Memo text")] = "",
     dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Simulate the payment")
+        bool, typer.Option("--dry-run", help="Simulate without network calls or state changes (reads existing wallet)")
     ] = False,
 ) -> None:
     """Send a self-payment with a memo to the XRPL Testnet."""
-    session = Session.get_or_create()
+    if dry_run:
+        set_execution_mode(ExecutionMode.DRY_RUN)
+    session = DryRunSession.from_existing() if dry_run else Session.get_or_create()
     lessons.lesson_4_send_payment(session, memo=memo, dry_run=dry_run)
 
 
@@ -165,11 +178,13 @@ def send(
 def verify(
     tx: Annotated[str, typer.Option("--tx", help="Transaction hash to verify")] = "",
     dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Simulate the lookup")
+        bool, typer.Option("--dry-run", help="Simulate without network calls or state changes (reads existing session)")
     ] = False,
 ) -> None:
     """Verify a transaction on the XRPL Testnet."""
-    session = Session.get_or_create()
+    if dry_run:
+        set_execution_mode(ExecutionMode.DRY_RUN)
+    session = DryRunSession.from_existing() if dry_run else Session.get_or_create()
     lessons.lesson_5_verify_tx(session, txid=tx, dry_run=dry_run)
 
 
@@ -191,6 +206,75 @@ def certificate() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Proof pack commands
+# ---------------------------------------------------------------------------
+
+
+proof_app = typer.Typer(
+    name="proof",
+    help="Proof pack commands.",
+    no_args_is_help=True,
+)
+app.add_typer(proof_app, name="proof")
+
+
+@proof_app.command("verify")
+def proof_verify(
+    file: Annotated[Path, typer.Argument(help="Path to proof pack JSON file")],
+    json_output: Annotated[
+        bool, typer.Option("--json", help="Machine-readable JSON output")
+    ] = False,
+) -> None:
+    """Verify a proof pack's integrity."""
+    import json as json_mod
+
+    from xrpl_camp.proof_pack import verify_proof_pack
+
+    if not file.exists():
+        console.print(f"[red]File not found: {file}[/red]")
+        raise typer.Exit(1)
+
+    try:
+        pack = json_mod.loads(file.read_text(encoding="utf-8"))
+    except (json_mod.JSONDecodeError, ValueError) as e:
+        console.print(f"[red]Invalid JSON: {e}[/red]")
+        raise typer.Exit(1)
+
+    valid, message = verify_proof_pack(pack)
+
+    if json_output:
+        result = {
+            "valid": valid,
+            "hash_match": valid,
+            "file": str(file),
+            "schema": pack.get("schema", ""),
+            "address": pack.get("address", ""),
+            "network": pack.get("network", ""),
+            "lessons_completed": len(pack.get("lessons", [])),
+            "tool_version": pack.get("tool_version", ""),
+            "sha256": pack.get("sha256", ""),
+            "message": message,
+        }
+        print(json_mod.dumps(result, indent=2))
+    else:
+        if valid:
+            console.print("\n  [green]✅ PASS[/green] — Proof pack integrity verified.\n")
+        else:
+            console.print(f"\n  [red]❌ FAIL[/red] — {message}\n")
+
+        console.print(f"  [bold]File:[/bold]     {file}")
+        console.print(f"  [bold]Schema:[/bold]   {pack.get('schema', 'unknown')}")
+        console.print(f"  [bold]Address:[/bold]  {pack.get('address', 'unknown')}")
+        console.print(f"  [bold]Network:[/bold]  {pack.get('network', 'unknown')}")
+        console.print(f"  [bold]Lessons:[/bold]  {len(pack.get('lessons', []))}")
+        console.print(f"  [bold]SHA-256:[/bold]  {pack.get('sha256', 'none')}")
+        console.print()
+
+    if not valid:
+        raise typer.Exit(1)
+
+
+# ---------------------------------------------------------------------------
 # Reset command
 # ---------------------------------------------------------------------------
 
@@ -201,6 +285,10 @@ def reset() -> None:
 
     Requires you to type RESET to confirm. This cannot be undone.
     """
+    if is_dry_run():
+        console.print("  [yellow]Reset is not available in dry-run mode.[/yellow]")
+        return
+
     if not STATE_DIR.exists():
         console.print("  [dim]Nothing to reset. No .xrpl-camp/ directory found.[/dim]")
         return

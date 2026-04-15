@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.0] - 2026-04-15
+
+### Added
+
+- `DryRunSession` — dry-run is now a non-mutating execution mode with zero disk writes
+- `ExecutionMode` enum — centralized mode gating instead of scattered conditionals
+- `xrpl-camp proof verify <file>` — local proof pack integrity verification (pass/fail, hash, schema, address, lesson count)
+- `--json` flag on `proof verify` for machine-readable output
+- 5 typed transport exceptions: `XRPLConnectionError`, `XRPLAccountNotFound`, `XRPLUnfundedAccount`, `XRPLTransactionFailed`, `XRPLMalformedResponse`
+- Wallet in-memory cache for dry-run mode (no `.xrpl-camp/` writes)
+- Reset command guard — refuses to run in dry-run mode
+- 27 new tests covering dry-run semantics, proof verification CLI, and transport exceptions
+
+### Changed
+
+- Dry-run no longer creates wallet files, session files, certificates, or proof packs
+- Dry-run guided flow uses `DryRunSession` (ephemeral) instead of `Session` (persisted)
+- Lesson 6 in dry-run explicitly refuses artifacts with `⚠ SIMULATION` message
+- Completion banner in dry-run shows yellow "Simulation" panel instead of green "Complete"
+- `get_balance()` raises typed exceptions instead of silently returning 0
+- `fund_wallet()`, `send_memo_payment()`, `lookup_tx()` distinguish connection errors from transaction failures
+- Lessons 3–5 map typed transport exceptions to specific `CampError` messages (connection vs faucet vs lookup vs balance)
+- Standalone `--dry-run` commands (`fund`, `send`, `verify`) use `DryRunSession.from_existing()` to read but never write
+
+### Fixed
+
+- Dry-run `start` no longer creates `.xrpl-camp/wallet.json` during lesson 2
+- Dry-run `start` no longer persists session progress or completion state
+- Dry-run `start` no longer writes certificate or proof pack files in lesson 6
+- `get_balance()` no longer hides connection failures, unfunded accounts, or malformed responses behind a zero balance
+
 ## [1.1.1] - 2026-03-25
 
 ### Added

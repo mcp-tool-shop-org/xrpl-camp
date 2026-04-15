@@ -213,6 +213,61 @@ def test_send_memo_payment_dry_run_memo_accepted():
     assert len(txid) > 0
 
 
+# ---------------------------------------------------------------------------
+# Typed transport exceptions
+# ---------------------------------------------------------------------------
+
+
+def test_typed_exceptions_exist():
+    """All typed transport exceptions are importable."""
+    from xrpl_camp.transport import (
+        XRPLAccountNotFound,
+        XRPLConnectionError,
+        XRPLMalformedResponse,
+        XRPLTransactionFailed,
+        XRPLUnfundedAccount,
+    )
+
+    assert issubclass(XRPLConnectionError, Exception)
+    assert issubclass(XRPLAccountNotFound, Exception)
+    assert issubclass(XRPLUnfundedAccount, Exception)
+    assert issubclass(XRPLTransactionFailed, Exception)
+    assert issubclass(XRPLMalformedResponse, Exception)
+
+
+def test_exceptions_are_distinct():
+    """Each exception type is a distinct class."""
+    from xrpl_camp.transport import (
+        XRPLAccountNotFound,
+        XRPLConnectionError,
+        XRPLMalformedResponse,
+        XRPLTransactionFailed,
+        XRPLUnfundedAccount,
+    )
+
+    classes = {
+        XRPLConnectionError, XRPLAccountNotFound, XRPLUnfundedAccount,
+        XRPLTransactionFailed, XRPLMalformedResponse,
+    }
+    assert len(classes) == 5
+
+
+def test_connection_error_message():
+    """XRPLConnectionError preserves message."""
+    from xrpl_camp.transport import XRPLConnectionError
+
+    err = XRPLConnectionError("timeout")
+    assert "timeout" in str(err)
+
+
+def test_account_not_found_message():
+    """XRPLAccountNotFound preserves address."""
+    from xrpl_camp.transport import XRPLAccountNotFound
+
+    err = XRPLAccountNotFound("rTestAddr")
+    assert "rTestAddr" in str(err)
+
+
 def test_lookup_tx_dry_run():
     from xrpl_camp.transport import lookup_tx
 

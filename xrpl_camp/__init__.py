@@ -1,3 +1,3 @@
 """XRPL Camp — learn the XRPL diary in one sitting."""
 
-__version__ = "1.1.1"
+__version__ = "1.2.0"

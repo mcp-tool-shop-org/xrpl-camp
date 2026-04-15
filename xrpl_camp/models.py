@@ -5,11 +5,43 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+from enum import Enum
 from pathlib import Path
 
 STATE_DIR = Path(".xrpl-camp")
 SESSION_FILE = STATE_DIR / "session.json"
 WALLET_FILE = STATE_DIR / "wallet.json"
+
+
+# ---------------------------------------------------------------------------
+# Execution mode
+# ---------------------------------------------------------------------------
+
+
+class ExecutionMode(Enum):
+    """Execution mode for the current session."""
+
+    REAL = "real"
+    DRY_RUN = "dry_run"
+
+
+_execution_mode = ExecutionMode.REAL
+
+
+def set_execution_mode(mode: ExecutionMode) -> None:
+    """Set the global execution mode."""
+    global _execution_mode
+    _execution_mode = mode
+
+
+def get_execution_mode() -> ExecutionMode:
+    """Get the current execution mode."""
+    return _execution_mode
+
+
+def is_dry_run() -> bool:
+    """Check if running in dry-run mode."""
+    return _execution_mode == ExecutionMode.DRY_RUN
 
 
 @dataclass
@@ -128,3 +160,34 @@ class Session:
             )
             session.save()
         return session
+
+
+@dataclass
+class DryRunSession(Session):
+    """Session that never persists to disk. Used in dry-run mode."""
+
+    def save(self) -> None:
+        """No-op: dry-run sessions are ephemeral."""
+
+    @classmethod
+    def get_or_create(cls) -> DryRunSession:
+        """Create a fresh ephemeral session (no disk reads or writes)."""
+        return cls(started_at=datetime.now(UTC).isoformat())
+
+    @classmethod
+    def from_existing(cls) -> DryRunSession:
+        """Load existing session state into a non-persisting session.
+
+        Used by standalone commands (fund, send, verify) in dry-run mode
+        where a real session already exists from a previous run.
+        """
+        real = Session.load()
+        if real is None:
+            return cls(started_at=datetime.now(UTC).isoformat())
+        return cls(
+            started_at=real.started_at,
+            wallet_address=real.wallet_address,
+            completed_lessons=list(real.completed_lessons),
+            txids=dict(real.txids),
+            progress=list(real.progress),
+        )
