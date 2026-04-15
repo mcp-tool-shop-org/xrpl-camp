@@ -424,12 +424,31 @@ def lesson_6_certificate(session: Session, *, dry_run: bool = False) -> None:
     total = session.total_duration()
     duration_str = _format_duration(total) if total > 0 else "n/a"
 
-    console.print(f"\n  [bold]Certificate saved:[/bold] {cert_path}")
-    console.print(f"  [bold]Proof pack saved:[/bold]  {pack_path}")
-    console.print(f"  [dim]Address:  {cert['address']}[/dim]")
-    console.print(f"  [dim]Lessons:  {len(cert['completed'])}[/dim]")
-    console.print(f"  [dim]Duration: {duration_str}[/dim]")
-    console.print(f"  [dim]SHA-256:  {pack['sha256']}[/dim]")
+    # Completion bundle — one coherent handoff block
+    txid = session.txids.get("lesson_4", "")
+    explorer = f"{transport.EXPLORER_URL}{txid}" if txid else ""
+
+    lines = [
+        "[bold]Your completion bundle:[/bold]\n",
+        f"  Certificate:  {cert_path}",
+        f"  Proof pack:   {pack_path}",
+    ]
+    if explorer:
+        lines.append(f"  Explorer:     {explorer}")
+    lines.append(f"\n  Address:      {cert['address']}")
+    lines.append(f"  Lessons:      {len(cert['completed'])}")
+    lines.append(f"  Duration:     {duration_str}")
+    lines.append(f"  SHA-256:      {pack['sha256']}")
+    lines.append(
+        "\n  [dim]Verify your proof pack anytime:[/dim]"
+        "\n  [dim]xrpl-camp proof verify xrpl_camp_proof_pack.json[/dim]"
+    )
+
+    console.print(Panel(
+        "\n".join(lines),
+        title="XRPL Camp — Complete",
+        border_style="green",
+    ))
 
     console.print(
         "\n  [green]What you just proved:[/green] "

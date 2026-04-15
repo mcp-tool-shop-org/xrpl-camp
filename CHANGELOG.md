@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.0] - 2026-04-15
+
+### Added
+
+- `status --detail` — expanded view with wallet state, session timing, last activity, txids, and next-step hint
+- Lesson 6 completion bundle — certificate, proof pack, explorer link, and verify hint in one coherent panel
+- 4 new tests for `status --detail` behavior
+
+### Changed
+
+- README: updated commands table (proof verify, status --detail), dry-run section (non-mutating semantics), proof pack section (verify command)
+- Handbook: getting-started (dry-run semantics), reference (proof verify, status --detail), proof-pack (verification command)
+- Lesson 6 output restructured from log lines to a green completion panel
+
 ## [1.2.1] - 2026-04-15
 
 ### Changed

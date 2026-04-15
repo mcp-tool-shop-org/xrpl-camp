@@ -50,8 +50,9 @@ This runs the guided flow through all 6 lessons. If you restart, it picks up whe
 | Command | What it does |
 |---------|-------------|
 | `xrpl-camp start` | Guided flow through all 6 lessons (auto-resumes if you restart) |
-| `xrpl-camp start --dry-run` | Walk the full flow without network calls |
+| `xrpl-camp start --dry-run` | Non-mutating simulation: no network calls, no disk writes |
 | `xrpl-camp status` | Show your progress — visual checklist with timing |
+| `xrpl-camp status --detail` | Expanded view with wallet state, timing, and next-step hint |
 | `xrpl-camp wallet create` | Create a Testnet wallet |
 | `xrpl-camp wallet show` | Display your wallet address |
 | `xrpl-camp fund` | Fund your wallet via the Testnet faucet |
@@ -60,6 +61,8 @@ This runs the guided flow through all 6 lessons. If you restart, it picks up whe
 | `xrpl-camp send --dry-run` | Simulate the payment |
 | `xrpl-camp verify --tx <hash>` | Verify a transaction on the ledger |
 | `xrpl-camp certificate` | Generate certificate + proof pack |
+| `xrpl-camp proof verify <file>` | Verify a proof pack's integrity locally |
+| `xrpl-camp proof verify <file> --json` | Machine-readable verification output |
 | `xrpl-camp reset` | Wipe all state (requires typed confirmation) |
 | `xrpl-camp self-check` | Diagnose your environment (paste output into bug reports) |
 | `xrpl-camp support-bundle` | Write a diagnostic zip for bug reports |
@@ -75,7 +78,17 @@ This runs the guided flow through all 6 lessons. If you restart, it picks up whe
 
 ## Dry-Run Mode
 
-Every networked command supports `--dry-run`. It prints what would happen without making any network calls or changing state. Useful for confidence-building and debugging.
+Every networked command supports `--dry-run`. In dry-run mode:
+
+- **No network calls** — transactions, faucet requests, and lookups are simulated
+- **No disk writes** — no wallet file, no session persistence, no artifacts
+- **No misleading output** — lesson 6 explicitly refuses to generate certificates or proof packs
+
+Dry-run may read existing wallet/session state from disk (e.g. `fund --dry-run` uses your existing wallet address), but it never mutates anything.
+
+```bash
+xrpl-camp start --dry-run
+```
 
 ## Proof Pack
 
@@ -87,7 +100,13 @@ The proof pack is a tamper-evident record of everything you did:
 - Tool version
 - SHA-256 hash of the entire content
 
-Anyone can verify the hash to confirm the file hasn't been edited.
+Anyone can verify the hash to confirm the file hasn't been edited:
+
+```bash
+xrpl-camp proof verify xrpl_camp_proof_pack.json
+```
+
+Add `--json` for machine-readable output. Verification is fully local — no network calls.
 
 ## Endpoint Override
 

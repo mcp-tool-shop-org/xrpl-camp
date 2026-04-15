@@ -33,7 +33,19 @@ Anyone can verify the hash to confirm the file hasn't been edited.
 
 ## Verification
 
-The proof pack includes a `verify_proof_pack()` function that detects modification. If someone edits the file, the SHA-256 hash won't match.
+Verify any proof pack locally — no network calls required:
+
+```bash
+xrpl-camp proof verify xrpl_camp_proof_pack.json
+```
+
+This checks the SHA-256 hash and prints pass/fail, the stored hash, address, and lesson count.
+
+For machine-readable output:
+
+```bash
+xrpl-camp proof verify xrpl_camp_proof_pack.json --json
+```
 
 ## Security
 

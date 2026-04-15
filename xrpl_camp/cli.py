@@ -54,7 +54,13 @@ def start(
 
 
 @app.command()
-def status() -> None:
+def status(
+    detail: Annotated[
+        bool, typer.Option(
+            "--detail", help="Expanded view with wallet state and timing",
+        )
+    ] = False,
+) -> None:
     """Show your training progress."""
     session = Session.load()
     if session is None or not session.progress:
@@ -93,7 +99,61 @@ def status() -> None:
         console.print(f"  [bold green]All 6 lessons complete{duration_str}.[/bold green]")
     else:
         console.print(f"  [dim]{done}/6 lessons complete[/dim]")
+
+    # --detail: facilitator triage view
+    if detail:
+        _print_status_detail(session, done)
+
     console.print()
+
+
+def _print_status_detail(session: Session, done: int) -> None:
+    """Print expanded status detail for facilitator triage."""
+    console.print()
+    console.print("  [bold]─── Detail ───[/bold]")
+
+    # Wallet state
+    w = wallet.load_wallet()
+    if w:
+        console.print(f"  [bold]Wallet:[/bold]    {w['address']}")
+        console.print(f"  [dim]Created:   {w.get('created_at', '?')}[/dim]")
+    else:
+        console.print("  [bold]Wallet:[/bold]    [yellow]not created[/yellow]")
+
+    # Session timing
+    if session.started_at:
+        console.print(f"  [bold]Started:[/bold]   {session.started_at}")
+
+    # Last activity
+    if session.progress:
+        last = session.progress[-1]
+        console.print(
+            f"  [bold]Last:[/bold]      Lesson {last.lesson} ({last.name})"
+            f" at {last.completed_at}",
+        )
+
+    # Transaction IDs
+    if session.txids:
+        for key, txid in session.txids.items():
+            console.print(f"  [bold]{key}:[/bold]  {txid}")
+
+    # Stuck hint — if not all done, show what to run next
+    if done < 6:
+        next_lesson = done + 1
+        next_name = LESSON_NAMES.get(next_lesson, "?")
+        hints = {
+            1: "xrpl-camp start",
+            2: "xrpl-camp wallet create",
+            3: "xrpl-camp fund",
+            4: 'xrpl-camp send --memo "your message"',
+            5: "xrpl-camp verify --tx <hash>",
+            6: "xrpl-camp certificate",
+        }
+        hint = hints.get(next_lesson, "xrpl-camp start")
+        console.print(
+            f"\n  [cyan]Next:[/cyan] Lesson {next_lesson} — {next_name}",
+        )
+        console.print(f"  [dim]Run: {hint}[/dim]")
 
 
 # ---------------------------------------------------------------------------

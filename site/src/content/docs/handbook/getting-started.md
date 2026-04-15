@@ -31,7 +31,13 @@ This walks you through all 6 lessons in order. Each lesson builds on the previou
 
 ## Dry-run mode
 
-Every networked command supports `--dry-run`. This prints what would happen without making any network calls or changing state:
+Every networked command supports `--dry-run`. In dry-run mode:
+
+- **No network calls** — transactions, faucet requests, and lookups are simulated
+- **No disk writes** — no wallet file, no session persistence, no artifacts
+- **No misleading output** — lesson 6 refuses to generate certificates from simulated runs
+
+Dry-run may read existing state (e.g. your wallet address) but never mutates anything.
 
 ```bash
 xrpl-camp start --dry-run

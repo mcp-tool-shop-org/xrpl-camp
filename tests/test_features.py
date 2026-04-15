@@ -213,6 +213,84 @@ def test_status_all_complete(tmp_path, monkeypatch):
 
 
 # ---------------------------------------------------------------------------
+# Status --detail
+# ---------------------------------------------------------------------------
+
+
+def test_status_detail_shows_wallet(tmp_path, monkeypatch):
+    """--detail shows wallet address when wallet exists."""
+    monkeypatch.setattr("xrpl_camp.models.STATE_DIR", tmp_path)
+    monkeypatch.setattr("xrpl_camp.models.SESSION_FILE", tmp_path / "session.json")
+    monkeypatch.setattr("xrpl_camp.wallet.STATE_DIR", tmp_path)
+    monkeypatch.setattr("xrpl_camp.wallet.WALLET_FILE", tmp_path / "wallet.json")
+
+    import json
+    (tmp_path / "wallet.json").write_text(
+        json.dumps({"address": "rDetailTest", "seed": "s", "network": "testnet",
+                     "created_at": "2026-01-01T00:00:00Z"}),
+        encoding="utf-8",
+    )
+
+    s = Session(started_at="2026-01-01T00:00:00Z", wallet_address="rDetailTest")
+    s.mark_complete(1, "Mental Model", duration_seconds=5.0)
+    s.save()
+
+    result = runner.invoke(app, ["status", "--detail"])
+    output = _strip_ansi(result.output)
+    assert result.exit_code == 0
+    assert "rDetailTest" in output
+    assert "Detail" in output
+
+
+def test_status_detail_shows_next_hint(tmp_path, monkeypatch):
+    """--detail shows next lesson hint when incomplete."""
+    monkeypatch.setattr("xrpl_camp.models.STATE_DIR", tmp_path)
+    monkeypatch.setattr("xrpl_camp.models.SESSION_FILE", tmp_path / "session.json")
+    monkeypatch.setattr("xrpl_camp.wallet.WALLET_FILE", tmp_path / "nope.json")
+
+    s = Session(started_at="2026-01-01T00:00:00Z")
+    s.mark_complete(1, "Mental Model", duration_seconds=5.0)
+    s.mark_complete(2, "Create Wallet", duration_seconds=3.0)
+    s.save()
+
+    result = runner.invoke(app, ["status", "--detail"])
+    output = _strip_ansi(result.output)
+    assert result.exit_code == 0
+    assert "Lesson 3" in output
+    assert "Fund Wallet" in output
+
+
+def test_status_detail_no_wallet(tmp_path, monkeypatch):
+    """--detail shows 'not created' when no wallet."""
+    monkeypatch.setattr("xrpl_camp.models.STATE_DIR", tmp_path)
+    monkeypatch.setattr("xrpl_camp.models.SESSION_FILE", tmp_path / "session.json")
+    monkeypatch.setattr("xrpl_camp.wallet.WALLET_FILE", tmp_path / "nope.json")
+
+    s = Session(started_at="2026-01-01T00:00:00Z")
+    s.mark_complete(1, "Mental Model", duration_seconds=5.0)
+    s.save()
+
+    result = runner.invoke(app, ["status", "--detail"])
+    output = _strip_ansi(result.output)
+    assert result.exit_code == 0
+    assert "not created" in output.lower()
+
+
+def test_status_without_detail_omits_wallet(tmp_path, monkeypatch):
+    """Without --detail, wallet info is not shown."""
+    monkeypatch.setattr("xrpl_camp.models.STATE_DIR", tmp_path)
+    monkeypatch.setattr("xrpl_camp.models.SESSION_FILE", tmp_path / "session.json")
+
+    s = Session(started_at="2026-01-01T00:00:00Z")
+    s.mark_complete(1, "Mental Model", duration_seconds=5.0)
+    s.save()
+
+    result = runner.invoke(app, ["status"])
+    output = _strip_ansi(result.output)
+    assert "Detail" not in output
+
+
+# ---------------------------------------------------------------------------
 # Auto-resume (guided flow skips completed lessons)
 # ---------------------------------------------------------------------------
 

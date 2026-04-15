@@ -21,8 +21,11 @@ sidebar:
 | `xrpl-camp certificate` | Generate certificate + proof pack |
 | `xrpl-camp reset` | Wipe all state (typed confirmation) |
 | `xrpl-camp status` | Show training progress checklist |
+| `xrpl-camp status --detail` | Expanded view: wallet state, timing, next step |
 | `xrpl-camp self-check` | Diagnose your environment |
 | `xrpl-camp support-bundle` | Write a diagnostic zip for bug reports |
+| `xrpl-camp proof verify <file>` | Verify a proof pack's integrity locally |
+| `xrpl-camp proof verify <file> --json` | Machine-readable verification output |
 
 ## Environment variables
 
