@@ -5,7 +5,7 @@ sidebar:
   order: 1
 ---
 
-XRPL Camp teaches the XRP Ledger through hands-on lessons. No accounts, no real money, just you and the ledger.
+XRPL Camp teaches the XRP Ledger through hands-on lessons. No sign-ups, no real money — just you and the ledger.
 
 ## Installation
 
@@ -49,9 +49,9 @@ Useful for confidence-building before your first real run, or for environments w
 
 After completing all 6 lessons:
 
-- A funded Testnet wallet (`.xrpl-camp/wallet.json` — local, gitignored)
-- A confirmed payment on the XRPL Testnet
-- A verification report showing what the ledger recorded
+- A funded Testnet wallet (local, gitignored — never leaves your machine)
+- A confirmed payment on a real public ledger
+- A memo you chose, permanently recorded and independently verifiable
 - A certificate (`xrpl_camp_certificate.json`) — safe to share, no private keys
 - A proof pack (`xrpl_camp_proof_pack.json`) — tamper-evident, SHA-256 hashed
 

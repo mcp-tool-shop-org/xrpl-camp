@@ -7,7 +7,7 @@ sidebar:
 
 Welcome to the XRPL Camp handbook.
 
-XRPL Camp walks you through 6 lessons — from "what is a ledger?" to a funded wallet, a confirmed payment, and a portable certificate — in about 10 minutes.
+XRPL Camp teaches the XRP Ledger through real transactions — create a wallet, fund it, write a permanent memo, verify it independently, and walk away with a portable certificate. The whole arc takes about 10 minutes.
 
 ## What's inside
 

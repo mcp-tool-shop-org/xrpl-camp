@@ -19,7 +19,7 @@ Generate a Testnet keypair:
 xrpl-camp wallet create
 ```
 
-Your seed (private key) is stored locally in `.xrpl-camp/wallet.json` and never leaves your machine. The directory is gitignored by default.
+Your seed (private key) is stored locally in `.xrpl-camp/wallet.json` and never leaves your machine. Your seed stays on this machine — XRPL Camp never sends it anywhere.
 
 ## Lesson 3 — Fund Wallet
 
@@ -29,7 +29,7 @@ Get free test XRP from the Testnet faucet:
 xrpl-camp fund
 ```
 
-Test XRP has no real value — it exists purely for learning and experimentation.
+Test XRP has no real value — nothing at risk. It exists purely for learning and experimentation.
 
 ## Lesson 4 — Send Payment
 
