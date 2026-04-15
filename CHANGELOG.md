@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.2.1] - 2026-04-15
+
+### Changed
+
+- Lesson 4: memo triple-view shows plain text, hex encoding, and amount/fee explanation
+- Lesson 5: explorer URL elevated as independent witness ("You don't have to trust this tool")
+- Lesson 5: memo field labeled "Memo (readback)" to complete the encoding round trip
+
 ## [1.2.0] - 2026-04-15
 
 ### Added

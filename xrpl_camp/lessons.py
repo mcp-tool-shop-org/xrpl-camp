@@ -262,11 +262,14 @@ def lesson_4_send_payment(
 
     console.print(Panel(
         "[bold]Lesson 4: Send a Payment[/bold]\n\n"
-        "You're about to send a transaction to yourself (1 drop).\n"
-        "The amount doesn't matter — what matters is the memo.\n\n"
-        f"  [cyan]Memo:[/cyan] {memo}\n\n"
-        "This memo is now permanently written to the XRPL Testnet.\n"
-        "Anyone can read it. Nobody can erase it.",
+        "You're about to send a transaction to yourself.\n\n"
+        f"  [cyan]Memo:[/cyan]    {memo}\n"
+        f"  [cyan]Encoded:[/cyan] {transport._to_hex(memo)}\n\n"
+        "  [dim]Your memo is converted to hex bytes for the ledger.[/dim]\n\n"
+        "  [cyan]Amount:[/cyan]  1 drop (0.000001 XRP — the smallest unit)\n"
+        "  [cyan]Fee:[/cyan]     ~12 drops (paid to validators, not an app charge)\n\n"
+        "The amount is tiny because the point is the memo, not the value.\n"
+        "The fee is how the network processes your transaction.",
         title="XRPL Camp",
         border_style="blue",
     ))
@@ -357,12 +360,20 @@ def lesson_5_verify_tx(
     table.add_row("To", tx["destination"])
     table.add_row("Amount", f"{tx['amount']} drops")
     table.add_row("Fee", f"{tx['fee']} drops")
-    table.add_row("Memo", tx["memo"])
+    table.add_row("Memo (readback)", tx["memo"])
     table.add_row("Ledger", str(tx["ledger_index"]))
     table.add_row("Result", tx["result"])
 
     console.print()
     console.print(table)
+
+    # Independent witness — the strongest anti-handwaving beat
+    explorer = f"{transport.EXPLORER_URL}{txid}"
+    console.print(
+        "\n  [bold]You don't have to trust this tool.[/bold]"
+        "\n  Verify it yourself:",
+    )
+    console.print(f"  [cyan]{explorer}[/cyan]")
 
     if not dry_run:
         session.mark_complete(5, LESSON_NAMES[5], started_at=ts, duration_seconds=_elapsed(t0))
