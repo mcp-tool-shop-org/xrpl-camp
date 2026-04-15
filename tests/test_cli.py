@@ -52,7 +52,7 @@ def test_reset_confirmed(tmp_path, monkeypatch):
 
     result = runner.invoke(app, ["reset"], input="RESET\n")
     assert result.exit_code == 0
-    assert "reset complete" in _strip_ansi(result.output).lower()
+    assert "clean slate" in _strip_ansi(result.output).lower()
     assert not state.exists()  # Deleted
 
 

@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.3.1] - 2026-04-15
+
+### Changed
+
+- Lesson closers: replaced 6 identical "What you just proved:" lines with distinct progression markers (✓ Foundation set → ✓ Identity created → ✓ Account funded → ✓ Written to the ledger → ✓ Independently verified → ✓ Record sealed)
+- Lesson 2 panel: added "Your seed stays on this machine" reassurance
+- Lesson 3 panel: added "nothing at risk" to Testnet money description
+- Guided flow welcome: "No sign-ups" replaces "No accounts"
+- Completion banner: reworked as retrospective checklist with celebratory tone
+- Dry-run completion: shortened and softened
+- Reset: added Testnet-data reassurance, "Clean slate" replaces "Reset complete"
+
 ## [1.3.0] - 2026-04-15
 
 ### Added

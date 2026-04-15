@@ -369,6 +369,9 @@ def reset() -> None:
     console.print("\n  [bold yellow]This will delete:[/bold yellow]")
     for item in sorted(STATE_DIR.iterdir()):
         console.print(f"    {item.name}")
+    console.print(
+        "  [dim]This is Testnet data \u2014 you can recreate it by running start again.[/dim]",
+    )
     console.print()
 
     confirmation = console.input(
@@ -379,8 +382,8 @@ def reset() -> None:
         return
 
     shutil.rmtree(STATE_DIR)
-    console.print("  [green]Reset complete. All XRPL Camp state has been deleted.[/green]")
-    console.print("  [dim]Run 'xrpl-camp start' to begin again.[/dim]")
+    console.print("  [green]Clean slate.[/green] All XRPL Camp state has been removed.")
+    console.print("  [dim]Run 'xrpl-camp start' whenever you're ready to go again.[/dim]")
 
 
 # ---------------------------------------------------------------------------

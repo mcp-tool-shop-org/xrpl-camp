@@ -104,8 +104,8 @@ def lesson_1_mental_model(session: Session) -> None:
     session.save()
 
     console.print(
-        "\n  [green]What you just learned:[/green] the XRPL is a shared "
-        "ledger where every entry is permanent and verifiable.",
+        "\n  [green]✓ Foundation set.[/green] The ledger is shared, "
+        "permanent, and verifiable. Everything builds on that.",
     )
 
 
@@ -130,7 +130,8 @@ def lesson_2_create_wallet(session: Session) -> None:
         "  [cyan]Address[/cyan] — your public identity (safe to share)\n"
         "  [cyan]Seed[/cyan]    — your private key (never share this)\n\n"
         "The seed proves you own the address. Anyone with your seed\n"
-        "can spend your funds. Guard it like a password.",
+        "can spend your funds. Guard it like a password.\n\n"
+        "Your seed stays on this machine. XRPL Camp never sends it anywhere.",
         title="XRPL Camp",
         border_style="blue",
     ))
@@ -152,8 +153,8 @@ def lesson_2_create_wallet(session: Session) -> None:
     session.save()
 
     console.print(
-        "\n  [green]What you just proved:[/green] "
-        "you can create a cryptographic identity.",
+        "\n  [green]✓ Identity created.[/green] "
+        "Nobody issued it to you — you generated it yourself.",
     )
 
 
@@ -169,8 +170,8 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> None:
     console.print(Panel(
         "[bold]Lesson 3: Fund Your Wallet[/bold]\n\n"
         "The XRPL Testnet has a faucet that gives free test XRP.\n"
-        "This is play money — no real value. But it behaves exactly\n"
-        "like real XRP on the ledger.\n\n"
+        "This is play money \u2014 no real value, nothing at risk.\n"
+        "But it behaves exactly like real XRP on the ledger.\n\n"
         "We'll request funds from the faucet and check your balance.",
         title="XRPL Camp",
         border_style="blue",
@@ -218,8 +219,8 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> None:
         session.save()
 
     console.print(
-        "\n  [green]What you just proved:[/green] "
-        "you can receive funds on a public network.",
+        "\n  [green]✓ Account funded.[/green] "
+        "The network knows you exist now.",
     )
 
 
@@ -305,8 +306,8 @@ def lesson_4_send_payment(
         session.save()
 
     console.print(
-        "\n  [green]What you just proved:[/green] "
-        "you can write to a public ledger.",
+        "\n  [green]✓ Written to the ledger.[/green] "
+        "Your memo is permanent and public — no one can erase it.",
     )
     return txid
 
@@ -380,8 +381,8 @@ def lesson_5_verify_tx(
         session.save()
 
     console.print(
-        "\n  [green]What you just proved:[/green] "
-        "anyone can independently verify what happened.",
+        "\n  [green]✓ Independently verified.[/green] "
+        "No login, no API key — just the hash and the open ledger.",
     )
 
 
@@ -451,8 +452,8 @@ def lesson_6_certificate(session: Session, *, dry_run: bool = False) -> None:
     ))
 
     console.print(
-        "\n  [green]What you just proved:[/green] "
-        "you have a portable, verifiable record of learning.",
+        "\n  [green]✓ Record sealed.[/green] "
+        "This is yours — portable, verifiable, and no one can edit it.",
     )
 
 
@@ -494,7 +495,7 @@ def run_guided_flow(*, dry_run: bool = False) -> None:
             "  4. Send your first payment\n"
             "  5. Verify it on the ledger\n"
             "  6. Get a completion certificate\n\n"
-            "No real money. No accounts. Just you and the ledger.",
+            "No real money. No sign-ups. Just you and the ledger.",
             title="XRPL Camp",
             border_style="green",
         ))
@@ -549,30 +550,30 @@ def run_guided_flow(*, dry_run: bool = False) -> None:
         lesson_6_certificate(session, dry_run=dry_run)
 
     total = session.total_duration()
-    duration_line = f"  - Completed in {_format_duration(total)}\n" if total > 0 else ""
+    duration_line = f"  Total time: {_format_duration(total)}\n" if total > 0 else ""
 
     if dry_run:
         console.print(Panel(
             "[bold yellow]XRPL Camp — Dry Run Complete[/bold yellow]\n\n"
-            "You walked through all 6 lessons in simulation mode.\n"
-            "No wallet was saved. No transactions were sent.\n"
-            "No artifacts were generated.\n\n"
-            "Run [bold]xrpl-camp start[/bold] (without --dry-run) to do it for real.",
+            "You've seen the whole flow in simulation mode.\n"
+            "Nothing was saved and no transactions were sent.\n\n"
+            "When you're ready, run [bold]xrpl-camp start[/bold] to do it for real.",
             title="Simulation",
             border_style="yellow",
         ))
     else:
         console.print(Panel(
-            "[bold green]XRPL Camp Complete[/bold green]\n\n"
-            "You now have:\n"
-            "  - A funded Testnet wallet\n"
-            "  - A confirmed payment on the ledger\n"
-            "  - A verification report\n"
-            "  - A certificate and proof pack\n"
+            "[bold green]XRPL Camp \u2014 Complete[/bold green]\n\n"
+            "You did it. In a few minutes you:\n"
+            "  \u2713 Created a cryptographic identity\n"
+            "  \u2713 Funded it on a public network\n"
+            "  \u2713 Wrote permanent words to the ledger\n"
+            "  \u2713 Verified everything independently\n"
             f"{duration_line}\n"
+            "Your certificate and proof pack are yours to keep.\n\n"
             "Next step: try Sovereignty.\n"
             "  [dim]pipx install sovereignty-game[/dim]\n"
             "  [dim]sov tutorial[/dim]",
-            title="Done",
+            title="Complete",
             border_style="green",
         ))
