@@ -36,7 +36,10 @@ console = Console()
 @app.command()
 def start(
     dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Non-mutating simulation: no network calls, no disk writes, no artifacts")
+        bool, typer.Option(
+            "--dry-run",
+            help="Non-mutating simulation: no network calls, no disk writes",
+        )
     ] = False,
 ) -> None:
     """Guided flow through all 6 lessons."""
@@ -140,7 +143,10 @@ def wallet_cmd(
 @app.command()
 def fund(
     dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Simulate without network calls or state changes (reads existing wallet)")
+        bool, typer.Option(
+            "--dry-run",
+            help="Simulate without network calls or state changes",
+        )
     ] = False,
 ) -> None:
     """Fund your wallet via the Testnet faucet."""
@@ -159,7 +165,10 @@ def fund(
 def send(
     memo: Annotated[str, typer.Option("--memo", "-m", help="Memo text")] = "",
     dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Simulate without network calls or state changes (reads existing wallet)")
+        bool, typer.Option(
+            "--dry-run",
+            help="Simulate without network calls or state changes",
+        )
     ] = False,
 ) -> None:
     """Send a self-payment with a memo to the XRPL Testnet."""
@@ -178,7 +187,10 @@ def send(
 def verify(
     tx: Annotated[str, typer.Option("--tx", help="Transaction hash to verify")] = "",
     dry_run: Annotated[
-        bool, typer.Option("--dry-run", help="Simulate without network calls or state changes (reads existing session)")
+        bool, typer.Option(
+            "--dry-run",
+            help="Simulate without network calls or state changes",
+        )
     ] = False,
 ) -> None:
     """Verify a transaction on the XRPL Testnet."""
@@ -238,7 +250,7 @@ def proof_verify(
         pack = json_mod.loads(file.read_text(encoding="utf-8"))
     except (json_mod.JSONDecodeError, ValueError) as e:
         console.print(f"[red]Invalid JSON: {e}[/red]")
-        raise typer.Exit(1)
+        raise typer.Exit(1) from None
 
     valid, message = verify_proof_pack(pack)
 
