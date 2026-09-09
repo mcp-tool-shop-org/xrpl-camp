@@ -1,4 +1,4 @@
-"""XRPL Camp - learn the XRPL diary in one sitting.
+"""XRPL Camp - learn the XRP Ledger in one sitting.
 
 Importing this package makes stdout and stderr safe for the characters the
 lessons print. XRPL Camp draws check marks, arrows, em dashes and box-drawing

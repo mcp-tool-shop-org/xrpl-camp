@@ -51,7 +51,7 @@ from xrpl_camp.models import (
 
 app = typer.Typer(
     name="xrpl-camp",
-    help="XRPL Camp — learn the XRPL diary in one sitting.",
+    help="XRPL Camp — learn the XRP Ledger in one sitting.",
     no_args_is_help=True,
     # Typer's Rich traceback would print a full stack over the top of a
     # perfectly good structured error. Gate B forbids raw stacks; `run()`
@@ -161,7 +161,7 @@ def main(
         bool, typer.Option("--verbose", help="Include technical detail with errors"),
     ] = False,
 ) -> None:
-    """XRPL Camp — learn the XRPL diary in one sitting."""
+    """XRPL Camp — learn the XRP Ledger in one sitting."""
     # Set explicitly both ways: these are process globals, and a command must
     # never inherit a mode from an earlier invocation in the same process.
     set_execution_mode(ExecutionMode.DRY_RUN if dry_run else ExecutionMode.REAL)
