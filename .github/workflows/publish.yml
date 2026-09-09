@@ -296,7 +296,10 @@ jobs:
           set -euo pipefail
           IMAGE="ghcr.io/mcp-tool-shop-org/xrpl-camp:${{ github.ref_name }}"
           EXPECTED="${GITHUB_REF_NAME#v}"
-          LIVE=$(docker run --rm "$IMAGE" --version | awk '{print $2}')
+          # Match the version line by NAME, not by position. `awk '{print $2}'`
+          # on raw stdout read the second word of the unmounted-/work warning
+          # and reported a failure against a perfectly good image.
+          LIVE=$(docker run --rm "$IMAGE" --version 2>/dev/null | tail -n 1 | awk '{print $2}')
           if [ "$LIVE" != "$EXPECTED" ]; then
             echo "::error::Image reports ${LIVE}, tag claims ${EXPECTED}."
             exit 1

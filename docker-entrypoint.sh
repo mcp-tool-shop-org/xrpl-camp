@@ -25,8 +25,12 @@ is_mounted() {
 }
 
 if ! is_mounted; then
-    printf '\033[33m'
-    cat <<'WARNING'
+    # stderr, not stdout. This is a warning about the environment, not output of
+    # the command being run. On stdout it corrupted `docker run ... --version`
+    # in our own release check -- a small preview of what it would do to anyone
+    # piping this container's output.
+    printf '\033[33m' >&2
+    cat >&2 <<'WARNING'
   /work is not mounted.
 
   Everything xrpl-camp creates -- your wallet, your certificate, your proof
@@ -39,7 +43,7 @@ if ! is_mounted; then
       docker run --rm -it -v "$PWD:/work" ghcr.io/mcp-tool-shop-org/xrpl-camp start
 
 WARNING
-    printf '\033[0m'
+    printf '\033[0m' >&2
 fi
 
 exec xrpl-camp "$@"
