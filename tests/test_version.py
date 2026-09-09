@@ -49,14 +49,14 @@ def init_version() -> str:
 
 def npm_version() -> str:
     return json.loads(
-        (ROOT / "npm" / "package.json").read_text(encoding="utf-8"),
+        (ROOT / "package.json").read_text(encoding="utf-8"),
     )["version"]
 
 
 ALL_SURFACES = {
     "pyproject.toml [project].version": pyproject_version,
     "xrpl_camp/__init__.py __version__": init_version,
-    "npm/package.json .version": npm_version,
+    "package.json .version": npm_version,
     "xrpl_camp.__version__ (imported)": lambda: xrpl_camp.__version__,
 }
 
@@ -96,14 +96,14 @@ def test_version_is_at_least_1_0_0():
 
 
 def test_the_npm_launcher_derives_its_version_rather_than_duplicating_it():
-    """`npm/bin/xrpl-camp.js` used to carry a fourth hand-synced literal.
+    """`bin/xrpl-camp.js` used to carry a fourth hand-synced literal.
 
     It picked the GitHub release asset to download, so a stale one pointed
     users at a build that did not match the package they installed. It now
     reads `require("../package.json").version`; a literal reappearing here is
     the regression.
     """
-    js = (ROOT / "npm" / "bin" / "xrpl-camp.js").read_text(encoding="utf-8")
+    js = (ROOT / "bin" / "xrpl-camp.js").read_text(encoding="utf-8")
 
     assert 'require("../package.json")' in js or "require('../package.json')" in js
     code = "\n".join(
@@ -111,7 +111,7 @@ def test_the_npm_launcher_derives_its_version_rather_than_duplicating_it():
     )
     hardcoded = re.findall(r'\b(?:version|tag)\s*:\s*["\']([^"\']+)["\']', code)
     assert hardcoded == [], (
-        f"npm/bin/xrpl-camp.js hardcodes {hardcoded}; it must derive both the "
+        f"bin/xrpl-camp.js hardcodes {hardcoded}; it must derive both the "
         f"version and the release tag from package.json"
     )
 

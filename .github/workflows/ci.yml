@@ -14,7 +14,8 @@ on:
       - "xrpl_camp/**"
       - "tests/**"
       - "pyproject.toml"
-      - "npm/**"
+      - "package.json"
+      - "bin/**"
       - "scripts/**"
       - ".github/workflows/**"
   pull_request:
@@ -22,7 +23,8 @@ on:
       - "xrpl_camp/**"
       - "tests/**"
       - "pyproject.toml"
-      - "npm/**"
+      - "package.json"
+      - "bin/**"
       - "scripts/**"
       - ".github/workflows/**"
   workflow_dispatch:
@@ -96,7 +98,7 @@ jobs:
           uv run xrpl-camp self-check
           uv run xrpl-camp start --dry-run < /dev/null
 
-  # No workflow anywhere used to reference npm/ at all -- this is one of
+  # No workflow anywhere used to reference the npm wrapper at all -- this is one of
   # exactly two distribution channels for this product, and zero CI
   # coverage over it is exactly the kind of gap that let the live npm
   # registry drift to a version (1.3.2) absent from git.
@@ -111,7 +113,7 @@ jobs:
           node-version: 22
 
       - name: Syntax check launcher
-        run: node -c npm/bin/xrpl-camp.js
+        run: node -c bin/xrpl-camp.js
 
       - name: Install npm dependencies (resolves @mcptoolshop/npm-launcher)
         working-directory: npm
