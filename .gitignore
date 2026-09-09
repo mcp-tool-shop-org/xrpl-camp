@@ -45,3 +45,4 @@ site/node_modules/
 
 # Polyglot translation cache
 .polyglot-cache.json
+.swarm/

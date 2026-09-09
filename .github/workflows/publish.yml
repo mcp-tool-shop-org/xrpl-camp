@@ -1,19 +1,156 @@
-name: Publish to PyPI
+# LOAD-BEARING: the filename "publish.yml", the `environment: pypi` on the
+# publish-pypi job, and its `permissions: id-token: write` together ARE this
+# project's PyPI Trusted Publishing identity. PyPI's Trusted Publisher
+# config authenticates against the exact workflow filename + environment
+# name, not the workflow `name:` field above. Renaming this file, renaming
+# the `pypi` environment, or dropping `id-token: write` breaks publishing in
+# a way that will not surface until the next release is cut. Do not rename.
+#
+# This file used to be PyPI-only, triggered by `on: release: published`,
+# with a *separate* release-binaries.yml building platform binaries and
+# creating the GitHub Release (via softprops/action-gh-release, authenticated
+# as GITHUB_TOKEN). GitHub does not cascade workflow triggers from
+# GITHUB_TOKEN-raised events, so this file's `release: published` trigger
+# never fired from that path -- confirmed by authorship: v1.3.1 and v1.0.6
+# were released by github-actions[bot] via release-binaries.yml and neither
+# triggered a PyPI publish; v1.1.0 was released by a human via
+# `gh release create` and it fired normally. That gap is the root cause of a
+# five-month span where PyPI served 1.1.0 while pyproject.toml moved on
+# without it. Merging binary build + GitHub Release + PyPI publish into one
+# workflow, triggered directly by the tag push, removes the cross-workflow
+# event dependency instead of working around it.
+#
+# Measured pre-merge baseline (last real runs before this merge):
+#   publish.yml alone   (run 23308888312, 2026-03-19): ~1 billed minute
+#     (single ubuntu-latest job, ~24s)
+#   release-binaries.yml (run 24438297762, 2026-04-15): ~4 raw runner-minutes
+#     (1 windows-latest ~60s, 1 macos-latest ~25s, 2 ubuntu-latest ~33s+10s),
+#     ~15 minute-equivalents once weighted by GitHub's published OS cost
+#     multiplier (windows ~2x, macos ~10x linux).
+# Combined, this is the real per-tag-push cost floor for the merged
+# workflow below; the new PyPI verification step adds a bounded poll
+# (up to ~2.5 min, see scripts/verify-pypi-publish.sh) not reflected in
+# the pre-merge figures above since it did not exist yet. Re-measure via
+# `gh api repos/mcp-tool-shop-org/xrpl-camp/actions/runs/<id>/jobs` after
+# the first real tag push against this file.
+name: Publish
 
 on:
-  release:
-    types: [published]
+  push:
+    tags: ["v*"]
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
-  publish:
+  # Asset naming convention (locked):
+  #   xrpl-camp-<version>-<os>-<arch>[.exe]
+  #   checksums-<version>.txt
+  build-binaries:
+    # workflow_dispatch lets a human pick ANY branch or tag, defaulting to
+    # the repo's default branch. Without this guard, a manual dispatch
+    # against a branch would mint a GitHub Release and binaries named after
+    # that branch (e.g. "main") instead of failing fast -- exactly the kind
+    # of mistake someone doing manual release recovery under pressure could
+    # make (this repo has already needed manual recovery once, for v1.0.6).
+    if: startsWith(github.ref, 'refs/tags/v')
+    timeout-minutes: 25
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux-x64
+            ext: ""
+          - os: macos-latest
+            target: darwin-arm64
+            ext: ""
+          # darwin-x64 intentionally not built: Rosetta 2 translates
+          # x86_64 binaries to run ON Apple Silicon hosts, it does NOT run
+          # arm64 binaries on Intel hosts -- there is no reverse path, so
+          # the darwin-arm64 binary above does not help Intel Mac users.
+          # An earlier version of this comment claimed the opposite and was
+          # wrong: it left Intel Mac users with a hard, total failure via
+          # npm (no checksum entry for darwin-x64 -> ensureBinary() throws)
+          # while npm/README.md promised "No Python required". Restoring a
+          # real darwin-x64 leg needs a verified cross-build (e.g. a
+          # Rosetta-hosted x86_64 Python toolchain on an arm64 runner) that
+          # nobody has proven working yet, and this workflow cannot trigger
+          # a real run to prove one out. Until that exists, Intel Mac users
+          # are directed to `pipx install xrpl-camp` instead (pure Python,
+          # unaffected). npm/README.md's "No Python required" line needs a
+          # matching qualifier -- flagged for the coordinator, not edited
+          # here (npm/README.md is a public surface owned outside this
+          # domain).
+          - os: windows-latest
+            target: win-x64
+            ext: ".exe"
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # v8.2.0
+
+      - run: uv python install 3.12
+
+      - run: uv venv
+
+      - name: Install dependencies + PyInstaller
+        run: uv pip install . "pyinstaller>=6.9.0,<7.0"
+
+      - name: Build binary
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          uv run pyinstaller --onefile --name "xrpl-camp" --console \
+            --collect-submodules rich \
+            --collect-data xrpl \
+            xrpl_camp/__main__.py
+          OUTNAME="xrpl-camp-${VERSION}-${{ matrix.target }}${{ matrix.ext }}"
+          mv "dist/xrpl-camp${{ matrix.ext }}" "dist/${OUTNAME}"
+          echo "ASSET_NAME=${OUTNAME}" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: binary-${{ matrix.target }}
+          path: dist/${{ env.ASSET_NAME }}
+
+  github-release:
+    needs: build-binaries
+    if: startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7.0.0
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate checksums
+        shell: bash
+        run: |
+          VERSION=${GITHUB_REF_NAME#v}
+          cd artifacts
+          sha256sum * > "checksums-${VERSION}.txt"
+          cat "checksums-${VERSION}.txt"
+
+      - uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
+        with:
+          files: artifacts/*
+
+  publish-pypi:
+    needs: github-release
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
     environment: pypi
     permissions:
+      contents: read
       id-token: write
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
@@ -30,4 +167,10 @@ jobs:
         run: python -m build
 
       - name: Publish to PyPI
-        uses: pypa/gh-action-pypi-publish@76f52bc884231f62b54f72e44af3571922400088 # v1.12.4
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+
+      - name: Verify PyPI actually serves this version
+        # Compensator for the whole defect class this file used to have:
+        # a publish step can exit 0 while the registry silently doesn't
+        # reflect it. Bounded retry (~2.5 min max) -- see script header.
+        run: bash scripts/verify-pypi-publish.sh "${GITHUB_REF_NAME#v}"

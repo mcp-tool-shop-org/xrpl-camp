@@ -1,17 +1,28 @@
 name: CI
 
+# Measured cost (run 34122838365, 2026-09-07, push trigger): ~2 billed
+# runner-minutes -- 2 parallel ubuntu-latest legs (lint-and-test x2 Python
+# versions, ~10-13s each) with canary previously skipped outside
+# workflow_dispatch. canary now runs unconditionally (see job comment) and
+# npm-check is new, so per-push cost is measured, real, and about to move --
+# re-measure via `gh api .../actions/runs/<id>/jobs` after this lands.
+
 on:
   push:
     paths:
       - "xrpl_camp/**"
       - "tests/**"
       - "pyproject.toml"
+      - "npm/**"
+      - "scripts/**"
       - ".github/workflows/**"
   pull_request:
     paths:
       - "xrpl_camp/**"
       - "tests/**"
       - "pyproject.toml"
+      - "npm/**"
+      - "scripts/**"
       - ".github/workflows/**"
   workflow_dispatch:
 
@@ -19,9 +30,17 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+# Least privilege by default, guaranteed by this file rather than by the
+# org/repo "default_workflow_permissions" setting, which could change
+# without this file noticing. This is also the one workflow in the domain
+# that runs against pull_request (potentially exercising fork contributions).
+permissions:
+  contents: read
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
@@ -39,17 +58,22 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Lint
-        run: uv run ruff check .
+      - name: Dependency vulnerability scan
+        run: uv run --with pip-audit pip-audit
 
-      - name: Test
-        run: uv run pytest tests/ -v
+      - name: Verify (lint + test + build + smoke)
+        run: bash scripts/verify.sh
 
-  # Manual-only canary: quick CLI smoke test (dry-run, no real testnet)
-  # Trigger via: Actions → CI → Run workflow
+  # Exercises the real CLI runtime path end-to-end, as opposed to
+  # lint/unit-test. Runs on every push/PR/dispatch (the workflow-level
+  # `on:` above) rather than workflow_dispatch-only -- a gate that can only
+  # ever be run by a human choosing to run it, and even then cannot report
+  # failure, is worse than no gate. Do not add `|| true` / continue-on-error
+  # back onto the smoke step below; a red canary here has real value and
+  # must be allowed to fail the job.
   canary:
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -65,4 +89,28 @@ jobs:
         run: |
           uv run xrpl-camp --help
           uv run xrpl-camp self-check
-          uv run xrpl-camp start --dry-run || true
+          uv run xrpl-camp start --dry-run < /dev/null
+
+  # No workflow anywhere used to reference npm/ at all -- this is one of
+  # exactly two distribution channels for this product, and zero CI
+  # coverage over it is exactly the kind of gap that let the live npm
+  # registry drift to a version (1.3.2) absent from git.
+  npm-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+
+      - name: Syntax check launcher
+        run: node -c npm/bin/xrpl-camp.js
+
+      - name: Packaging dry run
+        working-directory: npm
+        run: npm pack --dry-run
+
+      - name: Version consistency check
+        run: bash scripts/check-versions.sh

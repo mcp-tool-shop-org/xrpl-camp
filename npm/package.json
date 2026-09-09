@@ -6,7 +6,8 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mcp-tool-shop-org/xrpl-camp.git"
+    "url": "https://github.com/mcp-tool-shop-org/xrpl-camp.git",
+    "directory": "npm"
   },
   "homepage": "https://mcp-tool-shop-org.github.io/xrpl-camp/",
   "keywords": [
@@ -29,5 +30,10 @@
   },
   "bin": {
     "xrpl-camp": "bin/xrpl-camp.js"
-  }
+  },
+  "files": [
+    "bin/",
+    "README.md",
+    "LICENSE"
+  ]
 }

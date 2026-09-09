@@ -8,7 +8,7 @@ version = "1.3.1"
 description = "Learn the XRPL diary — wallet, payment, verification, certificate in one sitting."
 readme = "README.md"
 license = "MIT"
-requires-python = ">=3.11"
+requires-python = ">=3.11,<3.14"
 authors = [
     { name = "mcp-tool-shop", email = "64996768+mcp-tool-shop@users.noreply.github.com" },
 ]
@@ -21,13 +21,20 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Programming Language :: Python :: 3.13",
     "Topic :: Education",
 ]
+# Upper bounds are deliberate: this is an application shipped via
+# pipx/PyPI/npm, not a library, so `dependencies` records what has actually
+# been tested, not the widest range a downstream consumer might tolerate.
+# xrpl-py had no upper bound in production and silently resolved to 5.1.0,
+# under which the product's core transaction is rejected outright -- typer
+# and rich were equally exposed to the same class of incident, just not yet
+# hit. No committed lock file exists (uv.lock is gitignored) to fall back
+# on, so these ceilings are the only floor against an untested major.
 dependencies = [
-    "typer>=0.9",
-    "rich>=13.0",
-    "xrpl-py>=2.0",
+    "typer>=0.9,<1.0",
+    "rich>=13.7,<16.0",
+    "xrpl-py>=5.0,<6.0",
 ]
 
 [dependency-groups]
@@ -37,7 +44,7 @@ dev = [
 ]
 
 [project.scripts]
-xrpl-camp = "xrpl_camp.cli:app"
+xrpl-camp = "xrpl_camp.cli:run"
 
 [tool.ruff]
 target-version = "py311"

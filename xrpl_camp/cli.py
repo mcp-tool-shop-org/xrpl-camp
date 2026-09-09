@@ -1,8 +1,17 @@
-"""XRPL Camp CLI — the teaching console."""
+"""XRPL Camp CLI - the teaching console.
+
+Exit codes follow the documented contract:
+0 ok | 1 user error | 2 runtime error | 3 partial success.
+
+Every failure here is a :class:`CampError`, so the learner always gets a code
+they can quote in a bug report, a plain message, and something to try next.
+"""
 
 from __future__ import annotations
 
+import os
 import platform
+import re
 import shutil
 import sys
 import tempfile
@@ -11,11 +20,26 @@ from typing import Annotated
 
 import typer
 from rich.console import Console
+from rich.markup import escape
 from rich.table import Table
 
 import xrpl_camp
 from xrpl_camp import lessons, wallet
-from xrpl_camp.lessons import LESSON_NAMES, _format_duration
+from xrpl_camp.errors import (
+    EXIT_OK,
+    EXIT_USER,
+    CampError,
+    CampFailure,
+    delete_error,
+    format_error,
+    pack_invalid_error,
+    set_verbose,
+    state_corrupt_error,
+    wallet_corrupt_error,
+    wallet_missing_error,
+    write_error,
+)
+from xrpl_camp.lessons import LESSON_NAMES, format_duration
 from xrpl_camp.models import (
     STATE_DIR,
     DryRunSession,
@@ -29,8 +53,120 @@ app = typer.Typer(
     name="xrpl-camp",
     help="XRPL Camp — learn the XRPL diary in one sitting.",
     no_args_is_help=True,
+    # Typer's Rich traceback would print a full stack over the top of a
+    # perfectly good structured error. Gate B forbids raw stacks; `run()`
+    # below is the single place a CampFailure becomes user-facing output.
+    pretty_exceptions_enable=False,
 )
 console = Console()
+
+PROOF_PACK_SCHEMA = "xrpl-camp-proof-pack-v1"
+
+
+# ---------------------------------------------------------------------------
+# Shared plumbing
+# ---------------------------------------------------------------------------
+
+
+def _fail(err: CampError) -> typer.Exit:
+    """Print a structured error and build the matching Exit to raise."""
+    console.print(format_error(err))
+    return typer.Exit(err.exit_code)
+
+
+def _simulating(flag: bool) -> bool:
+    """Resolve dry-run from the command flag or the app-level flag."""
+    if flag:
+        set_execution_mode(ExecutionMode.DRY_RUN)
+    return flag or is_dry_run()
+
+
+def _read_session(*, dry_run: bool = False) -> Session | None:
+    """Read existing session state. Creates nothing. None when there is none."""
+    try:
+        return DryRunSession.from_existing() if dry_run else Session.load()
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        raise _fail(state_corrupt_error(f"{type(exc).__name__}: {exc}")) from None
+
+
+def _get_session(*, dry_run: bool = False) -> Session:
+    """Get a session for a command that records progress."""
+    try:
+        return DryRunSession.from_existing() if dry_run else Session.get_or_create()
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        raise _fail(state_corrupt_error(f"{type(exc).__name__}: {exc}")) from None
+
+
+def _read_wallet() -> dict | None:
+    """Load the wallet, turning an unreadable file into a clean error."""
+    try:
+        return wallet.load_wallet()
+    except (OSError, ValueError, TypeError, KeyError) as exc:
+        raise _fail(wallet_corrupt_error(f"{type(exc).__name__}: {exc}")) from None
+
+
+def _has_progress(session: Session | None) -> bool:
+    """True when a session records anything at all."""
+    return bool(session and (session.progress or session.completed_lessons))
+
+
+def _redact(text: str) -> str:
+    """Strip the home directory and account name out of diagnostic text."""
+    out = text
+    names: list[str] = []
+    try:
+        home = str(Path.home())
+    except (RuntimeError, OSError):
+        home = ""
+    if home:
+        out = out.replace(home, "~")
+        names.append(Path(home).name)
+    names.extend(os.environ.get(var, "") for var in ("USERNAME", "USER", "LOGNAME"))
+    for name in names:
+        if len(name) >= 3:
+            out = re.sub(re.escape(name), "<user>", out, flags=re.IGNORECASE)
+    return out
+
+
+def _version_callback(value: bool) -> None:
+    """Print the version and exit. Eager, so it works without a subcommand."""
+    if value:
+        console.print(f"xrpl-camp {xrpl_camp.__version__}")
+        raise typer.Exit(EXIT_OK)
+
+
+@app.callback()
+def main(
+    version: Annotated[
+        bool, typer.Option(
+            "--version",
+            callback=_version_callback,
+            is_eager=True,
+            help="Show the installed version and exit",
+        )
+    ] = False,
+    dry_run: Annotated[
+        bool, typer.Option(
+            "--dry-run",
+            help="Simulate every command in this run: no network calls, no disk writes",
+        )
+    ] = False,
+    yes: Annotated[
+        bool, typer.Option(
+            "--yes", "-y",
+            help="Non-interactive: never wait for a keypress (RESET still asks)",
+        )
+    ] = False,
+    verbose: Annotated[
+        bool, typer.Option("--verbose", help="Include technical detail with errors"),
+    ] = False,
+) -> None:
+    """XRPL Camp — learn the XRPL diary in one sitting."""
+    # Set explicitly both ways: these are process globals, and a command must
+    # never inherit a mode from an earlier invocation in the same process.
+    set_execution_mode(ExecutionMode.DRY_RUN if dry_run else ExecutionMode.REAL)
+    lessons.set_non_interactive(yes)
+    set_verbose(verbose)
 
 
 @app.command()
@@ -43,9 +179,9 @@ def start(
     ] = False,
 ) -> None:
     """Guided flow through all 6 lessons."""
-    if dry_run:
-        set_execution_mode(ExecutionMode.DRY_RUN)
-    lessons.run_guided_flow(dry_run=dry_run)
+    code = lessons.run_guided_flow(dry_run=_simulating(dry_run))
+    if code != EXIT_OK:
+        raise typer.Exit(code)
 
 
 # ---------------------------------------------------------------------------
@@ -62,84 +198,83 @@ def status(
     ] = False,
 ) -> None:
     """Show your training progress."""
-    session = Session.load()
-    if session is None or not session.progress:
+    session = _read_session()
+    if not _has_progress(session):
         console.print("\n  [dim]No training started yet. Run: xrpl-camp start[/dim]\n")
         return
+
+    # One source of truth for "where am I", so the list and the hint below it
+    # cannot contradict each other when lessons complete out of order.
+    next_lesson = next((n for n in range(1, 7) if not session.is_complete(n)), None)
 
     console.print()
     for num in range(1, 7):
         name = LESSON_NAMES[num]
-        prog = session.get_progress(num)
-        if prog:
-            # Completed
+        if session.is_complete(num):
+            prog = session.get_progress(num)
             duration = ""
-            if prog.duration_seconds > 0:
-                duration = f"  [dim]({_format_duration(prog.duration_seconds)})[/dim]"
             txid = ""
-            if prog.txid:
-                txid = f"\n       [dim]tx: {prog.txid[:16]}…[/dim]"
+            if prog:
+                if prog.duration_seconds > 0:
+                    duration = f"  [dim]({format_duration(prog.duration_seconds)})[/dim]"
+                if prog.txid:
+                    txid = f"\n       [dim]tx: {escape(prog.txid[:16])}…[/dim]"
             console.print(f"  [green]✓[/green] [bold]{name}[/bold]{duration}{txid}")
+        elif num == next_lesson:
+            console.print(f"  [cyan]▸[/cyan] {name}  [cyan]← next[/cyan]")
         else:
-            # Next up or pending
-            is_next = all(
-                session.is_complete(i) for i in range(1, num)
-            )
-            if is_next:
-                console.print(f"  [cyan]▸[/cyan] {name}  [cyan]← next[/cyan]")
-            else:
-                console.print(f"  [dim]◌ {name}[/dim]")
+            console.print(f"  [dim]◌ {name}[/dim]")
 
-    # Summary line
-    done = len(session.completed_lessons)
+    # Counted over the six real lessons, so a drifted state file cannot
+    # produce "8/6 lessons complete".
+    done = sum(1 for n in range(1, 7) if session.is_complete(n))
     total = session.total_duration()
     console.print()
     if done == 6:
-        duration_str = f" in {_format_duration(total)}" if total > 0 else ""
+        duration_str = f" in {format_duration(total)}" if total > 0 else ""
         console.print(f"  [bold green]All 6 lessons complete{duration_str}.[/bold green]")
     else:
         console.print(f"  [dim]{done}/6 lessons complete[/dim]")
 
     # --detail: facilitator triage view
     if detail:
-        _print_status_detail(session, done)
+        _print_status_detail(session, next_lesson)
 
     console.print()
 
 
-def _print_status_detail(session: Session, done: int) -> None:
+def _print_status_detail(session: Session, next_lesson: int | None) -> None:
     """Print expanded status detail for facilitator triage."""
     console.print()
     console.print("  [bold]─── Detail ───[/bold]")
 
     # Wallet state
-    w = wallet.load_wallet()
+    w = _read_wallet()
     if w:
-        console.print(f"  [bold]Wallet:[/bold]    {w['address']}")
-        console.print(f"  [dim]Created:   {w.get('created_at', '?')}[/dim]")
+        console.print(f"  [bold]Wallet:[/bold]    {escape(str(w.get('address', '?')))}")
+        console.print(f"  [dim]Created:   {escape(str(w.get('created_at', '?')))}[/dim]")
     else:
         console.print("  [bold]Wallet:[/bold]    [yellow]not created[/yellow]")
 
     # Session timing
     if session.started_at:
-        console.print(f"  [bold]Started:[/bold]   {session.started_at}")
+        console.print(f"  [bold]Started:[/bold]   {escape(session.started_at)}")
 
     # Last activity
     if session.progress:
         last = session.progress[-1]
         console.print(
-            f"  [bold]Last:[/bold]      Lesson {last.lesson} ({last.name})"
-            f" at {last.completed_at}",
+            f"  [bold]Last:[/bold]      Lesson {last.lesson} ({escape(last.name)})"
+            f" at {escape(last.completed_at)}",
         )
 
     # Transaction IDs
     if session.txids:
         for key, txid in session.txids.items():
-            console.print(f"  [bold]{key}:[/bold]  {txid}")
+            console.print(f"  [bold]{escape(str(key))}:[/bold]  {escape(str(txid))}")
 
-    # Stuck hint — if not all done, show what to run next
-    if done < 6:
-        next_lesson = done + 1
+    # Stuck hint - the same next lesson the list above marked
+    if next_lesson is not None:
         next_name = LESSON_NAMES.get(next_lesson, "?")
         hints = {
             1: "xrpl-camp start",
@@ -164,35 +299,48 @@ def _print_status_detail(session: Session, done: int) -> None:
 @app.command("wallet")
 def wallet_cmd(
     action: Annotated[str, typer.Argument(help="Action: create or show")],
+    dry_run: Annotated[
+        bool, typer.Option(
+            "--dry-run",
+            help="Simulate without writing a seed to disk",
+        )
+    ] = False,
 ) -> None:
-    """Create or display your Testnet wallet."""
+    """Create or display your Testnet wallet. 'create' writes a seed to disk."""
+    simulate = _simulating(dry_run)
+
     if action == "create":
-        if wallet.wallet_exists():
-            w = wallet.load_wallet()
+        if not simulate and wallet.wallet_exists():
+            w = _read_wallet()
             if w:
-                console.print(f"  Wallet already exists: {w['address']}")
+                console.print(f"  Wallet already exists: {escape(str(w['address']))}")
                 console.print(
                     "  [dim]Delete .xrpl-camp/wallet.json to create a new one.[/dim]",
                 )
                 return
 
-        session = Session.get_or_create()
-        lessons.lesson_2_create_wallet(session)
+        session = _get_session(dry_run=simulate)
+        result = lessons.lesson_2_create_wallet(session, dry_run=simulate)
+        if not result:
+            raise typer.Exit(result.exit_code)
 
     elif action == "show":
-        w = wallet.load_wallet()
+        w = _read_wallet()
         if not w:
-            console.print("[red]No wallet found. Run: xrpl-camp wallet create[/red]")
-            raise typer.Exit(1)
+            raise _fail(wallet_missing_error())
 
-        console.print(f"\n  [bold]Address:[/bold]  {w['address']}")
-        console.print(f"  [dim]Network:  {w.get('network', 'testnet')}[/dim]")
-        console.print(f"  [dim]Created:  {w.get('created_at', '?')}[/dim]")
+        console.print(f"\n  [bold]Address:[/bold]  {escape(str(w['address']))}")
+        console.print(f"  [dim]Network:  {escape(str(w.get('network', 'testnet')))}[/dim]")
+        console.print(f"  [dim]Created:  {escape(str(w.get('created_at', '?')))}[/dim]")
         console.print("\n  [dim]Seed is stored locally. Not shown here.[/dim]")
 
     else:
-        console.print(f"[yellow]Unknown action '{action}'. Try: create or show[/yellow]")
-        raise typer.Exit(1)
+        raise _fail(CampError(
+            code="BAD_ACTION",
+            message=f"Unknown action '{action}'.",
+            hint="Try: xrpl-camp wallet create — or xrpl-camp wallet show",
+            exit_code=EXIT_USER,
+        ))
 
 
 # ---------------------------------------------------------------------------
@@ -210,10 +358,11 @@ def fund(
     ] = False,
 ) -> None:
     """Fund your wallet via the Testnet faucet."""
-    if dry_run:
-        set_execution_mode(ExecutionMode.DRY_RUN)
-    session = DryRunSession.from_existing() if dry_run else Session.get_or_create()
-    lessons.lesson_3_fund_wallet(session, dry_run=dry_run)
+    simulate = _simulating(dry_run)
+    session = _get_session(dry_run=simulate)
+    result = lessons.lesson_3_fund_wallet(session, dry_run=simulate)
+    if not result:
+        raise typer.Exit(result.exit_code)
 
 
 # ---------------------------------------------------------------------------
@@ -231,11 +380,12 @@ def send(
         )
     ] = False,
 ) -> None:
-    """Send a self-payment with a memo to the XRPL Testnet."""
-    if dry_run:
-        set_execution_mode(ExecutionMode.DRY_RUN)
-    session = DryRunSession.from_existing() if dry_run else Session.get_or_create()
-    lessons.lesson_4_send_payment(session, memo=memo, dry_run=dry_run)
+    """Send a memo payment to your mailbox wallet on the XRPL Testnet."""
+    simulate = _simulating(dry_run)
+    session = _get_session(dry_run=simulate)
+    result = lessons.lesson_4_send_payment(session, memo=memo, dry_run=simulate)
+    if not result:
+        raise typer.Exit(result.exit_code)
 
 
 # ---------------------------------------------------------------------------
@@ -254,10 +404,11 @@ def verify(
     ] = False,
 ) -> None:
     """Verify a transaction on the XRPL Testnet."""
-    if dry_run:
-        set_execution_mode(ExecutionMode.DRY_RUN)
-    session = DryRunSession.from_existing() if dry_run else Session.get_or_create()
-    lessons.lesson_5_verify_tx(session, txid=tx, dry_run=dry_run)
+    simulate = _simulating(dry_run)
+    session = _get_session(dry_run=simulate)
+    result = lessons.lesson_5_verify_tx(session, txid=tx, dry_run=simulate)
+    if not result:
+        raise typer.Exit(result.exit_code)
 
 
 # ---------------------------------------------------------------------------
@@ -266,15 +417,31 @@ def verify(
 
 
 @app.command()
-def certificate() -> None:
-    """Generate a completion certificate and proof pack."""
-    session = Session.get_or_create()
+def certificate(
+    dry_run: Annotated[
+        bool, typer.Option(
+            "--dry-run",
+            help="Show what would be sealed without writing any files",
+        )
+    ] = False,
+) -> None:
+    """Generate a completion certificate and proof pack. Writes two files."""
+    simulate = _simulating(dry_run)
 
-    if not session.progress:
-        console.print("[yellow]No lessons completed yet. Run: xrpl-camp start[/yellow]")
-        raise typer.Exit(1)
+    # Read-only: a command that is about to refuse should not leave state
+    # behind for having been run.
+    session = _read_session(dry_run=simulate)
+    if not _has_progress(session):
+        raise _fail(CampError(
+            code="NO_PROGRESS",
+            message="No lessons completed yet, so there is nothing to certify.",
+            hint="Run: xrpl-camp start",
+            exit_code=EXIT_USER,
+        ))
 
-    lessons.lesson_6_certificate(session)
+    result = lessons.lesson_6_certificate(session, dry_run=simulate)
+    if not result:
+        raise typer.Exit(result.exit_code)
 
 
 # ---------------------------------------------------------------------------
@@ -302,15 +469,45 @@ def proof_verify(
 
     from xrpl_camp.proof_pack import verify_proof_pack
 
+    def reject(err: CampError) -> typer.Exit:
+        if json_output:
+            print(json_mod.dumps({
+                "valid": False,
+                "hash_match": False,
+                "file": str(file),
+                "code": err.code,
+                "message": err.message,
+            }, indent=2))
+            return typer.Exit(err.exit_code)
+        return _fail(err)
+
     if not file.exists():
-        console.print(f"[red]File not found: {file}[/red]")
-        raise typer.Exit(1)
+        raise reject(CampError(
+            code="FILE_NOT_FOUND",
+            message=f"File not found: {file}",
+            hint="Check the path. The proof pack is usually xrpl_camp_proof_pack.json.",
+            exit_code=EXIT_USER,
+        ))
 
     try:
         pack = json_mod.loads(file.read_text(encoding="utf-8"))
-    except (json_mod.JSONDecodeError, ValueError) as e:
-        console.print(f"[red]Invalid JSON: {e}[/red]")
-        raise typer.Exit(1) from None
+    except (json_mod.JSONDecodeError, ValueError, OSError) as e:
+        raise reject(pack_invalid_error(
+            "invalid JSON", f"{type(e).__name__}: {e}",
+        )) from None
+
+    # Valid JSON is not the same as a proof pack. A list, a number or the
+    # certificate file sitting next to it must not reach the verifier.
+    if not isinstance(pack, dict):
+        raise reject(pack_invalid_error(
+            f"the file contains a JSON {type(pack).__name__}, not an object",
+        ))
+
+    schema = str(pack.get("schema", ""))
+    if schema != PROOF_PACK_SCHEMA:
+        raise reject(pack_invalid_error(
+            f"schema is {schema or 'missing'}, expected {PROOF_PACK_SCHEMA}",
+        ))
 
     valid, message = verify_proof_pack(pack)
 
@@ -332,14 +529,14 @@ def proof_verify(
         if valid:
             console.print("\n  [green]✅ PASS[/green] — Proof pack integrity verified.\n")
         else:
-            console.print(f"\n  [red]❌ FAIL[/red] — {message}\n")
+            console.print(f"\n  [red]❌ FAIL[/red] — {escape(message)}\n")
 
-        console.print(f"  [bold]File:[/bold]     {file}")
-        console.print(f"  [bold]Schema:[/bold]   {pack.get('schema', 'unknown')}")
-        console.print(f"  [bold]Address:[/bold]  {pack.get('address', 'unknown')}")
-        console.print(f"  [bold]Network:[/bold]  {pack.get('network', 'unknown')}")
+        console.print(f"  [bold]File:[/bold]     {escape(str(file))}")
+        console.print(f"  [bold]Schema:[/bold]   {escape(str(pack.get('schema', 'unknown')))}")
+        console.print(f"  [bold]Address:[/bold]  {escape(str(pack.get('address', 'unknown')))}")
+        console.print(f"  [bold]Network:[/bold]  {escape(str(pack.get('network', 'unknown')))}")
         console.print(f"  [bold]Lessons:[/bold]  {len(pack.get('lessons', []))}")
-        console.print(f"  [bold]SHA-256:[/bold]  {pack.get('sha256', 'none')}")
+        console.print(f"  [bold]SHA-256:[/bold]  {escape(str(pack.get('sha256', 'none')))}")
         console.print()
 
     if not valid:
@@ -352,27 +549,38 @@ def proof_verify(
 
 
 @app.command()
-def reset() -> None:
+def reset(
+    dry_run: Annotated[
+        bool, typer.Option("--dry-run", help="List what would be deleted, delete nothing"),
+    ] = False,
+) -> None:
     """Wipe all XRPL Camp state (.xrpl-camp/ directory).
 
     Requires you to type RESET to confirm. This cannot be undone.
     """
-    if is_dry_run():
-        console.print("  [yellow]Reset is not available in dry-run mode.[/yellow]")
-        return
+    simulate = _simulating(dry_run)
 
     if not STATE_DIR.exists():
         console.print("  [dim]Nothing to reset. No .xrpl-camp/ directory found.[/dim]")
         return
 
     # Show what will be deleted
+    try:
+        items = sorted(STATE_DIR.iterdir())
+    except OSError as exc:
+        raise _fail(delete_error(str(STATE_DIR), f"{type(exc).__name__}: {exc}")) from None
+
     console.print("\n  [bold yellow]This will delete:[/bold yellow]")
-    for item in sorted(STATE_DIR.iterdir()):
-        console.print(f"    {item.name}")
+    for item in items:
+        console.print(f"    {escape(item.name)}")
     console.print(
-        "  [dim]This is Testnet data \u2014 you can recreate it by running start again.[/dim]",
+        "  [dim]This is Testnet data — you can recreate it by running start again.[/dim]",
     )
     console.print()
+
+    if simulate:
+        console.print("  [yellow][DRY RUN][/yellow] Nothing was deleted.")
+        return
 
     confirmation = console.input(
         "  Type [bold red]RESET[/bold red] to confirm (anything else cancels): ",
@@ -381,7 +589,20 @@ def reset() -> None:
         console.print("  [dim]Cancelled. Nothing was deleted.[/dim]")
         return
 
-    shutil.rmtree(STATE_DIR)
+    try:
+        shutil.rmtree(STATE_DIR)
+    except OSError as exc:
+        survivors = []
+        try:
+            survivors = sorted(p.name for p in STATE_DIR.iterdir())
+        except OSError:
+            survivors = []
+        if survivors:
+            console.print(
+                "  [yellow]Still there:[/yellow] " + escape(", ".join(survivors)),
+            )
+        raise _fail(delete_error(str(STATE_DIR), f"{type(exc).__name__}: {exc}")) from None
+
     console.print("  [green]Clean slate.[/green] All XRPL Camp state has been removed.")
     console.print("  [dim]Run 'xrpl-camp start' whenever you're ready to go again.[/dim]")
 
@@ -389,6 +610,24 @@ def reset() -> None:
 # ---------------------------------------------------------------------------
 # Diagnostics (self-check + support-bundle)
 # ---------------------------------------------------------------------------
+
+
+#: Import name -> distribution name, for importlib.metadata.
+_DIST_NAMES = {"xrpl": "xrpl-py", "typer": "typer", "rich": "rich"}
+
+
+def _dependency_version(mod_name: str) -> str:
+    """Installed version of a dependency, or '' if it cannot be determined.
+
+    Module __version__ attributes are unreliable (xrpl-py and rich do not
+    define one), so ask the installed distribution metadata instead.
+    """
+    from importlib.metadata import version
+
+    try:
+        return version(_DIST_NAMES.get(mod_name, mod_name))
+    except Exception:
+        return ""
 
 
 def _collect_checks() -> list[tuple[str, str, str]]:
@@ -402,7 +641,11 @@ def _collect_checks() -> list[tuple[str, str, str]]:
     py = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
     checks.append(("ok", "Platform", f"{platform.system()} {platform.machine()} · Python {py}"))
 
-    # 3. Rich rendering
+    # 3. Console encoding - the thing that breaks output on Windows
+    encoding = getattr(sys.stdout, "encoding", "") or "unknown"
+    checks.append(("ok", "Console encoding", encoding))
+
+    # 4. Rich rendering
     try:
         t = Table(title="Rich")
         t.add_column("A")
@@ -413,7 +656,7 @@ def _collect_checks() -> list[tuple[str, str, str]]:
     except Exception as exc:
         checks.append(("fail", "Rich rendering", str(exc)))
 
-    # 4. Workspace write test
+    # 5. Workspace write test
     try:
         probe = Path(tempfile.mkdtemp(prefix="xrpl-camp-"))
         (probe / "probe.txt").write_text("ok", encoding="utf-8")
@@ -422,21 +665,28 @@ def _collect_checks() -> list[tuple[str, str, str]]:
     except Exception as exc:
         checks.append(("fail", "Filesystem write", str(exc)))
 
-    # 5. State directory
+    # 6. State directory
     if STATE_DIR.exists():
-        items = list(STATE_DIR.iterdir())
-        checks.append(("ok", "State directory", f"{len(items)} file(s) in {STATE_DIR}"))
+        try:
+            items = list(STATE_DIR.iterdir())
+            checks.append(("ok", "State directory", f"{len(items)} file(s) in {STATE_DIR}"))
+        except OSError as exc:
+            checks.append(("fail", "State directory", f"{STATE_DIR} unreadable: {exc}"))
     else:
         checks.append(("info", "State directory", "Not yet created (run: xrpl-camp start)"))
 
-    # 6. Dependencies (catch all exceptions — PyInstaller may partially bundle)
+    # 7. Dependencies (catch all exceptions - PyInstaller may partially bundle)
     for mod_name in ("xrpl", "typer", "rich"):
         try:
-            mod = __import__(mod_name)
-            ver = getattr(mod, "__version__", getattr(mod, "VERSION", "?"))
-            checks.append(("ok", mod_name, str(ver)))
+            __import__(mod_name)
         except Exception as exc:
             checks.append(("fail", mod_name, type(exc).__name__ + ": " + str(exc)[:80]))
+            continue
+        ver = _dependency_version(mod_name)
+        if ver:
+            checks.append(("ok", mod_name, ver))
+        else:
+            checks.append(("info", mod_name, "-- (imported; version not reported)"))
 
     return checks
 
@@ -447,7 +697,7 @@ def _print_checks(checks: list[tuple[str, str, str]]) -> None:
     console.print()
     for status, label, detail in checks:
         icon = icons.get(status, "[dim]--[/dim]")
-        console.print(f"  {icon}  [bold]{label}[/bold]  {detail}")
+        console.print(f"  {icon}  [bold]{escape(label)}[/bold]  {escape(detail)}")
     console.print()
 
 
@@ -464,11 +714,25 @@ def _checks_to_text(checks: list[tuple[str, str, str]]) -> str:
 @app.command("self-check")
 def self_check() -> None:
     """Diagnose your environment. Paste output into a bug report."""
-    _print_checks(_collect_checks())
+    checks = _collect_checks()
+    _print_checks(checks)
+
+    failed = [label for status, label, _ in checks if status == "fail"]
+    if failed:
+        raise _fail(CampError(
+            code="SELF_CHECK_FAILED",
+            message="These checks failed: " + ", ".join(failed) + ".",
+            hint="Reinstall with 'pipx install --force xrpl-camp', then run self-check again.",
+            exit_code=EXIT_USER,
+        ))
 
 
 @app.command("support-bundle")
-def support_bundle() -> None:
+def support_bundle(
+    out: Annotated[
+        str, typer.Option("--out", help="Where to write the zip (a file or a folder)"),
+    ] = "",
+) -> None:
     """Write a diagnostic zip for bug reports. Attach it to your issue."""
     import datetime
     import json
@@ -479,41 +743,88 @@ def support_bundle() -> None:
 
     ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     bundle_name = f"xrpl-camp-support-{ts}.zip"
-    bundle_path = Path.cwd() / bundle_name
+    if not out:
+        bundle_path = Path.cwd() / bundle_name
+    elif Path(out).is_dir():
+        bundle_path = Path(out) / bundle_name
+    else:
+        bundle_path = Path(out)
 
-    with zipfile.ZipFile(bundle_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        # 1. Self-check output
-        zf.writestr("self-check.txt", _checks_to_text(checks))
+    # Say what is going in before it goes in. This file is destined for a
+    # public issue tracker.
+    console.print("  [bold]This bundle will contain:[/bold]")
+    console.print("    self-check.txt      the diagnostics printed above")
+    console.print("    session.json        your lesson progress (no seed)")
+    console.print("    state-listing.txt   the names of files in .xrpl-camp/ (no contents)")
+    console.print("    environment.json    tool version, OS, Python version")
+    console.print(
+        "  [dim]No seed, no wallet file, and no user names or home paths.[/dim]\n",
+    )
 
-        # 2. Sanitized config (session state, no secrets)
-        if STATE_DIR.exists():
-            session_file = STATE_DIR / "session.json"
-            if session_file.exists():
+    env_info = {
+        "tool": "xrpl-camp",
+        "version": xrpl_camp.__version__,
+        "platform": _redact(platform.platform()),
+        "arch": platform.machine(),
+        "python": _redact(sys.version),
+        "cwd_writable": os.access(Path.cwd(), os.W_OK),
+        "state_dir": str(STATE_DIR),
+        "state_dir_present": STATE_DIR.exists(),
+        "timestamp": ts,
+    }
+
+    try:
+        with zipfile.ZipFile(bundle_path, "w", zipfile.ZIP_DEFLATED) as zf:
+            # 1. Self-check output
+            zf.writestr("self-check.txt", _redact(_checks_to_text(checks)))
+
+            # 2. Sanitized config (session state, no secrets)
+            if STATE_DIR.exists():
+                session_file = STATE_DIR / "session.json"
+                if session_file.exists():
+                    try:
+                        data = json.loads(session_file.read_text(encoding="utf-8"))
+                        # Strip wallet secrets if present
+                        if isinstance(data, dict):
+                            for key in ("seed", "secret", "private_key"):
+                                data.pop(key, None)
+                        zf.writestr("session.json", _redact(json.dumps(data, indent=2)))
+                    except (OSError, ValueError) as exc:
+                        zf.writestr("session.json", f"(could not read: {type(exc).__name__})")
+
+                # 3. State file listing (names only, no content)
                 try:
-                    data = json.loads(session_file.read_text(encoding="utf-8"))
-                    # Strip wallet secrets if present
-                    for key in ("seed", "secret", "private_key"):
-                        data.pop(key, None)
-                    zf.writestr("session.json", json.dumps(data, indent=2))
-                except Exception:
-                    zf.writestr("session.json", "(could not read)")
+                    listing = "\n".join(f.name for f in sorted(STATE_DIR.iterdir()))
+                except OSError as exc:
+                    listing = f"(could not list: {type(exc).__name__})"
+                zf.writestr("state-listing.txt", listing)
 
-            # 3. State file listing (names only, no content)
-            listing = "\n".join(f.name for f in sorted(STATE_DIR.iterdir()))
-            zf.writestr("state-listing.txt", listing)
+            # 4. Environment summary
+            zf.writestr("environment.json", json.dumps(env_info, indent=2))
+    except OSError as exc:
+        raise _fail(write_error(str(bundle_path), f"{type(exc).__name__}: {exc}")) from None
 
-        # 4. Environment summary
-        env_info = {
-            "tool": "xrpl-camp",
-            "version": xrpl_camp.__version__,
-            "platform": platform.platform(),
-            "arch": platform.machine(),
-            "python": sys.version,
-            "cwd": str(Path.cwd()),
-            "state_dir": str(STATE_DIR),
-            "timestamp": ts,
-        }
-        zf.writestr("environment.json", json.dumps(env_info, indent=2))
-
-    console.print(f"  [green]Bundle written:[/green] {bundle_path}")
+    console.print(f"  [green]Bundle written:[/green] {escape(str(bundle_path))}")
     console.print("  [dim]Attach this file to your GitHub issue.[/dim]")
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+
+def run() -> None:
+    """Console-script entry point.
+
+    The ONE place a :class:`CampFailure` becomes user-facing output. Three
+    modules raise them (corrupt state, seed-leak refusal, artifact write), and
+    they reach here from anywhere in the call tree — including code paths a
+    command never wrapped, which is exactly where the raw tracebacks were
+    coming from. Catching the shared base once means a module added later is
+    covered before it is written.
+    """
+    try:
+        app()
+    except CampFailure as exc:
+        console.print(format_error(exc.error))
+        raise SystemExit(exc.exit_code) from None
