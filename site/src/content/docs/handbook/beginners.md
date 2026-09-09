@@ -35,9 +35,12 @@ XRPL Camp walks you through 6 lessons in about 10 minutes:
 1. **Mental Model** -- Understand accounts, balances, transactions, and memos.
 2. **Create Wallet** -- Generate a cryptographic keypair (public address + private seed).
 3. **Fund Wallet** -- Get free test XRP from the Testnet faucet.
-4. **Send Payment** -- Write a custom memo to the ledger via a 1-drop self-payment.
+4. **Send Payment** -- Write a custom memo to the ledger. The payment goes to a second
+   wallet you also own, and because that account does not exist yet, your payment is
+   what brings it into being.
 5. **Verify Transaction** -- Query the ledger to confirm what you wrote.
-6. **Certificate** -- Receive a portable, tamper-evident record of your learning.
+6. **Certificate** -- Receive a portable record of what you did, which anyone can check
+   against the ledger itself.
 
 Each lesson builds on the previous one. The guided flow (`xrpl-camp start`) handles the order automatically and resumes where you left off if you stop partway through.
 
@@ -77,7 +80,7 @@ The guided flow will walk you through each lesson with explanations, pauses betw
 | **Drop** | The smallest unit of XRP (1 XRP = 1,000,000 drops) |
 | **Faucet** | A Testnet service that gives free test XRP for development |
 | **Memo** | A text note attached to a transaction, public and permanent |
-| **Proof pack** | A tamper-evident JSON file with a SHA-256 integrity hash |
+| **Proof pack** | A JSON file naming your real transactions. Its SHA-256 hash catches accidental edits; the ledger is what proves the events happened |
 | **Certificate** | A portable record of completed lessons, safe to share |
 | **Testnet** | A practice network that mirrors the real XRPL but uses valueless test XRP |
 | **Dry run** | A simulation mode that shows what would happen without network calls |

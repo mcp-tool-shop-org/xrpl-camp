@@ -53,7 +53,9 @@ After completing all 6 lessons:
 - A confirmed payment on a real public ledger
 - A memo you chose, permanently recorded and independently verifiable
 - A certificate (`xrpl_camp_certificate.json`) — safe to share, no private keys
-- A proof pack (`xrpl_camp_proof_pack.json`) — tamper-evident, SHA-256 hashed
+- A proof pack (`xrpl_camp_proof_pack.json`) — names the real transactions, with a
+  SHA-256 hash that catches accidental edits. `proof verify --online` asks the ledger
+  whether they actually happened, which is the part nobody can fake
 
 ## Next steps
 

@@ -1,0 +1,84 @@
+# Scheduled freshness check: surfaces drift a push trigger cannot see --
+# SHA-pinned GitHub Actions (across ci.yml/pages.yml/publish.yml) that now
+# have a newer tagged release, and pyproject.toml dependency ceilings that a
+# new upstream major has moved past. See scripts/check-freshness.sh for the
+# detection logic; it is read-only and safe to run by hand at any time.
+#
+# Nothing here auto-applies a fix. Drift is written to
+# .github/freshness-report.md and, only when that file's content actually
+# changed, opened as a PR for a human to review -- a version-pin bump is a
+# real, reviewable diff; a dependency-ceiling row is notify-only (the
+# ceiling itself is a deliberate human gate -- see pyproject.toml's own
+# comment -- so this workflow never widens it automatically).
+#
+# Added under the 2026-09-08 automation.md amendment permitting scheduled,
+# PR-opening workflows in org repos when every condition holds. This one:
+#   - does something a push trigger genuinely cannot (diffs against each
+#     pin's/dependency's live upstream state, not anything that changed in
+#     THIS repo's own history)
+#   - runs weekly (Monday 08:00 UTC), not daily
+#   - is bounded: ubuntu-latest, timeout-minutes below, a concurrency group
+#   - opens a PR against a new branch -- never pushes to main directly
+#   - carries workflow_dispatch as a manual fallback
+#
+# This does not count against the 2-push-triggered-workflow-file cap: it has
+# no `push:` trigger at all (schedule + workflow_dispatch only), and that
+# cap only counts files that can fire on a push.
+#
+# Findings addressed: F-05b1e1e4 (action pin staleness -- no mechanism
+# existed to ever surface it) and F-b0a86c17 (dependency-ceiling
+# forward-signal gap -- nothing prompted a human once a new major shipped).
+name: Freshness Check
+
+on:
+  schedule:
+    - cron: "0 8 * * 1" # Monday 08:00 UTC
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Run freshness check
+        id: freshness
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: bash scripts/check-freshness.sh --out .github/freshness-report.md
+
+      - name: Open PR if the report changed
+        if: steps.freshness.outputs.drift == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "$(git status --porcelain -- .github/freshness-report.md)" ]; then
+            echo "Report content is unchanged since the last run -- nothing new to review, skipping PR."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          BRANCH="freshness-check/$(date -u +%Y-%m-%d)"
+          git checkout -b "$BRANCH"
+          git add .github/freshness-report.md
+          git commit -m "chore: weekly freshness check ($(date -u +%Y-%m-%d))"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "Freshness check: pin / dependency drift ($(date -u +%Y-%m-%d))" \
+            --body-file .github/freshness-report.md \
+            --base main \
+            --head "$BRANCH"

@@ -1,22 +1,25 @@
-"""Tests for new features: timing, auto-resume, status, interactive memo."""
+"""Tests for timing, auto-resume, and the status command.
+
+`_strip_ansi` and `squash` now come from `tests/helpers.py`: the private copy
+this file carried stripped only SGR sequences, and several assertions here were
+loose enough to pass on wrong output (`"1m" in output` is satisfied by "11m",
+`"next" in output.lower()` by the word appearing anywhere). Those are now exact
+rendered fragments, compared against whitespace-squashed output so Rich's line
+wrapping cannot decide whether the test passes.
+"""
 
 from __future__ import annotations
 
-import re
-
 from typer.testing import CliRunner
 
+from tests.helpers import squash
+from tests.helpers import strip_ansi as _strip_ansi
 from xrpl_camp.certificate import generate_certificate
 from xrpl_camp.cli import app
 from xrpl_camp.lessons import LESSON_NAMES, _format_duration
 from xrpl_camp.models import LessonProgress, Session
 
 runner = CliRunner()
-
-
-def _strip_ansi(text: str) -> str:
-    """Remove ANSI escape codes from text."""
-    return re.sub(r"\x1b\[[0-9;]*m", "", text)
 
 
 # ---------------------------------------------------------------------------
@@ -188,12 +191,14 @@ def test_status_partial_progress(tmp_path, monkeypatch):
     s.save()
 
     result = runner.invoke(app, ["status"])
-    output = _strip_ansi(result.output)
+    output = squash(result.output)
     assert result.exit_code == 0
     assert "Mental Model" in output
     assert "Create Wallet" in output
-    assert "next" in output.lower()  # Should show "next" marker for lesson 3
-    assert "2/6" in output
+    # The "next" marker must be ON lesson 3, not merely somewhere in the output.
+    assert "Fund Wallet ← next" in output
+    assert "Send Payment ← next" not in output
+    assert "2/6 lessons complete" in output
 
 
 def test_status_all_complete(tmp_path, monkeypatch):
@@ -206,10 +211,11 @@ def test_status_all_complete(tmp_path, monkeypatch):
     s.save()
 
     result = runner.invoke(app, ["status"])
-    output = _strip_ansi(result.output)
+    output = squash(result.output)
     assert result.exit_code == 0
-    assert "6 lessons complete" in output.lower()
-    assert "1m" in output  # 60 seconds total = 1m
+    # Exact rendered line. `"1m" in output` was also satisfied by "11m", "21m",
+    # or any incidental "1m" anywhere on screen.
+    assert "All 6 lessons complete in 1m." in output
 
 
 # ---------------------------------------------------------------------------
@@ -311,7 +317,11 @@ def test_guided_flow_all_complete_exits(tmp_path, monkeypatch):
         lessons.run_guided_flow()
 
     output = capture.get().lower()
-    assert "already completed all 6 lessons" in output
+    # The all-complete panel used to end on a checklist and a destructive
+    # command; it now points at what the learner can still do. Assert the
+    # intent (nothing to redo) rather than a sentence that moved.
+    assert "all 6 lessons are done" in output
+    assert "nothing here needs doing again" in output
 
 
 # ---------------------------------------------------------------------------

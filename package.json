@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/xrpl-camp",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "description": "Learn the XRP Ledger in one sitting — real transactions, portable proof, 10 minutes.",
   "type": "commonjs",
   "license": "MIT",
@@ -25,9 +25,18 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@mcptoolshop/npm-launcher": "^1.0.0"
+    "@mcptoolshop/npm-launcher": "1.1.1"
   },
   "bin": {
     "xrpl-camp": "bin/xrpl-camp.js"
+  },
+  "files": [
+    "bin/",
+    "README.md",
+    "LICENSE"
+  ],
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
   }
 }

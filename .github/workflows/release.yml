@@ -1,0 +1,143 @@
+# LOAD-BEARING: the filename "release.yml" IS this package's npm publishing
+# identity. npm Trusted Publishing authenticates against the exact repository
+# + workflow filename (mcp-tool-shop-org/xrpl-camp -> release.yml), not against
+# the `name:` field below. Renaming this file breaks npm publishing in a way
+# that does not surface until the next release is cut.
+#
+# Its sibling publish.yml is the SAME kind of binding for PyPI (filename +
+# `environment: pypi`). Two registries, two trusted publishers, two filenames
+# neither of which may move. That is why publishing is not one workflow.
+#
+# Both fire on the same tag push and run independently. This one waits for the
+# GitHub Release assets before publishing, because the npm package is a thin
+# launcher that downloads a platform binary by tag at RUN time -- shipping the
+# npm version before the binaries exist would leave a window where
+# `npx @mcptoolshop/xrpl-camp` resolves and then fails.
+#
+# Deliberately NOT the workflow_run chain used by backpropagate/xrpl-lab. That
+# pattern works, but under workflow_run `github.ref` is the default branch
+# rather than the tag, and every version/asset name has to be resolved from
+# `github.event.workflow_run.head_branch` instead -- a trap that has already
+# shipped one repo a release whose assets were named after `main`. Two
+# independent tag-triggered workflows have no such indirection to get wrong.
+#
+# Measured cost: ~1 billed runner-minute (single ubuntu-latest job), plus the
+# asset wait, which is bounded at 20 minutes and normally returns in ~3.
+name: Release (npm)
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to publish (e.g. v1.4.0)"
+        required: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  npm-publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write # OIDC. There is no NPM_TOKEN anywhere in this repo.
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+
+      # Node 22 bundles npm 10.9, which signs provenance but CANNOT negotiate
+      # the OIDC auth path -- the publish PUT returns a misleading 404 that
+      # reads like "package not found" rather than "auth failed". npm >= 11.5
+      # is required. Installing in place (`npm i -g npm@latest`) races the
+      # bundled arborist and breaks the toolchain, so this installs into a
+      # sandbox and shadows it on PATH instead.
+      - name: Install npm >= 11.5 for OIDC
+        run: |
+          set -euo pipefail
+          mkdir -p "$HOME/.npm-cli-sandbox"
+          npm install --prefix "$HOME/.npm-cli-sandbox" npm@latest
+          echo "$HOME/.npm-cli-sandbox/node_modules/.bin" >> "$GITHUB_PATH"
+
+      - name: Confirm the npm in use can do OIDC
+        run: |
+          set -euo pipefail
+          NPM_VERSION="$(npm --version)"
+          echo "npm ${NPM_VERSION} / node $(node --version)"
+          # Fail here, loudly, rather than at the publish step where the
+          # symptom is a 404 that reads like "package not found".
+          MAJOR="${NPM_VERSION%%.*}"
+          REST="${NPM_VERSION#*.}"
+          MINOR="${REST%%.*}"
+          if [ "$MAJOR" -lt 11 ] || { [ "$MAJOR" -eq 11 ] && [ "$MINOR" -lt 5 ]; }; then
+            echo "::error::npm ${NPM_VERSION} cannot negotiate OIDC; >= 11.5 required."
+            exit 1
+          fi
+
+      - name: Verify the tag matches every version surface
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          bash scripts/check-versions.sh
+          PKG=$(node -p "require('./package.json').version")
+          if [ "v${PKG}" != "$TAG" ]; then
+            echo "::error::Tag $TAG does not match package.json ${PKG}."
+            exit 1
+          fi
+
+      - name: Wait for the release binaries this launcher will fetch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          # publish.yml builds three binaries + a checksums file onto the same
+          # tag. The launcher resolves them at runtime, so publishing npm first
+          # would advertise a version that cannot actually run.
+          for attempt in $(seq 1 40); do
+            COUNT=$(gh release view "$TAG" --json assets \
+              --jq '[.assets[] | select(.name | startswith("xrpl-camp-"))] | length' \
+              2>/dev/null || echo 0)
+            if [ "${COUNT:-0}" -ge 3 ]; then
+              echo "Release $TAG has $COUNT binaries. Proceeding."
+              exit 0
+            fi
+            echo "Attempt ${attempt}/40: $TAG has ${COUNT:-0} binaries, waiting 30s..."
+            sleep 30
+          done
+          echo "::error::Timed out waiting for $TAG binaries. npm was NOT published."
+          echo "::error::Check publish.yml -- npx would fail for anyone installing this version."
+          exit 1
+
+      - run: npm install
+
+      - name: Publish to npm (OIDC trusted publishing, no token)
+        run: npm publish --provenance --access public
+
+      - name: Verify npm actually serves this version
+        run: |
+          set -euo pipefail
+          TAG="${{ github.event.inputs.tag || github.ref_name }}"
+          EXPECTED="${TAG#v}"
+          # Same compensator as the PyPI side: a publish step can exit 0 while
+          # the registry does not reflect it. The five-month gap this repo
+          # carried was exactly that failure, unnoticed.
+          for attempt in $(seq 1 10); do
+            LIVE=$(npm view "@mcptoolshop/xrpl-camp@${EXPECTED}" version 2>/dev/null || true)
+            if [ "$LIVE" = "$EXPECTED" ]; then
+              echo "OK: npm serves @mcptoolshop/xrpl-camp@${LIVE}."
+              exit 0
+            fi
+            echo "Attempt ${attempt}/10: npm does not serve ${EXPECTED} yet, waiting 15s..."
+            sleep 15
+          done
+          echo "::error::npm publish exited 0 but the registry does not serve ${EXPECTED}."
+          exit 1

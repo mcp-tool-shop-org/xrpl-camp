@@ -1,5 +1,8 @@
 name: Deploy site to GitHub Pages
 
+# Measured cost (run 26432941656, 2026-05-26, push trigger): ~2 billed
+# runner-minutes -- build (~18s) and deploy (~9s), both ubuntu-latest.
+
 on:
   push:
     branches: [main]
@@ -9,17 +12,23 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+# Workflow-level default is least privilege. `pages: write` / `id-token:
+# write` are scoped to the `deploy` job only (job-level permissions override
+# workflow-level) -- `build` only checks out code and runs `npm ci` / `npm
+# run build` against site/'s full transitive dependency tree, which never
+# needed either scope. A compromised transitive dependency executing during
+# `npm ci`/`npm run build` should not inherit Pages deploy or OIDC token
+# scope it has no legitimate use for.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -42,6 +51,10 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

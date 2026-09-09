@@ -1,0 +1,75 @@
+{
+  "close_time_iso": "2026-09-09T03:28:31Z",
+  "ctid": "C13A65A300000001",
+  "hash": "F032E793D36C49E9CB026F7E291990F77F29785118A8BBE2C071D6C6A9824E25",
+  "ledger_hash": "3A933E9E27A1251818DBB8D74F056BB353C0C4F62E8AFA623E69714B2DA751FC",
+  "ledger_index": 20604323,
+  "meta": {
+    "AffectedNodes": [
+      {
+        "ModifiedNode": {
+          "FinalFields": {
+            "Account": "r3B7h4qQERrzogwxrCqFMJBewNBzutXVn1",
+            "Balance": "98999979",
+            "Flags": 0,
+            "OwnerCount": 0,
+            "Sequence": 20604319
+          },
+          "LedgerEntryType": "AccountRoot",
+          "LedgerIndex": "B8F80CC72B5D94DA4337CCCD8A272D98DDACCFCAA51CB9337BD4DBF713FAC92A",
+          "PreviousFields": {
+            "Balance": "98999990",
+            "Sequence": 20604318
+          },
+          "PreviousTxnID": "1E721764B35CAFD9AB24CFA15D8DC5097E9B9CDFE967B3E2A99FC701A3E53E1D",
+          "PreviousTxnLgrSeq": 20604320
+        }
+      },
+      {
+        "ModifiedNode": {
+          "FinalFields": {
+            "Account": "rUUGAx14J9EwWbWLjQgVFfXA2zV5hfKqDP",
+            "Balance": "1000001",
+            "Flags": 0,
+            "OwnerCount": 0,
+            "Sequence": 20604320
+          },
+          "LedgerEntryType": "AccountRoot",
+          "LedgerIndex": "CCF5A4AB663A79046E91B341FD5C87B1D484498F93DA27A05B1ED7977FF7207A",
+          "PreviousFields": {
+            "Balance": "1000000"
+          },
+          "PreviousTxnID": "1E721764B35CAFD9AB24CFA15D8DC5097E9B9CDFE967B3E2A99FC701A3E53E1D",
+          "PreviousTxnLgrSeq": 20604320
+        }
+      }
+    ],
+    "TransactionIndex": 0,
+    "TransactionResult": "tesSUCCESS",
+    "delivered_amount": "1"
+  },
+  "tx_json": {
+    "Account": "r3B7h4qQERrzogwxrCqFMJBewNBzutXVn1",
+    "DeliverMax": "1",
+    "Destination": "rUUGAx14J9EwWbWLjQgVFfXA2zV5hfKqDP",
+    "Fee": "10",
+    "LastLedgerSequence": 20604342,
+    "Memos": [
+      {
+        "Memo": {
+          "MemoData": "5852504C43414D507C464958545552457C7265636F7264656420726573706F6E7365",
+          "MemoFormat": "746578742F706C61696E",
+          "MemoType": "746578742F706C61696E"
+        }
+      }
+    ],
+    "Sequence": 20604318,
+    "SigningPubKey": "ED5BC2C4573B590C6DFA800E368B1CE9EABCA920DCD1E627BD008DE4EC87668AE2",
+    "TransactionType": "Payment",
+    "TxnSignature": "496BF4B5F80DD54D75803185E8464AAAFB01578C753574F6B74118B350CC14E294E6D147892006FD2062E4E4FC2F017A2CC32DD1B4C4305D7F2DCEE40063DE05",
+    "ctid": "C13A65A300000001",
+    "date": 842239711,
+    "ledger_index": 20604323
+  },
+  "validated": true
+}

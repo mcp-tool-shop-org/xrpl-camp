@@ -1,19 +1,25 @@
-"""Tests for XRPL Camp CLI commands (reset, dry-run flags)."""
+"""Tests for XRPL Camp CLI commands (reset, proof verify).
+
+Behavioural coverage for every command — including the four that had none at
+all — lives in `test_cli_behaviour.py`. This module keeps `reset` and
+`proof verify`, which were already exercised by invocation rather than by help
+text.
+
+`_strip_ansi` used to be copy-pasted verbatim into this file and
+`test_features.py`, and both copies stripped only SGR sequences, so an OSC-8
+hyperlink from a future Rich release would have corrupted every substring
+assertion in both at once. The shared implementation in `tests/helpers.py`
+covers the full CSI/OSC grammar.
+"""
 
 from __future__ import annotations
 
-import re
-
 from typer.testing import CliRunner
 
+from tests.helpers import strip_ansi as _strip_ansi
 from xrpl_camp.cli import app
 
 runner = CliRunner()
-
-
-def _strip_ansi(text: str) -> str:
-    """Remove ANSI escape codes from text."""
-    return re.sub(r"\x1b\[[0-9;]*m", "", text)
 
 
 # ---------------------------------------------------------------------------
@@ -71,37 +77,19 @@ def test_reset_shows_files_before_asking(tmp_path, monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# Dry-run flag acceptance
+# Dry-run
+#
+# The four tests that were here invoked `<command> --help` and asserted the
+# literal string "--dry-run" appeared in the output. No command was ever
+# invoked WITH the flag, so they proved typer had declared an option and
+# nothing about what it does — while the advertised contract ("no network
+# calls, no disk writes") went unverified end to end.
+#
+# Replaced by `test_cli_behaviour.py::test_dry_run_commands_write_nothing_to_disk`,
+# which invokes each command WITH the flag in an isolated cwd and asserts the
+# directory is still empty afterwards, with the conftest socket guard covering
+# the network half. One help-text assertion is kept there to guard the wording.
 # ---------------------------------------------------------------------------
-
-
-def test_start_dry_run_flag_accepted():
-    """--dry-run flag is accepted by start command."""
-    result = runner.invoke(app, ["start", "--help"])
-    output = _strip_ansi(result.output)
-    assert "--dry-run" in output
-    assert "simulation" in output.lower()
-
-
-def test_fund_dry_run_flag_accepted():
-    """--dry-run flag is accepted by fund command."""
-    result = runner.invoke(app, ["fund", "--help"])
-    output = _strip_ansi(result.output)
-    assert "--dry-run" in output
-
-
-def test_send_dry_run_flag_accepted():
-    """--dry-run flag is accepted by send command."""
-    result = runner.invoke(app, ["send", "--help"])
-    output = _strip_ansi(result.output)
-    assert "--dry-run" in output
-
-
-def test_verify_dry_run_flag_accepted():
-    """--dry-run flag is accepted by verify command."""
-    result = runner.invoke(app, ["verify", "--help"])
-    output = _strip_ansi(result.output)
-    assert "--dry-run" in output
 
 
 # ---------------------------------------------------------------------------

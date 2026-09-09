@@ -1,17 +1,31 @@
 name: CI
 
+# Measured cost (run 34309109787, 2026-09-09, push trigger): ~4 billed
+# runner-minutes -- 4 ubuntu-latest jobs (npm-check ~19s, lint-and-test x2
+# Python versions ~26-27s each, canary ~13s), each billed rounded up to the
+# next minute per GitHub's billing model. This re-measurement corrects the
+# prior "~2" figure, which predated canary running unconditionally and
+# npm-check existing at all -- re-measure again via
+# `gh api .../actions/runs/<id>/jobs` if the job set changes.
+
 on:
   push:
     paths:
       - "xrpl_camp/**"
       - "tests/**"
       - "pyproject.toml"
+      - "package.json"
+      - "bin/**"
+      - "scripts/**"
       - ".github/workflows/**"
   pull_request:
     paths:
       - "xrpl_camp/**"
       - "tests/**"
       - "pyproject.toml"
+      - "package.json"
+      - "bin/**"
+      - "scripts/**"
       - ".github/workflows/**"
   workflow_dispatch:
 
@@ -19,12 +33,24 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
+# Least privilege by default, guaranteed by this file rather than by the
+# org/repo "default_workflow_permissions" setting, which could change
+# without this file noticing. This is also the one workflow in the domain
+# that runs against pull_request (potentially exercising fork contributions).
+permissions:
+  contents: read
+
 jobs:
   lint-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        # 3.13 is what the project is actually developed on; an earlier
+        # revision capped requires-python at <3.13, which would have blocked
+        # installation on the very interpreter the suite runs on locally.
+        # The studio rule allows 2-3 versions; this is the honest three.
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -39,17 +65,22 @@ jobs:
       - name: Install dependencies
         run: uv sync --dev
 
-      - name: Lint
-        run: uv run ruff check .
+      - name: Dependency vulnerability scan
+        run: uv run --with pip-audit pip-audit
 
-      - name: Test
-        run: uv run pytest tests/ -v
+      - name: Verify (lint + test + build + smoke)
+        run: bash scripts/verify.sh
 
-  # Manual-only canary: quick CLI smoke test (dry-run, no real testnet)
-  # Trigger via: Actions → CI → Run workflow
+  # Exercises the real CLI runtime path end-to-end, as opposed to
+  # lint/unit-test. Runs on every push/PR/dispatch (the workflow-level
+  # `on:` above) rather than workflow_dispatch-only -- a gate that can only
+  # ever be run by a human choosing to run it, and even then cannot report
+  # failure, is worse than no gate. Do not add `|| true` / continue-on-error
+  # back onto the smoke step below; a red canary here has real value and
+  # must be allowed to fail the job.
   canary:
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -65,4 +96,56 @@ jobs:
         run: |
           uv run xrpl-camp --help
           uv run xrpl-camp self-check
-          uv run xrpl-camp start --dry-run || true
+          uv run xrpl-camp start --dry-run < /dev/null
+
+  # No workflow anywhere used to reference the npm wrapper at all -- this is one of
+  # exactly two distribution channels for this product, and zero CI
+  # coverage over it is exactly the kind of gap that let the live npm
+  # registry drift to a version (1.3.2) absent from git.
+  npm-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: 22
+
+      - name: Syntax check launcher
+        run: node -c bin/xrpl-camp.js
+
+      - name: Install npm dependencies (resolves @mcptoolshop/npm-launcher)
+        run: npm install
+
+      - name: Packaging dry run
+        run: npm pack --dry-run
+
+      # Everything above only checks that the wrapper file parses and that
+      # `npm pack` is happy with what ships -- neither ever runs
+      # @mcptoolshop/npm-launcher's real download -> checksum-verify -> exec
+      # path, which is what every `npx @mcptoolshop/xrpl-camp` invocation
+      # actually depends on. Pinned to a fixed, already-published release
+      # (1.3.1 -- NOT derived from package.json's in-progress version)
+      # so this step's pass/fail depends only on whether the currently
+      # resolved npm-launcher can still fetch and run a real asset, not on
+      # release timing: the commit that bumps package.json's version
+      # routinely lands before the matching tag is pushed, and testing "the
+      # current version" would then fail for a reason that has nothing to do
+      # with npm-launcher.
+      #
+      # `--` is load-bearing: mcptoolshop-launch.js treats flags before it as
+      # its OWN (--help/--version there print the LAUNCHER's own help and
+      # never touch the network); only args after `--` reach the downloaded
+      # binary. Verified locally before wiring this in -- including against
+      # an older release (v1.0.2) whose Windows binary crashed at this exact
+      # invocation with a PyInstaller packaging error, confirming this step
+      # has real teeth and isn't just exercising a happy path that can't
+      # fail.
+      - name: Launcher smoke test (real download + checksum + exec)
+        env:
+          MCPTOOLSHOP_LAUNCH_CONFIG: '{"toolName":"xrpl-camp","owner":"mcp-tool-shop-org","repo":"xrpl-camp","version":"1.3.1"}'
+        run: node node_modules/@mcptoolshop/npm-launcher/bin/mcptoolshop-launch.js -- --help
+
+      - name: Version consistency check
+        run: bash scripts/check-versions.sh

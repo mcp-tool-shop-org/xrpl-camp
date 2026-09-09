@@ -1,0 +1,18 @@
+{
+  "account": "r4ZXGmJ5pWrgbmjQCErYW4rpZGBJe4XapD",
+  "error": "actNotFound",
+  "error_code": 19,
+  "error_message": "Account not found.",
+  "ledger_hash": "F0CD226B8F525FC0E13D383FD81E42381998E4CF9DB29B523538179A1269249B",
+  "ledger_index": 20604321,
+  "request": {
+    "account": "r4ZXGmJ5pWrgbmjQCErYW4rpZGBJe4XapD",
+    "api_version": 2,
+    "command": "account_info",
+    "ledger_index": "validated",
+    "queue": false,
+    "signer_lists": false,
+    "strict": false
+  },
+  "validated": true
+}
