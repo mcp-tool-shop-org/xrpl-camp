@@ -122,7 +122,10 @@ def test_session_json_schema(tmp_path, monkeypatch):
 
     data = json.loads((tmp_path / "session.json").read_text(encoding="utf-8"))
     assert set(data.keys()) == {
-        "started_at", "wallet_address", "completed_lessons", "txids", "progress",
+        # "schema_version" so a future reader knows what it is holding, and
+        # "entries" because a session is no longer one send per lesson.
+        "schema_version", "started_at", "wallet_address", "completed_lessons",
+        "txids", "progress", "entries",
     }
 
 

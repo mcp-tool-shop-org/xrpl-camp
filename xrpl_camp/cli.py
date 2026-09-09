@@ -21,6 +21,7 @@ from typing import Annotated
 import typer
 from rich.console import Console
 from rich.markup import escape
+from rich.panel import Panel
 from rich.table import Table
 
 import xrpl_camp
@@ -33,6 +34,7 @@ from xrpl_camp.errors import (
     delete_error,
     format_error,
     pack_invalid_error,
+    record_error,
     set_verbose,
     state_corrupt_error,
     wallet_corrupt_error,
@@ -70,6 +72,7 @@ PROOF_PACK_SCHEMA = "xrpl-camp-proof-pack-v1"
 
 def _fail(err: CampError) -> typer.Exit:
     """Print a structured error and build the matching Exit to raise."""
+    record_error(err, command=" ".join(sys.argv[1:3]))
     console.print(format_error(err))
     return typer.Exit(err.exit_code)
 
@@ -110,6 +113,27 @@ def _has_progress(session: Session | None) -> bool:
     return bool(session and (session.progress or session.completed_lessons))
 
 
+def _read_mailbox_address() -> str:
+    """The lesson-4 mailbox address, or '' if there is not one yet."""
+    try:
+        record = wallet.load_mailbox()
+    except Exception:
+        return ""
+    return str(record.get("address", "")) if record else ""
+
+
+#: Words that are part of a platform or Python string, never a person. An
+#: unanchored case-insensitive substitution over the account name mangled the
+#: exact data a support bundle exists to preserve: USERNAME='win' turned
+#: 'Windows-11-10.0.26340-SP0' into '<user>dows-11-...', 'python' ate the word
+#: Python, and 'arm' would eat ARM64 on Apple Silicon. Redacting a path is the
+#: goal; mangling the OS build string is collateral.
+_PLATFORM_TOKENS = frozenset({
+    "windows", "python", "amd", "arm", "x86", "x64", "msc", "darwin", "linux",
+    "win", "mac", "cpython", "intel", "gcc", "clang", "sp0", "bit",
+})
+
+
 def _redact(text: str) -> str:
     """Strip the home directory and account name out of diagnostic text."""
     out = text
@@ -123,15 +147,37 @@ def _redact(text: str) -> str:
         names.append(Path(home).name)
     names.extend(os.environ.get(var, "") for var in ("USERNAME", "USER", "LOGNAME"))
     for name in names:
-        if len(name) >= 3:
-            out = re.sub(re.escape(name), "<user>", out, flags=re.IGNORECASE)
+        if len(name) < 3 or name.lower() in _PLATFORM_TOKENS:
+            continue
+        # Word-bounded: 'dev' should not eat the 'dev' in 'devnet'.
+        out = re.sub(
+            r"\b" + re.escape(name) + r"\b", "<user>", out, flags=re.IGNORECASE,
+        )
     return out
+
+
+def _tool_version() -> str:
+    """Installed version, preferring the distribution metadata.
+
+    Three surfaces reported the version and two of them read a hand-maintained
+    literal while the proof pack read the installed distribution - so a release
+    that bumped pyproject.toml and missed __init__.py, or a stale editable
+    shadowing a pipx install, would have the version a user quotes disagree
+    with the version the proof pack cryptographically attests to. Same order
+    proof_pack already uses.
+    """
+    from importlib.metadata import version
+
+    try:
+        return version("xrpl-camp")
+    except Exception:
+        return xrpl_camp.__version__
 
 
 def _version_callback(value: bool) -> None:
     """Print the version and exit. Eager, so it works without a subcommand."""
     if value:
-        console.print(f"xrpl-camp {xrpl_camp.__version__}")
+        console.print(f"xrpl-camp {_tool_version()}")
         raise typer.Exit(EXIT_OK)
 
 
@@ -171,6 +217,13 @@ def main(
 
 @app.command()
 def start(
+    memo: Annotated[
+        str, typer.Option(
+            "--memo", "-m",
+            help="Lesson 4's message. Needed to script the guided flow, since a "
+                 "piped or --yes run cannot be asked for one",
+        )
+    ] = "",
     dry_run: Annotated[
         bool, typer.Option(
             "--dry-run",
@@ -179,7 +232,7 @@ def start(
     ] = False,
 ) -> None:
     """Guided flow through all 6 lessons."""
-    code = lessons.run_guided_flow(dry_run=_simulating(dry_run))
+    code = lessons.run_guided_flow(dry_run=_simulating(dry_run), memo=memo)
     if code != EXIT_OK:
         raise typer.Exit(code)
 
@@ -193,12 +246,22 @@ def start(
 def status(
     detail: Annotated[
         bool, typer.Option(
-            "--detail", help="Expanded view with wallet state and timing",
+            "--detail", help="Expanded view with wallet state, endpoint and timing",
+        )
+    ] = False,
+    json_output: Annotated[
+        bool, typer.Option(
+            "--json", help="Machine-readable output, for scripting a room of learners",
         )
     ] = False,
 ) -> None:
     """Show your training progress."""
     session = _read_session()
+
+    if json_output:
+        _print_status_json(session)
+        return
+
     if not _has_progress(session):
         console.print("\n  [dim]No training started yet. Run: xrpl-camp start[/dim]\n")
         return
@@ -243,35 +306,185 @@ def status(
     console.print()
 
 
+def _print_status_json(session: Session | None) -> None:
+    """Emit the whole triage view as one JSON object.
+
+    `proof verify` grew --json and `status` did not, so a workshop script had
+    no way to read thirty learners' progress except by parsing panels.
+    """
+    import json as json_mod
+
+    from xrpl_camp import transport
+
+    wallet_record = None
+    try:
+        wallet_record = wallet.load_wallet()
+    except Exception:
+        wallet_record = None
+
+    address = str(wallet_record.get("address", "")) if wallet_record else ""
+    drops, why = _live_balance(address) if address else (None, "no wallet")
+
+    payload = {
+        "tool_version": _tool_version(),
+        "endpoint": transport.get_rpc_url(),
+        "network": transport.network_label_for_url(),
+        "endpoint_pinned": bool(os.environ.get("XRPL_CAMP_RPC_URL", "").strip()),
+        "wallet_address": address,
+        "mailbox_address": _read_mailbox_address(),
+        "balance_drops": drops,
+        "balance_error": why,
+        "started_at": (session.started_at if session else "") or "",
+        "completed_lessons": sorted(
+            n for n in range(1, 7) if session and session.is_complete(n)
+        ),
+        "lessons_complete": sum(
+            1 for n in range(1, 7) if session and session.is_complete(n)
+        ),
+        "next_lesson": next(
+            (n for n in range(1, 7) if not (session and session.is_complete(n))), None,
+        ),
+        "txids": dict(session.txids) if session else {},
+        "total_duration_seconds": session.total_duration() if session else 0,
+        "artifacts": [str(p) for p in _artifact_paths()],
+        "state_dir": str(STATE_DIR),
+    }
+    print(json_mod.dumps(payload, indent=2, default=str))
+
+
+def _ago(iso: str) -> str:
+    """'3 minutes ago', or '' when the timestamp cannot be read.
+
+    Raw ISO-8601 with microseconds is noise for a beginner and harder to scan
+    for a facilitator than a relative time. The exact value stays alongside.
+    """
+    import datetime as dt
+
+    try:
+        when = dt.datetime.fromisoformat(iso)
+    except (TypeError, ValueError):
+        return ""
+    if when.tzinfo is None:
+        when = when.replace(tzinfo=dt.UTC)
+    seconds = (dt.datetime.now(dt.UTC) - when).total_seconds()
+    if seconds < 0:
+        return ""
+    if seconds < 90:
+        return f"{int(seconds)} seconds ago"
+    if seconds < 5400:
+        return f"{int(seconds // 60)} minutes ago"
+    if seconds < 172800:
+        return f"{int(seconds // 3600)} hours ago"
+    return f"{int(seconds // 86400)} days ago"
+
+
+def _stamp(iso: str) -> str:
+    """'3 minutes ago (2026-09-09T04:05:37+00:00)' - relative first."""
+    relative = _ago(iso)
+    return f"{relative}  [dim]({escape(iso)})[/dim]" if relative else escape(iso)
+
+
+def _artifact_paths() -> list[Path]:
+    """Certificate and proof pack, if they have been written here."""
+    from xrpl_camp.certificate import CERTIFICATE_FILE
+    from xrpl_camp.proof_pack import PROOF_PACK_FILE
+
+    found = []
+    for name in (CERTIFICATE_FILE, PROOF_PACK_FILE):
+        path = Path.cwd() / name
+        if path.exists():
+            found.append(path.resolve())
+    return found
+
+
+def _live_balance(address: str) -> tuple[int | None, str]:
+    """Balance in drops, or (None, why-not). Never raises.
+
+    The one question a facilitator has at lessons 3 and 4 is "did the faucet
+    actually land". A failed read must degrade to a sentence, never take the
+    triage command down with it - and never make somebody who is already stuck
+    wait out a ten-second client timeout to be told the endpoint is not there,
+    which is why the cheap reachability probe runs first.
+    """
+    from xrpl_camp import transport
+
+    url = transport.get_rpc_url()
+    reachable, _, why = _tcp_probe(url)
+    if not reachable:
+        return None, why.split(":")[0] or "endpoint unreachable"
+    try:
+        return int(transport.get_balance(address)), ""
+    except Exception as exc:
+        return None, f"{type(exc).__name__}"
+
+
 def _print_status_detail(session: Session, next_lesson: int | None) -> None:
-    """Print expanded status detail for facilitator triage."""
+    """Print expanded status detail for facilitator triage.
+
+    Everything here answers a question somebody actually asks across a room:
+    which server is this learner talking to, did their funding land, which
+    version are they on, and where did the certificate go.
+    """
+    from xrpl_camp import transport
+
     console.print()
     console.print("  [bold]─── Detail ───[/bold]")
+
+    console.print(f"  [bold]Version:[/bold]   {escape(_tool_version())}")
+
+    # Endpoint. A stale XRPL_CAMP_RPC_URL exported in a shell is otherwise
+    # completely invisible, and it is the single likeliest cause of "it works
+    # for everyone but me".
+    url = transport.get_rpc_url()
+    label = transport.network_label_for_url(url)
+    pinned = os.environ.get("XRPL_CAMP_RPC_URL", "").strip()
+    console.print(f"  [bold]Endpoint:[/bold]  {escape(url)}  [dim]({escape(label)})[/dim]")
+    if pinned:
+        console.print(
+            "  [yellow]XRPL_CAMP_RPC_URL is set in this shell — that is where "
+            "the above comes from.[/yellow]",
+        )
 
     # Wallet state
     w = _read_wallet()
     if w:
-        console.print(f"  [bold]Wallet:[/bold]    {escape(str(w.get('address', '?')))}")
-        console.print(f"  [dim]Created:   {escape(str(w.get('created_at', '?')))}[/dim]")
+        address = str(w.get("address", "?"))
+        console.print(f"  [bold]Wallet:[/bold]    {escape(address)}")
+        console.print(f"  [dim]Created:   {_stamp(str(w.get('created_at', '')))}[/dim]")
+        drops, why = _live_balance(address)
+        if drops is None:
+            console.print(f"  [bold]Balance:[/bold]   [yellow]could not read — {why}[/yellow]")
+        else:
+            console.print(
+                f"  [bold]Balance:[/bold]   {drops / 1_000_000:.2f} XRP ({drops:,} drops)",
+            )
     else:
         console.print("  [bold]Wallet:[/bold]    [yellow]not created[/yellow]")
 
+    mailbox = _read_mailbox_address()
+    if mailbox:
+        console.print(f"  [bold]Mailbox:[/bold]   {escape(mailbox)}")
+
     # Session timing
     if session.started_at:
-        console.print(f"  [bold]Started:[/bold]   {escape(session.started_at)}")
+        console.print(f"  [bold]Started:[/bold]   {_stamp(session.started_at)}")
 
     # Last activity
     if session.progress:
         last = session.progress[-1]
         console.print(
             f"  [bold]Last:[/bold]      Lesson {last.lesson} ({escape(last.name)})"
-            f" at {escape(last.completed_at)}",
+            f" — {_stamp(last.completed_at)}",
         )
 
     # Transaction IDs
     if session.txids:
         for key, txid in session.txids.items():
             console.print(f"  [bold]{escape(str(key))}:[/bold]  {escape(str(txid))}")
+
+    # Where the deliverables went. Nothing in the CLI could answer this.
+    for path in _artifact_paths():
+        console.print(f"  [bold]Artifact:[/bold]  {escape(str(path))}")
 
     # Stuck hint - the same next lesson the list above marked
     if next_lesson is not None:
@@ -418,6 +631,12 @@ def verify(
 
 @app.command()
 def certificate(
+    out: Annotated[
+        str, typer.Option(
+            "--out",
+            help="Folder to write the two files into (default: this directory)",
+        ),
+    ] = "",
     dry_run: Annotated[
         bool, typer.Option(
             "--dry-run",
@@ -439,7 +658,7 @@ def certificate(
             exit_code=EXIT_USER,
         ))
 
-    result = lessons.lesson_6_certificate(session, dry_run=simulate)
+    result = lessons.lesson_6_certificate(session, dry_run=simulate, out_dir=out)
     if not result:
         raise typer.Exit(result.exit_code)
 
@@ -630,12 +849,114 @@ def _dependency_version(mod_name: str) -> str:
         return ""
 
 
+#: Environment variables xrpl-camp reads. None of them hold key material, and
+#: between them they explain most of "it works for everyone but me".
+_CAMP_ENV_VARS = (
+    "XRPL_CAMP_RPC_URL",
+    "XRPL_CAMP_FAUCET_URL",
+    "XRPL_CAMP_HOME",
+    "XRPL_CAMP_ALLOW_ANY_NETWORK",
+    "XRPL_CAMP_ALLOW_ANY_ENDPOINT",
+    "XRPL_CAMP_NO_UTF8",
+    "XRPL_CAMP_RETRIES",
+)
+
+#: How long a diagnostic probe may block. Bounded on purpose: this command is
+#: run by somebody who is already stuck.
+_PROBE_TIMEOUT_SECONDS = 4.0
+
+
+def _camp_environment() -> dict[str, str]:
+    """The XRPL_CAMP_* variables that are actually set, redacted."""
+    return {
+        name: _redact(os.environ[name])
+        for name in _CAMP_ENV_VARS
+        if os.environ.get(name, "").strip()
+    }
+
+
+def _tcp_probe(url: str) -> tuple[bool, float, str]:
+    """Open and close a TCP connection to `url`. Returns (reachable, ms, why)."""
+    import socket
+    import time
+    from urllib.parse import urlsplit
+
+    parts = urlsplit(url)
+    host = parts.hostname or ""
+    port = parts.port or (443 if parts.scheme == "https" else 80)
+    if not host:
+        return False, 0.0, f"no host in {url}"
+    started = time.monotonic()
+    try:
+        with socket.create_connection((host, port), timeout=_PROBE_TIMEOUT_SECONDS):
+            pass
+    except Exception as exc:
+        return False, (time.monotonic() - started) * 1000, f"{type(exc).__name__}: {exc}"
+    return True, (time.monotonic() - started) * 1000, ""
+
+
+def _collect_network_checks() -> list[tuple[str, str, str]]:
+    """Ask the network the questions a stuck learner is actually stuck on.
+
+    Kept separate from the local checks because they answer different questions
+    and carry different consequences: a broken install is fixed by reinstalling,
+    and a dead endpoint is not. Nothing here can raise - a diagnostic that
+    crashes is worse than one that says nothing.
+    """
+    from xrpl_camp import transport
+
+    checks: list[tuple[str, str, str]] = []
+    url = transport.get_rpc_url()
+    pinned = os.environ.get("XRPL_CAMP_RPC_URL", "").strip()
+
+    checks.append((
+        "ok" if not pinned else "info",
+        "Endpoint",
+        f"{url}  ({transport.network_label_for_url(url)})"
+        + ("  [set by XRPL_CAMP_RPC_URL]" if pinned else ""),
+    ))
+
+    reachable, ms, why = _tcp_probe(url)
+    if not reachable:
+        checks.append(("warn", "Endpoint reachable", f"no — {why}"))
+        return checks
+    checks.append(("ok", "Endpoint reachable", f"yes, {ms:.0f} ms to open a connection"))
+
+    # The round trip. A host that accepts TCP and then answers 500 to every
+    # RPC call, or answers with a wifi sign-in page, is the failure this whole
+    # command existed to catch and could not see.
+    try:
+        network_id = transport.get_network_id(url)
+    except Exception as exc:
+        network_id = None
+        why = f"{type(exc).__name__}: {exc}"
+    else:
+        why = "the endpoint answered, but not with a server_state a rippled would send"
+
+    if network_id is None:
+        checks.append(("warn", "Ledger round-trip", f"failed — {why}"))
+    else:
+        known = {0: "Mainnet", 1: "Testnet", 2: "Devnet"}.get(network_id, "unknown network")
+        status = "ok" if network_id in transport.TESTNET_NETWORK_IDS else "warn"
+        checks.append((status, "Ledger round-trip", f"network_id {network_id} ({known})"))
+
+    faucet = transport.get_faucet_url()
+    if faucet:
+        ok, fms, fwhy = _tcp_probe(faucet)
+        checks.append((
+            "ok" if ok else "warn",
+            "Faucet reachable",
+            f"{faucet} — {f'yes, {fms:.0f} ms' if ok else 'no — ' + fwhy}",
+        ))
+    return checks
+
+
 def _collect_checks() -> list[tuple[str, str, str]]:
     """Collect diagnostic checks. Returns list of (status, label, detail)."""
     checks: list[tuple[str, str, str]] = []
 
     # 1. App version
-    checks.append(("ok", "Version", xrpl_camp.__version__))
+    checks.append(("ok", "Version", _tool_version()))
 
     # 2. Platform
     py = f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
@@ -693,7 +1014,12 @@ def _collect_checks() -> list[tuple[str, str, str]]:
 
 def _print_checks(checks: list[tuple[str, str, str]]) -> None:
     """Pretty-print diagnostic checks to console."""
-    icons = {"ok": "[green]OK[/green]", "fail": "[red]FAIL[/red]", "info": "[dim]--[/dim]"}
+    icons = {
+        "ok": "[green]OK[/green]",
+        "fail": "[red]FAIL[/red]",
+        "warn": "[yellow]WARN[/yellow]",
+        "info": "[dim]--[/dim]",
+    }
     console.print()
     for status, label, detail in checks:
         icon = icons.get(status, "[dim]--[/dim]")
@@ -704,17 +1030,38 @@ def _print_checks(checks: list[tuple[str, str, str]]) -> None:
 def _checks_to_text(checks: list[tuple[str, str, str]]) -> str:
     """Render checks as plain text for support bundles."""
     lines = []
-    icons = {"ok": "OK", "fail": "FAIL", "info": "--"}
+    icons = {"ok": "OK", "fail": "FAIL", "warn": "WARN", "info": "--"}
     for status, label, detail in checks:
         icon = icons.get(status, "--")
         lines.append(f"  {icon}  {label}  {detail}")
     return "\n".join(lines)
 
 
-@app.command("self-check")
-def self_check() -> None:
-    """Diagnose your environment. Paste output into a bug report."""
+def _diagnostics(*, offline: bool) -> list[tuple[str, str, str]]:
+    """Local checks, plus the network ones unless they were declined."""
     checks = _collect_checks()
+    if offline:
+        checks.append(("info", "Network checks", "skipped (--offline)"))
+        return checks
+    try:
+        return [*checks, *_collect_network_checks()]
+    except Exception as exc:  # a diagnostic must never be the thing that breaks
+        return [*checks, ("warn", "Network checks", f"could not run: {type(exc).__name__}")]
+
+
+@app.command("self-check")
+def self_check(
+    offline: Annotated[
+        bool, typer.Option("--offline", help="Skip the network probes"),
+    ] = False,
+) -> None:
+    """Diagnose your environment and your connection to the ledger.
+
+    Paste the output into a bug report. The network section is the half that
+    answers "why is nothing happening": which endpoint you are actually
+    talking to, whether it answers, and whether it is the Testnet.
+    """
+    checks = _diagnostics(offline=offline)
     _print_checks(checks)
 
     failed = [label for status, label, _ in checks if status == "fail"]
@@ -726,19 +1073,49 @@ def self_check() -> None:
             exit_code=EXIT_USER,
         ))
 
+    warned = [label for status, label, _ in checks if status == "warn"]
+    if not warned:
+        return
+
+    console.print(
+        "  [yellow]Network checks did not come back clean:[/yellow] "
+        + escape(", ".join(warned)),
+    )
+    # A pinned endpoint that does not answer is the learner's own
+    # configuration, and it is fixable in one command - so it earns a non-zero
+    # exit. A flaky public Testnet is neither, and reinstalling will not help.
+    if os.environ.get("XRPL_CAMP_RPC_URL", "").strip():
+        raise _fail(CampError(
+            code="SELF_CHECK_ENDPOINT",
+            message="The endpoint you pinned with XRPL_CAMP_RPC_URL is not answering.",
+            hint="Unset XRPL_CAMP_RPC_URL to use the public Testnet, then run this again.",
+            exit_code=EXIT_USER,
+        ))
+    console.print(
+        "  [dim]Nothing is wrong with your install. Check your connection, and "
+        "if you are on conference or hotel wifi, open a browser and sign in "
+        "first.[/dim]\n",
+    )
+
 
 @app.command("support-bundle")
 def support_bundle(
     out: Annotated[
         str, typer.Option("--out", help="Where to write the zip (a file or a folder)"),
     ] = "",
+    offline: Annotated[
+        bool, typer.Option("--offline", help="Skip the network probes"),
+    ] = False,
 ) -> None:
     """Write a diagnostic zip for bug reports. Attach it to your issue."""
     import datetime
     import json
     import zipfile
 
-    checks = _collect_checks()
+    from xrpl_camp import transport
+    from xrpl_camp.errors import read_error_history
+
+    checks = _diagnostics(offline=offline)
     _print_checks(checks)
 
     ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -750,26 +1127,38 @@ def support_bundle(
     else:
         bundle_path = Path(out)
 
+    history = _redact(read_error_history())
+
     # Say what is going in before it goes in. This file is destined for a
     # public issue tracker.
     console.print("  [bold]This bundle will contain:[/bold]")
     console.print("    self-check.txt      the diagnostics printed above")
     console.print("    session.json        your lesson progress (no seed)")
     console.print("    state-listing.txt   the names of files in .xrpl-camp/ (no contents)")
-    console.print("    environment.json    tool version, OS, Python version")
+    console.print("    environment.json    tool version, OS, endpoint, XRPL_CAMP_* settings")
+    if history:
+        console.print("    errors.log          the last few errors this tool reported")
     console.print(
         "  [dim]No seed, no wallet file, and no user names or home paths.[/dim]\n",
     )
 
+    # The endpoint and the XRPL_CAMP_* settings are the two things a maintainer
+    # reading this on a GitHub issue most needs and could not previously get.
+    # None of these variables hold key material.
     env_info = {
         "tool": "xrpl-camp",
-        "version": xrpl_camp.__version__,
+        "version": _tool_version(),
         "platform": _redact(platform.platform()),
         "arch": platform.machine(),
         "python": _redact(sys.version),
         "cwd_writable": os.access(Path.cwd(), os.W_OK),
         "state_dir": str(STATE_DIR),
         "state_dir_present": STATE_DIR.exists(),
+        "rpc_url": transport.get_rpc_url(),
+        "network_label": transport.network_label_for_url(),
+        "endpoint_pinned": bool(os.environ.get("XRPL_CAMP_RPC_URL", "").strip()),
+        "camp_environment": _camp_environment(),
+        "network_checks_run": not offline,
         "timestamp": ts,
     }
 
@@ -801,6 +1190,12 @@ def support_bundle(
 
             # 4. Environment summary
             zf.writestr("environment.json", json.dumps(env_info, indent=2))
+
+            # 5. Recent error history. Only when there is some - a bundle from
+            # a machine that has never failed should not carry an empty file
+            # implying it has.
+            if history:
+                zf.writestr("errors.log", history)
     except OSError as exc:
         raise _fail(write_error(str(bundle_path), f"{type(exc).__name__}: {exc}")) from None
 
@@ -813,6 +1208,10 @@ def support_bundle(
 # ---------------------------------------------------------------------------
 
 
+#: POSIX convention for "terminated by SIGINT" (128 + 2).
+EXIT_INTERRUPTED = 130
+
+
 def run() -> None:
     """Console-script entry point.
 
@@ -822,9 +1221,26 @@ def run() -> None:
     command never wrapped, which is exactly where the raw tracebacks were
     coming from. Catching the shared base once means a module added later is
     covered before it is written.
+
+    Ctrl-C lands here too. It is the most common way a run ends in a room of
+    thirty beginners, and it was the one exit path that said nothing at all —
+    the learner walked away not knowing their progress was saved, or that
+    `start` picks up exactly where they stopped. The recovery is genuinely
+    good; nobody was told it existed.
     """
     try:
         app()
     except CampFailure as exc:
         console.print(format_error(exc.error))
         raise SystemExit(exc.exit_code) from None
+    except KeyboardInterrupt:
+        console.print()
+        console.print(Panel(
+            "[bold]Stopped.[/bold]\n\n"
+            "Your progress is saved. Nothing was left half-written.\n\n"
+            "Run [bold]xrpl-camp start[/bold] to pick up where you left off, or\n"
+            "[bold]xrpl-camp status[/bold] to see where that is.",
+            title="XRPL Camp — Paused",
+            border_style="yellow",
+        ))
+        raise SystemExit(EXIT_INTERRUPTED) from None

@@ -70,6 +70,37 @@ class ArtifactWriteError(CampFailure):
         ))
 
 
+class PackGenerationError(CampFailure):
+    """Raised when a proof pack's content cannot be canonically hashed.
+
+    generate_proof_pack() computes a SHA-256 over the pack's canonical JSON
+    before anything is written to disk. If session.progress holds a value
+    canonical_json cannot serialize -- most concretely, a lone Unicode
+    surrogate code point smuggled into a txid via a hand-edited
+    session.json (json.loads() decodes a bare ``\\ud800`` escape into an
+    unpaired surrogate with zero complaint; UTF-8 encoding then refuses it)
+    -- that used to surface as a raw, unguarded UnicodeEncodeError with no
+    .code/.message/.hint. This gives it the same structured shape as every
+    other failure in this package, mirroring how verify_proof_pack already
+    turns the identical encoding failure into a clean (False, reason)
+    instead of a crash.
+    """
+
+    def __init__(self, reason: str) -> None:
+        self.code = "PACK_GENERATION_FAILED"
+        self.message = f"Could not generate proof pack: {reason}"
+        self.hint = (
+            "A stored txid or lesson name contains characters that cannot "
+            "be safely encoded -- most likely a hand-edited session.json. "
+            "Run `xrpl-camp reset` if this session was hand-edited, or fix "
+            "the offending field in .xrpl-camp/session.json by hand."
+        )
+        super().__init__(CampError(
+            code=self.code, message=self.message, hint=self.hint,
+            retryable=False, exit_code=EXIT_RUNTIME,
+        ))
+
+
 # ---------------------------------------------------------------------------
 # Seed-leak guard (shared by certificate.py and proof_pack.py)
 # ---------------------------------------------------------------------------
@@ -157,6 +188,50 @@ def _attested_network() -> tuple[str, str]:
 # ---------------------------------------------------------------------------
 
 
+def _unique_backup_path(filepath: Path) -> Path:
+    """A `<name>.<UTC-timestamp>.bak` path for `filepath` that does not exist.
+
+    Stamped (microsecond resolution) so successive backups sort
+    chronologically and, under normal use, never collide -- a learner who
+    completes the same lesson a third, fourth, or Nth time in one directory
+    gets a NEW backup file each time rather than overwriting the one
+    protecting an earlier completion's record. A numeric suffix is appended
+    only in the pathological case of two backups landing in the same clock
+    tick (a tight loop, or a coarse OS clock), so a generation can never be
+    silently overwritten regardless of clock resolution.
+    """
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%fZ")
+    candidate = filepath.with_name(f"{filepath.name}.{stamp}.bak")
+    n = 1
+    while candidate.exists():
+        candidate = filepath.with_name(f"{filepath.name}.{stamp}-{n}.bak")
+        n += 1
+    return candidate
+
+
+def _write_through_tempfile(filepath: Path, content: str) -> None:
+    """Write `content` into `filepath` via a same-directory temp file + os.replace().
+
+    Isolated from `_write_artifact` so EVERY failure point of this step --
+    including `tempfile.mkstemp` itself, which is the call most likely to be
+    the one that actually hits "No space left on device," not just the
+    write/replace after it -- is caught by one `except BaseException` in the
+    caller and can trigger the backup rollback below. An earlier version of
+    this fix wrapped only the fdopen/write/replace portion, which missed
+    exactly that case.
+    """
+    fd, tmp_name = tempfile.mkstemp(
+        dir=str(filepath.parent), prefix=filepath.name, suffix=".tmp",
+    )
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
+            f.write(content)
+        os.replace(tmp_name, filepath)
+    except BaseException:
+        Path(tmp_name).unlink(missing_ok=True)
+        raise
+
+
 def _write_artifact(filepath: Path, content: str) -> None:
     """Write `content` to `filepath` atomically, backing up any pre-existing file.
 
@@ -165,34 +240,64 @@ def _write_artifact(filepath: Path, content: str) -> None:
     - Refuses cleanly if `filepath` is itself a directory, rather than
       raising a confusing PermissionError and leaving the directory
       untouched.
-    - If a file already exists at `filepath`, it is moved to `<name>.bak`
-      (overwriting any previous .bak) instead of being silently destroyed
-      -- completing a lesson twice in the same directory no longer
-      destroys the first completion's record with zero indication.
-    - Writes through a temp file in the same directory and os.replace()s
-      it into place, so a process kill mid-write (Ctrl+C, power loss)
-      cannot leave a truncated/corrupt file on disk.
+    - If a file already exists at `filepath`, it is moved to a uniquely
+      timestamped `<name>.<UTC-timestamp>.bak` (see _unique_backup_path)
+      instead of being silently destroyed or overwriting an earlier
+      backup -- completing a lesson a third, fourth, or Nth time in the
+      same directory no longer destroys any earlier completion's record.
+      Every prior generation stays recoverable under its own name.
+    - Writes through a temp file in the same directory (see
+      _write_through_tempfile) and os.replace()s it into place, so a
+      process kill mid-write (Ctrl+C, power loss) cannot leave a
+      truncated/corrupt file on disk.
+    - The backup-then-write sequence is two steps, not one atomic
+      operation: if ANY part of the write step fails AFTER the backup
+      rename has already happened -- including mkstemp itself failing to
+      even create the temp file, e.g. because the disk that "No space
+      left on device" refers to is this one -- the prior file is moved
+      back into place before raising, so `filepath` is never left with
+      nothing at it because of a failure on our side. If that restoration
+      itself also fails (the disk is truly gone), the raised error still
+      names the exact backup path the old content survives at, instead of
+      going silent about it.
     - Wraps any OSError in ArtifactWriteError with a clearer message.
     """
+    backup_path: Path | None = None
+    restored = False
     try:
         if filepath.is_dir():
             raise OSError(f"{filepath} is a directory, not a file")
         filepath.parent.mkdir(parents=True, exist_ok=True)
         if filepath.exists():
-            backup_path = filepath.with_name(filepath.name + ".bak")
+            backup_path = _unique_backup_path(filepath)
             os.replace(filepath, backup_path)
-        fd, tmp_name = tempfile.mkstemp(
-            dir=str(filepath.parent), prefix=filepath.name, suffix=".tmp",
-        )
         try:
-            with os.fdopen(fd, "w", encoding="utf-8", newline="\n") as f:
-                f.write(content)
-            os.replace(tmp_name, filepath)
+            _write_through_tempfile(filepath, content)
         except BaseException:
-            Path(tmp_name).unlink(missing_ok=True)
+            if backup_path is not None:
+                # The failure happened AFTER we already moved the old file
+                # out of the way -- anywhere inside _write_through_tempfile,
+                # not just its write/replace tail. Put the old file back
+                # before propagating, so a write failure on our side never
+                # leaves the target path empty when the old content is
+                # right there to restore.
+                try:
+                    os.replace(backup_path, filepath)
+                    restored = True
+                except OSError:
+                    restored = False
             raise
     except OSError as e:
-        raise ArtifactWriteError(str(filepath), str(e)) from e
+        reason = str(e).rstrip(".") + "."
+        if backup_path is not None:
+            if restored:
+                reason += (
+                    f" Your previous version was restored to {filepath} "
+                    "and is unchanged."
+                )
+            else:
+                reason += f" Your previous version was preserved at {backup_path}."
+        raise ArtifactWriteError(str(filepath), reason) from e
 
 
 # ---------------------------------------------------------------------------
@@ -206,6 +311,14 @@ def generate_certificate(session: Session) -> dict:
     Trusts session.progress as-is: it does not independently re-verify
     that each lesson's transaction actually succeeded on the ledger. That
     validation belongs upstream, at the point lessons are marked complete.
+
+    The certificate carries no integrity hash by design -- it is a
+    human-readable summary, not the artifact meant to be independently
+    checked. xrpl_camp.proof_pack.generate_proof_pack/verify_proof_pack is
+    that artifact: it is the one that computes and stores a SHA-256 over
+    its own content and that a learner (or anyone else) can verify without
+    trusting this tool. There is deliberately no verify-certificate
+    counterpart to this function.
     """
     completed = []
     for p in session.progress:

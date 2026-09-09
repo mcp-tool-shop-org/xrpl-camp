@@ -11,7 +11,18 @@ captured into a support bundle).
 
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
+
+#: The endpoint override. Named here so hints can quote it and say whether it
+#: is the cause of the failure being reported.
+RPC_URL_ENV = "XRPL_CAMP_RPC_URL"
+
+#: The single opt-out for both safety gates (hostname allowlist and the
+#: server's ``network_id``). ``XRPL_CAMP_ALLOW_ANY_ENDPOINT`` is kept as an
+#: alias for compatibility, but no message advertises it any more: two
+#: near-identical names meant two rounds of trial and error for one decision.
+ALLOW_ANY_NETWORK_ENV = "XRPL_CAMP_ALLOW_ANY_NETWORK"
 
 # ---------------------------------------------------------------------------
 # Exit codes - the documented CLI contract
@@ -29,6 +40,12 @@ EXIT_PARTIAL = 3
 # ---------------------------------------------------------------------------
 
 _verbose = False
+
+#: Shown whenever an error carries technical ``detail`` the learner cannot see.
+#: The escape hatch existed from the start and no user-facing string ever named
+#: it, so the one sentence that would have solved the problem ("run
+#: `xrpl-camp reset`") sat behind a flag nobody knew was there.
+VERBOSE_POINTER = "  Run the same command with --verbose for the technical detail."
 
 
 def set_verbose(value: bool) -> None:
@@ -68,8 +85,11 @@ class CampError:
             parts.append(f"  Hint: {self.hint}")
         if self.retryable:
             parts.append("  This one is safe to run again.")
-        if self.detail and is_verbose():
-            parts.append(f"  Detail: {self.detail}")
+        if self.detail:
+            if is_verbose():
+                parts.append(f"  Detail: {self.detail}")
+            else:
+                parts.append(VERBOSE_POINTER)
         return "\n".join(parts)
 
 
@@ -114,8 +134,11 @@ def format_error(err: CampError) -> str:
         lines.append(f"  [dim]{escape(err.hint)}[/dim]")
     if err.retryable:
         lines.append("  [dim]This one is safe to run again.[/dim]")
-    if err.detail and is_verbose():
-        lines.append(f"  [dim]Detail: {escape(err.detail)}[/dim]")
+    if err.detail:
+        if is_verbose():
+            lines.append(f"  [dim]Detail: {escape(err.detail)}[/dim]")
+        else:
+            lines.append(f"  [dim]{escape(VERBOSE_POINTER.strip())}[/dim]")
     return "\n".join(lines)
 
 
@@ -157,23 +180,51 @@ def lookup_error(detail: str = "") -> CampError:
     )
 
 
-def balance_error(detail: str = "") -> CampError:
-    """Balance check failed."""
+def balance_error(detail: str = "", account: str = "") -> CampError:
+    """Balance check failed.
+
+    ``account`` names WHICH account could not be read. Lesson 4 probes two of
+    them - the learner's wallet and the mailbox it is about to pay - and an
+    unqualified "the account may not exist yet, fund it first" sent learners
+    back to lesson 3 to re-fund a wallet that was already funded.
+    """
+    whose = f" for {account}" if account else ""
     return CampError(
         code="NET_BALANCE",
-        message=f"Balance check failed{': ' + detail if detail else '.'}",
-        hint="The account may not exist yet. Fund it first.",
+        message=f"Balance check failed{whose}{': ' + detail if detail else '.'}",
+        hint=(
+            f"That account ({account}) may not exist on the ledger yet."
+            if account
+            else "The account may not exist yet. Fund it first."
+        ),
         retryable=True,
         exit_code=EXIT_RUNTIME,
     )
 
 
 def connection_error(url: str) -> CampError:
-    """Could not connect to the RPC endpoint."""
+    """Could not connect to the RPC endpoint.
+
+    The hint branches on whether the learner pinned the endpoint themselves.
+    Telling somebody to "set XRPL_CAMP_RPC_URL" when that variable is already
+    set, and is the reason the call failed, is advice pointing at the cause.
+    """
+    pinned = os.environ.get(RPC_URL_ENV, "").strip()
+    if pinned:
+        hint = (
+            f"{RPC_URL_ENV} is set to {pinned}, and that is the endpoint that "
+            f"did not answer. Unset {RPC_URL_ENV} to go back to the public Testnet."
+        )
+    else:
+        hint = (
+            "Check your internet connection. If you are on conference, hotel or "
+            "campus wifi, open a browser first - a sign-in page will block this. "
+            f"You can also set {RPC_URL_ENV} to a different Testnet endpoint."
+        )
     return CampError(
         code="NET_CONNECT",
         message=f"Could not connect to {url}",
-        hint="Check your internet connection, or set XRPL_CAMP_RPC_URL to a different endpoint.",
+        hint=hint,
         retryable=True,
         exit_code=EXIT_RUNTIME,
     )
@@ -192,17 +243,128 @@ def not_found_error(txid: str = "") -> CampError:
 
 
 def endpoint_error(url: str) -> CampError:
-    """The configured endpoint is not a known test network."""
+    """The configured endpoint is not a known test network.
+
+    The hint names ONE variable and says up front that it clears both gates.
+    There were two - a hostname allowlist here and a ``network_id`` check in
+    the signing path - and each error named only its own, so a workshop host
+    running their own rippled got past lesson 3 and then hit a second,
+    differently-named variable at lesson 4.
+    """
     return CampError(
         code="NET_ENDPOINT",
         message="That endpoint is not a known XRPL test network, so nothing was sent.",
         hint=(
-            "XRPL Camp spends real transactions. Unset XRPL_CAMP_RPC_URL to use the "
-            "Testnet, or set XRPL_CAMP_ALLOW_ANY_ENDPOINT=1 if you truly mean to use "
-            "another network."
+            f"XRPL Camp spends real transactions. Unset {RPC_URL_ENV} to use the "
+            f"Testnet, or set {ALLOW_ANY_NETWORK_ENV}=1 if you truly mean to use "
+            "another network - that one opt-in clears both this check and the "
+            "network-id check lesson 4 makes before it signs anything."
         ),
         detail=url,
         exit_code=EXIT_USER,
+    )
+
+
+def wrong_network_error(message: str = "", detail: str = "") -> CampError:
+    """The endpoint answered, and it is not a Testnet/Devnet node.
+
+    Deterministic: the same endpoint will report the same network id next
+    time, so this is never "safe to run again".
+    """
+    return CampError(
+        code="NET_WRONG_NETWORK",
+        message=message or "That endpoint is not the XRPL Testnet or Devnet, so nothing was sent.",
+        hint=(
+            f"Unset {RPC_URL_ENV} to use the public Testnet, or set "
+            f"{ALLOW_ANY_NETWORK_ENV}=1 if you really mean to use that network. "
+            "If it is Mainnet, the XRP you spend is real."
+        ),
+        retryable=False,
+        detail=detail,
+        exit_code=EXIT_USER,
+    )
+
+
+def malformed_response_error(url: str, detail: str = "") -> CampError:
+    """Something answered, but not with a rippled response.
+
+    The signature of a captive portal: HTTP 200 with a sign-in page in the
+    body. Retrying cannot help, and the old behaviour ("the transaction may
+    not be validated yet, wait and retry") sent people to wait for something
+    that had already happened.
+    """
+    return CampError(
+        code="NET_BAD_RESPONSE",
+        message=f"{url} answered, but not with something the XRP Ledger speaks.",
+        hint=(
+            "That is usually a wifi sign-in page or a proxy answering instead of "
+            "the ledger. Open a browser and finish signing in to the network, then "
+            "run this again. On a corporate proxy, ask for the endpoint to be allowed."
+        ),
+        retryable=False,
+        detail=detail,
+        exit_code=EXIT_RUNTIME,
+    )
+
+
+def wallet_seed_invalid_error(detail: str = "") -> CampError:
+    """The stored seed could not be decoded into a wallet.
+
+    Deterministic and locally fixable in one command. This used to be reported
+    as "the Testnet faucet may be temporarily down", which sent learners to
+    retry a healthy faucet forever.
+    """
+    return CampError(
+        code="WALLET_SEED_INVALID",
+        message="The wallet saved on this machine could not be read as a key.",
+        hint=(
+            "The seed in .xrpl-camp/wallet.json is damaged. Run 'xrpl-camp reset' "
+            "to start with a fresh wallet - nothing on the ledger is affected."
+        ),
+        retryable=False,
+        detail=detail,
+        exit_code=EXIT_USER,
+    )
+
+
+def unfunded_error(detail: str = "") -> CampError:
+    """The account exists but cannot cover this transaction."""
+    return CampError(
+        code="NET_UNFUNDED",
+        message="There is not enough XRP in your account for that transaction.",
+        hint="Run 'xrpl-camp fund' to top up from the Testnet faucet, then try again.",
+        retryable=False,
+        detail=detail,
+        exit_code=EXIT_USER,
+    )
+
+
+def transaction_failed_error(
+    message: str = "", detail: str = "", *, retryable: bool = False,
+) -> CampError:
+    """The request round-tripped and something came back wrong.
+
+    ``message`` is the transport's own text when it is already plain language;
+    transport writes these for humans, and burying them in ``detail`` behind
+    --verbose replaced a specific answer with a generic one.
+
+    ``retryable`` separates the two things this covers, because they need
+    opposite advice: a ledger that rejected a transaction outright will reject
+    it again, while a server answering 5xx usually will not.
+    """
+    return CampError(
+        code="NET_TX_FAILED",
+        message=message or "The ledger did not accept that transaction.",
+        hint=(
+            "The endpoint is answering with errors — usually a busy or unhealthy "
+            "server. Run 'xrpl-camp self-check' to see whether it is reachable."
+            if retryable else
+            "The ledger rejected this outright, so running it again will not "
+            "change the answer. Run 'xrpl-camp status' to see where you are."
+        ),
+        retryable=retryable,
+        detail=detail,
+        exit_code=EXIT_RUNTIME,
     )
 
 
@@ -335,3 +497,73 @@ def unexpected_error(detail: str = "") -> CampError:
         detail=detail,
         exit_code=EXIT_RUNTIME,
     )
+
+
+# ---------------------------------------------------------------------------
+# Error history - the thing a support bundle exists to carry
+# ---------------------------------------------------------------------------
+
+#: File in the state directory holding the recent-error ring buffer.
+ERROR_LOG_NAME = "errors.log"
+
+#: How many entries the ring buffer keeps. Small on purpose: this is a
+#: breadcrumb trail for a facilitator, not a log file.
+ERROR_LOG_LIMIT = 20
+
+
+def _error_log_path():
+    """Path of the error log, or None when there is no state directory.
+
+    Resolved at call time: ``models.STATE_DIR`` is a module global that
+    ``XRPL_CAMP_HOME`` and the test suite both rebind.
+    """
+    try:
+        from xrpl_camp import models
+
+        return models.STATE_DIR / ERROR_LOG_NAME
+    except Exception:
+        return None
+
+
+def record_error(err: CampError, *, command: str = "") -> None:
+    """Append `err` to the local error history. Never raises.
+
+    Deliberately does NOT create the state directory. A read-only command that
+    refuses must not leave state behind for having been run, and a machine with
+    no state directory has nothing for a support bundle to explain anyway.
+    """
+    import json
+    from datetime import UTC, datetime
+
+    path = _error_log_path()
+    if path is None or not path.parent.is_dir():
+        return
+
+    entry = {
+        "at": datetime.now(UTC).isoformat(timespec="seconds"),
+        "command": command,
+        "code": err.code,
+        "message": err.message,
+        "detail": err.detail,
+        "retryable": err.retryable,
+    }
+    try:
+        existing = path.read_text(encoding="utf-8").splitlines() if path.exists() else []
+    except OSError:
+        existing = []
+    lines = [*existing, json.dumps(entry, ensure_ascii=False)][-ERROR_LOG_LIMIT:]
+    try:
+        path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    except OSError:
+        return
+
+
+def read_error_history() -> str:
+    """The recent-error log as text, or '' when there is none. Never raises."""
+    path = _error_log_path()
+    if path is None:
+        return ""
+    try:
+        return path.read_text(encoding="utf-8") if path.exists() else ""
+    except OSError:
+        return ""

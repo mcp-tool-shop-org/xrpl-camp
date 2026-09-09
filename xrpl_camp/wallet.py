@@ -18,7 +18,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-from xrpl_camp.errors import CampError
+from xrpl_camp.errors import EXIT_USER, CampError
 from xrpl_camp.models import (
     MAILBOX_FILE,
     STATE_DIR,
@@ -28,9 +28,27 @@ from xrpl_camp.models import (
     is_dry_run,
 )
 
+# These three are bound BY VALUE at import, which is why `models.
+# refresh_state_paths()` writes through to this module (see
+# `models._PATH_MIRRORS`). Without that write-through, re-pointing
+# XRPL_CAMP_HOME moved session.json and left wallet.json behind, splitting a
+# learner's state across two directories — and `xrpl-camp reset` then deleted
+# one half. Keep them module-level: callers and tests override them here.
+
 # Owner-only. The seed is a private key; on a shared lab machine the default
 # 0644 meant any other local account could read it.
 SEED_FILE_MODE = 0o600
+
+#: Key type every seed this product issues. Pinned rather than inherited:
+#: `Wallet.create()`'s default is a dependency decision, and if it ever moves
+#: a newer install would silently start writing `ss`-prefixed secp256k1 seeds
+#: into wallet.json — a different shape for the one secret this tool stores,
+#: and the shape certificate.py's `sEd` prefix heuristic is written around.
+WALLET_ALGORITHM = "ed25519"
+
+#: Schema version stamped into wallet.json and mailbox.json, so a future
+#: format change is detectable rather than inferred from a seed prefix.
+WALLET_SCHEMA_VERSION = 1
 
 _dry_run_wallet: dict[str, str] | None = None
 _dry_run_mailbox: dict[str, str] | None = None
@@ -98,6 +116,45 @@ def _read_json_record(path: Path, required: tuple[str, ...]) -> dict[str, str]:
     return data
 
 
+def _occupied_by_error(path: Path, existing: str, incoming: str) -> StateFileError:
+    return StateFileError(CampError(
+        code="WALLET_OCCUPIED",
+        message=(
+            f"{path} already holds wallet {existing}, and this would replace "
+            f"it with {incoming}. Nothing was written."
+        ),
+        hint=(
+            "Overwriting it destroys the seed for the first wallet — and any "
+            "test XRP it holds — with no way to recover it. Run "
+            "`xrpl-camp reset` if you really want a fresh wallet, or close "
+            "the other xrpl-camp run that is using this folder."
+        ),
+        retryable=False,
+        exit_code=EXIT_USER,
+    ))
+
+
+def _refuse_clobber(path: Path, address: str, *, force: bool) -> None:
+    """Refuse to replace a stored wallet with a DIFFERENT one.
+
+    Two runs in one folder used to overwrite each other silently: the loser's
+    seed was destroyed, and if the faucet had already funded it (the guided
+    flow funds in lesson 3, before lesson 4 saves) that XRP was unrecoverable.
+    A same-address rewrite is a harmless refresh and is allowed.
+    """
+    if force or not path.exists():
+        return
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return  # a broken file is the corrupt-read path's problem, not ours
+    if not isinstance(raw, dict):
+        return
+    existing = str(raw.get("address", "") or "")
+    if existing and existing != address:
+        raise _occupied_by_error(path, existing, address)
+
+
 def _save_record(path: Path, data: dict[str, str]) -> Path:
     """Atomically write a wallet-shaped record with owner-only permissions."""
     return atomic_write_text(
@@ -111,32 +168,45 @@ def _save_record(path: Path, data: dict[str, str]) -> Path:
 
 
 def create_wallet() -> tuple[str, str]:
-    """Generate a new XRPL Testnet wallet. Returns (address, seed)."""
+    """Generate a new XRPL Testnet wallet. Returns (address, seed).
+
+    The algorithm is passed explicitly. ``Wallet.create()``'s default is
+    ed25519 *today*, but that is xrpl-py's decision, not this product's, and
+    the key type of every seed we have ever issued should not move because a
+    dependency changed its mind.
+    """
+    from xrpl.constants import CryptoAlgorithm
     from xrpl.wallet import Wallet
 
-    wallet = Wallet.create()
+    wallet = Wallet.create(algorithm=CryptoAlgorithm.ED25519)
     return wallet.address, wallet.seed
 
 
 def save_wallet(
-    address: str, seed: str, *, network: str | None = None,
+    address: str, seed: str, *, network: str | None = None, force: bool = False,
 ) -> Path | None:
     """Save wallet credentials to disk. In dry-run, caches in memory only.
 
     Returns the path actually written, or **None** in dry-run — where nothing
     was written, so returning the real wallet path would be a claim about the
     filesystem that is not true.
+
+    Refuses to replace a stored wallet with a different address unless
+    ``force=True``; see :func:`_refuse_clobber`.
     """
     global _dry_run_wallet
     data = {
+        "schema_version": WALLET_SCHEMA_VERSION,
         "address": address,
         "seed": seed,
+        "algorithm": WALLET_ALGORITHM,
         "network": network or _network_label(),
         "created_at": datetime.now(UTC).isoformat(),
     }
     if is_dry_run():
         _dry_run_wallet = data
         return None
+    _refuse_clobber(WALLET_FILE, address, force=force)
     return _save_record(WALLET_FILE, data)
 
 
@@ -172,13 +242,15 @@ def create_mailbox() -> tuple[str, str]:
 
 
 def save_mailbox(
-    address: str, seed: str, *, network: str | None = None,
+    address: str, seed: str, *, network: str | None = None, force: bool = False,
 ) -> Path | None:
     """Save the mailbox credentials. Same dry-run semantics as `save_wallet`."""
     global _dry_run_mailbox
     data = {
+        "schema_version": WALLET_SCHEMA_VERSION,
         "address": address,
         "seed": seed,
+        "algorithm": WALLET_ALGORITHM,
         "network": network or _network_label(),
         "role": "mailbox",
         "created_at": datetime.now(UTC).isoformat(),
@@ -186,6 +258,7 @@ def save_mailbox(
     if is_dry_run():
         _dry_run_mailbox = data
         return None
+    _refuse_clobber(MAILBOX_FILE, address, force=force)
     return _save_record(MAILBOX_FILE, data)
 
 
@@ -222,7 +295,9 @@ __all__ = [
     "MAILBOX_FILE",
     "SEED_FILE_MODE",
     "STATE_DIR",
+    "WALLET_ALGORITHM",
     "WALLET_FILE",
+    "WALLET_SCHEMA_VERSION",
     "create_mailbox",
     "create_wallet",
     "get_or_create_mailbox",

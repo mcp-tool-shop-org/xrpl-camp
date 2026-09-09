@@ -30,6 +30,9 @@ FIXTURES = Path(__file__).parent / "fixtures"
 #: dict with a key missing, so the not-found shape carries these too.
 LOOKUP_KEYS = frozenset({
     "found",
+    # Why a lookup did not resolve, so a caller can tell "no such transaction"
+    # from "the endpoint refused" without re-deriving it from a message string.
+    "reason",
     "hash",
     "account",
     "destination",

@@ -40,6 +40,20 @@ on:
     tags: ["v*"]
   workflow_dispatch:
 
+# Recovery discipline: never re-dispatch this workflow against a tag that
+# already has a run in progress -- check the Actions tab first. The group
+# below is scoped per-tag with cancel-in-progress: true, so a second trigger
+# against the SAME tag (e.g. someone workflow_dispatches it during manual
+# release recovery, not realizing the tag-push run is already executing --
+# this project has already lived through exactly that kind of pressured
+# recovery once, for v1.0.6) cancels the first run. If that cancellation
+# lands after github-release has already published binaries but before
+# publish-pypi completes, the result is a public GitHub Release with no
+# PyPI artifact, surfaced only as a "cancelled" run -- a status that reads
+# as intentional/benign, not as an incomplete release. The release-outcome
+# job at the bottom of this file fails loudly when github-release and
+# publish-pypi disagree, but it cannot catch a run that was cancelled
+# before it got a chance to execute at all (see that job's own comment).
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
@@ -58,6 +72,18 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/v')
     timeout-minutes: 25
     strategy:
+      # fail-fast is deliberately left at its default (true), not set to
+      # false: if one platform leg fails, the other two are cancelled and
+      # github-release/publish-pypi are skipped (GitHub Actions' documented
+      # `needs` behaviour) -- no partial release lands on GitHub or PyPI.
+      # The cost is that a release which was 2/3 working is fully blocked
+      # until all three legs succeed together in the SAME run. Recovery is
+      # "Re-run failed jobs" in the Actions UI (reuses artifacts already
+      # uploaded by the legs that succeeded, re-runs only the failed leg and
+      # its downstream jobs) -- NOT a fresh tag push (git rejects re-pushing
+      # an existing tag) and NOT a fresh workflow_dispatch (rebuilds all
+      # three legs from scratch). See also the concurrency comment above on
+      # not re-dispatching against a tag that already has a run in flight.
       matrix:
         include:
           - os: ubuntu-latest
@@ -143,6 +169,28 @@ jobs:
         with:
           files: artifacts/*
 
+  # PyPI's Trusted Publisher registration (on PyPI's own project management
+  # page -- not visible from GitHub, and not checkable with `gh`'s read-only
+  # access) must list this exact repo + workflow filename ("publish.yml") +
+  # environment name ("pypi") for the id-token: write OIDC handshake below to
+  # succeed. It has worked at least once historically (PyPI currently serves
+  # a version this repo published that way), but nothing on the GitHub side
+  # can prove the registration still matches today. There is also no
+  # workflow_dispatch-reachable dry run of just the OIDC handshake: every job
+  # in this file is gated on refs/tags/v*, and `repository-url` below is left
+  # at its default (real PyPI, no TestPyPI staging leg). The next real tag
+  # push is simultaneously the first execution of this merged workflow and
+  # the first real test of whether the OIDC trust relationship still holds.
+  #
+  # Before relying on this for a release, whoever owns the PyPI project's
+  # Trusted Publisher settings should independently confirm the entry still
+  # lists mcp-tool-shop-org/xrpl-camp + publish.yml + environment pypi. A
+  # TestPyPI-targeted rehearsal leg (separate Trusted Publisher entry,
+  # `repository-url: https://test.pypi.org/legacy/`, reachable via
+  # workflow_dispatch bypassing the tag-only guard) would close the "no
+  # cheaper way to find out first" gap, but needs a new PyPI-side Trusted
+  # Publisher registration this domain cannot create -- flagged for the
+  # coordinator/Director, not added here.
   publish-pypi:
     needs: github-release
     if: startsWith(github.ref, 'refs/tags/v')
@@ -168,9 +216,61 @@ jobs:
 
       - name: Publish to PyPI
         uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # v1.14.2
+        with:
+          # skip-existing defaults to false. Without it, a retry after a
+          # false-negative from the verify step below (e.g. brief index-
+          # propagation lag, or a transient failure reaching PyPI's read API
+          # while the write/upload API was fine) re-runs this step, which
+          # then hits PyPI's immutable-release rule ("400 File already
+          # exists") on the identical sdist/wheel -- a SECOND, differently
+          # worded failure that obscures the fact the original upload
+          # actually succeeded. With it, re-running this step after a
+          # real-but-unverified success is a safe no-op.
+          skip-existing: true
 
       - name: Verify PyPI actually serves this version
         # Compensator for the whole defect class this file used to have:
         # a publish step can exit 0 while the registry silently doesn't
         # reflect it. Bounded retry (~2.5 min max) -- see script header.
+        # Also checks artifact completeness (sdist + wheel both present),
+        # not just that PyPI's current-version pointer moved.
         run: bash scripts/verify-pypi-publish.sh "${GITHUB_REF_NAME#v}"
+
+  # Closing consistency check: if github-release published but publish-pypi
+  # did not succeed, fail loudly instead of leaving a public GitHub Release
+  # with no PyPI artifact and no alarm. `if: always()` lets this run even
+  # though GitHub Actions' default `needs` behaviour would otherwise skip a
+  # downstream job the moment any upstream job fails.
+  #
+  # Two known limits, both inherent to how Actions cancellation works and
+  # not closeable from inside a single workflow run: (1) if the WHOLE run is
+  # cancelled (see the concurrency comment above) before this job starts, it
+  # may never execute either -- this closes the "upstream job failed but the
+  # run kept going" gap, not the "run was cancelled outright" gap. (2) there
+  # is no notification wiring anywhere in this domain (checked .github/,
+  # scripts/, npm/ for slack|webhook|notify|discord|pagerduty|email|
+  # issues/create -- no matches), so a red run here is only visible to
+  # someone who looks at the Actions tab. Wiring an external notification
+  # channel needs a secret this domain does not own -- flagged for the
+  # coordinator/Director, not added here.
+  release-outcome:
+    name: Verify release outcome is consistent
+    needs: [build-binaries, github-release, publish-pypi]
+    if: always() && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Check that GitHub Release and PyPI publish agree
+        run: |
+          echo "build-binaries: ${{ needs.build-binaries.result }}"
+          echo "github-release: ${{ needs.github-release.result }}"
+          echo "publish-pypi:   ${{ needs.publish-pypi.result }}"
+
+          if [ "${{ needs.github-release.result }}" = "success" ] && [ "${{ needs.publish-pypi.result }}" != "success" ]; then
+            echo "::error::Release is INCONSISTENT for ${GITHUB_REF_NAME}: a GitHub Release was published, but publish-pypi did not succeed (result: ${{ needs.publish-pypi.result }}). PyPI does not have this release. Do not re-dispatch this workflow against the same tag -- check the Actions tab for an in-flight run first, then use 'Re-run failed jobs' rather than a fresh dispatch (see the concurrency comment near the top of this file)."
+            exit 1
+          fi
+
+          echo "Release outcome is consistent (or nothing was expected to publish on this ref)."

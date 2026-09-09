@@ -75,4 +75,6 @@ def test_wallet_json_no_extra_fields(tmp_path, monkeypatch):
 
     save_wallet("rAddr", "sSeed")
     data = json.loads((tmp_path / "wallet.json").read_text(encoding="utf-8"))
-    assert set(data.keys()) == {"address", "seed", "network", "created_at"}
+    assert set(data.keys()) == {
+        "schema_version", "address", "seed", "network", "created_at", "algorithm",
+    }

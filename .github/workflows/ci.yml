@@ -1,11 +1,12 @@
 name: CI
 
-# Measured cost (run 34122838365, 2026-09-07, push trigger): ~2 billed
-# runner-minutes -- 2 parallel ubuntu-latest legs (lint-and-test x2 Python
-# versions, ~10-13s each) with canary previously skipped outside
-# workflow_dispatch. canary now runs unconditionally (see job comment) and
-# npm-check is new, so per-push cost is measured, real, and about to move --
-# re-measure via `gh api .../actions/runs/<id>/jobs` after this lands.
+# Measured cost (run 34309109787, 2026-09-09, push trigger): ~4 billed
+# runner-minutes -- 4 ubuntu-latest jobs (npm-check ~19s, lint-and-test x2
+# Python versions ~26-27s each, canary ~13s), each billed rounded up to the
+# next minute per GitHub's billing model. This re-measurement corrects the
+# prior "~2" figure, which predated canary running unconditionally and
+# npm-check existing at all -- re-measure again via
+# `gh api .../actions/runs/<id>/jobs` if the job set changes.
 
 on:
   push:
@@ -43,7 +44,11 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        python-version: ["3.11", "3.12"]
+        # 3.13 is what the project is actually developed on; an earlier
+        # revision capped requires-python at <3.13, which would have blocked
+        # installation on the very interpreter the suite runs on locally.
+        # The studio rule allows 2-3 versions; this is the honest three.
+        python-version: ["3.11", "3.12", "3.13"]
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -108,9 +113,40 @@ jobs:
       - name: Syntax check launcher
         run: node -c npm/bin/xrpl-camp.js
 
+      - name: Install npm dependencies (resolves @mcptoolshop/npm-launcher)
+        working-directory: npm
+        run: npm install
+
       - name: Packaging dry run
         working-directory: npm
         run: npm pack --dry-run
+
+      # Everything above only checks that the wrapper file parses and that
+      # `npm pack` is happy with what ships -- neither ever runs
+      # @mcptoolshop/npm-launcher's real download -> checksum-verify -> exec
+      # path, which is what every `npx @mcptoolshop/xrpl-camp` invocation
+      # actually depends on. Pinned to a fixed, already-published release
+      # (1.3.1 -- NOT derived from npm/package.json's in-progress version)
+      # so this step's pass/fail depends only on whether the currently
+      # resolved npm-launcher can still fetch and run a real asset, not on
+      # release timing: the commit that bumps package.json's version
+      # routinely lands before the matching tag is pushed, and testing "the
+      # current version" would then fail for a reason that has nothing to do
+      # with npm-launcher.
+      #
+      # `--` is load-bearing: mcptoolshop-launch.js treats flags before it as
+      # its OWN (--help/--version there print the LAUNCHER's own help and
+      # never touch the network); only args after `--` reach the downloaded
+      # binary. Verified locally before wiring this in -- including against
+      # an older release (v1.0.2) whose Windows binary crashed at this exact
+      # invocation with a PyInstaller packaging error, confirming this step
+      # has real teeth and isn't just exercising a happy path that can't
+      # fail.
+      - name: Launcher smoke test (real download + checksum + exec)
+        working-directory: npm
+        env:
+          MCPTOOLSHOP_LAUNCH_CONFIG: '{"toolName":"xrpl-camp","owner":"mcp-tool-shop-org","repo":"xrpl-camp","version":"1.3.1"}'
+        run: node node_modules/@mcptoolshop/npm-launcher/bin/mcptoolshop-launch.js -- --help
 
       - name: Version consistency check
         run: bash scripts/check-versions.sh
