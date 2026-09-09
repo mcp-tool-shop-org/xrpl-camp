@@ -208,6 +208,47 @@ def _future_state_error(path: Path, found: int) -> StateFileError:
 _warned_open_dirs: set[str] = set()
 
 
+def _user_chose_this_path(target: Path) -> bool:
+    """True when `target` is the path XRPL_CAMP_HOME points at, not our default."""
+    override = os.environ.get("XRPL_CAMP_HOME", "").strip()
+    if not override:
+        return False
+    try:
+        return Path(override).expanduser().resolve() == target.resolve()
+    except OSError:  # pragma: no cover - resolve() is effectively total
+        return False
+
+
+def _tighten_our_own_dir(target: Path) -> None:
+    """Make our own state directory owner-only, and say that we did.
+
+    Reached only for the default `./.xrpl-camp`, which xrpl-camp created. A
+    loose mode here is an older version's mistake sitting on top of a wallet
+    seed. Fixing it silently would be the "behind your back" change the warning
+    path exists to avoid, so this says it out loud instead of staying quiet.
+    """
+    key = str(target)
+    try:
+        mode = target.stat().st_mode & 0o777
+    except OSError:  # pragma: no cover
+        return
+    if not mode & 0o077:
+        return
+    try:
+        os.chmod(target, 0o700)
+    except OSError:  # pragma: no cover - fall back to telling them
+        _warn_if_world_readable(target)
+        return
+    if key not in _warned_open_dirs:
+        _warned_open_dirs.add(key)
+        warnings.warn(
+            f"{target} was readable by other users (mode {mode:04o}) and "
+            "xrpl-camp keeps a wallet seed there, so it has been tightened to "
+            "owner-only. An older version of this tool created it that way.",
+            stacklevel=3,
+        )
+
+
 def _warn_if_world_readable(target: Path) -> None:
     """Tell the learner their seed is somewhere others can read it.
 
@@ -238,9 +279,22 @@ def _warn_if_world_readable(target: Path) -> None:
 def ensure_state_dir(path: Path | None = None) -> Path:
     """Create the state directory with owner-only permissions on POSIX.
 
-    Only a directory THIS call created is chmod'ed. A pre-existing one keeps
-    the mode its owner gave it and gets a one-time warning instead — see
-    :func:`_warn_if_world_readable`.
+    A directory this call created is always tightened to 0700. A pre-existing
+    one depends on **who chose the path**, and the two cases are genuinely
+    different:
+
+    * The default ``./.xrpl-camp`` is ours. If it is loose, an older xrpl-camp
+      made it that way — that is our own past bug sitting on top of a wallet
+      seed, and leaving it there out of politeness helps nobody. Tighten it,
+      and say so out loud, which is the honest answer to "don't change things
+      behind my back."
+    * A path the user pointed ``XRPL_CAMP_HOME`` at is theirs — plausibly a
+      shared workshop folder — and silently rewriting its permissions could
+      lock other people out of a directory that was never ours. Warn instead.
+
+    An earlier revision warned in both cases and a test asserted the upgrade
+    path was tightened; CI caught the disagreement on POSIX, where it is the
+    only place it can show.
     """
     target = path if path is not None else STATE_DIR
     created = True
@@ -254,8 +308,10 @@ def ensure_state_dir(path: Path | None = None) -> Path:
         # mkdir's mode is masked by umask, so tighten explicitly.
         with contextlib.suppress(OSError):
             os.chmod(target, 0o700)
-    else:
+    elif _user_chose_this_path(target):
         _warn_if_world_readable(target)
+    else:
+        _tighten_our_own_dir(target)
     return target
 
 

@@ -75,6 +75,46 @@ def test_a_pre_existing_loose_state_directory_is_tightened(tmp_path):
 
 
 @posix_only
+def test_tightening_our_own_directory_is_announced_not_silent(tmp_path):
+    """We fix our own past mistake, and we say that we did.
+
+    Silently rewriting permissions is the "behind your back" change the warning
+    path exists to avoid. Doing it loudly answers that objection instead of
+    ignoring it.
+    """
+    state = tmp_path / ".xrpl-camp"
+    state.mkdir(mode=0o755)
+
+    with pytest.warns(UserWarning, match="tightened to owner-only"):
+        ensure_state_dir(state)
+
+    assert mode_of(state) == 0o700
+
+
+@posix_only
+def test_a_directory_the_user_chose_is_warned_about_not_rewritten(
+    tmp_path, monkeypatch,
+):
+    """XRPL_CAMP_HOME is the user's path, plausibly a shared workshop folder.
+
+    The two branches of `ensure_state_dir` disagreed across two amend waves and
+    CI caught it on POSIX, which is the only place file modes are real. The
+    distinction that resolved it: a loose `./.xrpl-camp` is OUR bug and gets
+    fixed; a loose path the user pointed us at is THEIR directory and only gets
+    a warning, because tightening it could lock out someone they meant to share
+    it with.
+    """
+    chosen = tmp_path / "shared-workshop"
+    chosen.mkdir(mode=0o755)
+    monkeypatch.setenv("XRPL_CAMP_HOME", str(chosen))
+
+    with pytest.warns(UserWarning, match="left"):
+        ensure_state_dir(chosen)
+
+    assert mode_of(chosen) == 0o755, "a path the user chose must not be rewritten"
+
+
+@posix_only
 def test_the_seed_is_never_world_readable_even_under_a_loose_umask(tmp_path):
     """`mkstemp` is 0600 already; the chmod must not widen it."""
     old = os.umask(0o000)
