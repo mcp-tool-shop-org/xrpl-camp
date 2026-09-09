@@ -116,11 +116,9 @@ jobs:
         run: node -c bin/xrpl-camp.js
 
       - name: Install npm dependencies (resolves @mcptoolshop/npm-launcher)
-        working-directory: npm
         run: npm install
 
       - name: Packaging dry run
-        working-directory: npm
         run: npm pack --dry-run
 
       # Everything above only checks that the wrapper file parses and that
@@ -128,7 +126,7 @@ jobs:
       # @mcptoolshop/npm-launcher's real download -> checksum-verify -> exec
       # path, which is what every `npx @mcptoolshop/xrpl-camp` invocation
       # actually depends on. Pinned to a fixed, already-published release
-      # (1.3.1 -- NOT derived from npm/package.json's in-progress version)
+      # (1.3.1 -- NOT derived from package.json's in-progress version)
       # so this step's pass/fail depends only on whether the currently
       # resolved npm-launcher can still fetch and run a real asset, not on
       # release timing: the commit that bumps package.json's version
@@ -145,7 +143,6 @@ jobs:
       # has real teeth and isn't just exercising a happy path that can't
       # fail.
       - name: Launcher smoke test (real download + checksum + exec)
-        working-directory: npm
         env:
           MCPTOOLSHOP_LAUNCH_CONFIG: '{"toolName":"xrpl-camp","owner":"mcp-tool-shop-org","repo":"xrpl-camp","version":"1.3.1"}'
         run: node node_modules/@mcptoolshop/npm-launcher/bin/mcptoolshop-launch.js -- --help
