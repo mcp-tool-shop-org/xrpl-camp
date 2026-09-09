@@ -317,7 +317,11 @@ def test_guided_flow_all_complete_exits(tmp_path, monkeypatch):
         lessons.run_guided_flow()
 
     output = capture.get().lower()
-    assert "already completed all 6 lessons" in output
+    # The all-complete panel used to end on a checklist and a destructive
+    # command; it now points at what the learner can still do. Assert the
+    # intent (nothing to redo) rather than a sentence that moved.
+    assert "all 6 lessons are done" in output
+    assert "nothing here needs doing again" in output
 
 
 # ---------------------------------------------------------------------------

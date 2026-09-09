@@ -36,6 +36,8 @@ from xrpl_camp.errors import (
     VERBOSE_POINTER,
     CampError,
     CampFailure,
+    bad_address_error,
+    bad_hash_error,
     balance_error,
     connection_error,
     endpoint_error,
@@ -46,14 +48,20 @@ from xrpl_camp.errors import (
     malformed_response_error,
     memo_secret_error,
     memo_too_long_error,
+    no_account_yet_error,
     not_found_error,
+    not_your_transaction_error,
     prerequisites_error,
     record_error,
     send_error,
+    simulate_error,
     state_corrupt_error,
     transaction_failed_error,
+    tx_unknown_error,
     unexpected_error,
     unfunded_error,
+    unknown_target_error,
+    unsupported_feature_error,
     verification_error,
     wallet_corrupt_error,
     wallet_missing_error,
@@ -66,6 +74,7 @@ from xrpl_camp.models import (
     ExecutionMode,
     Session,
     get_execution_mode,
+    is_dry_run,
     set_execution_mode,
 )
 from xrpl_camp.proof_pack import (
@@ -348,6 +357,57 @@ def _copyable(text: str, *, style: str = "cyan") -> None:
         f"  [{style}][link={text}]{escape(text)}[/link][/{style}]",
         soft_wrap=True,
         highlight=False,
+    )
+
+
+def _reserve_facts(address: str) -> dict | None:
+    """The reserve breakdown for `address`, or None if it cannot be read.
+
+    Prefers ``transport.reserve_breakdown`` (one call). Falls back to the two
+    functions that were already there and were called from nowhere in this
+    file, so the lesson works on an install that predates it.
+    """
+    one_call = getattr(transport, "reserve_breakdown", None)
+    if callable(one_call):
+        try:
+            facts = one_call(address)
+        except Exception:
+            return None
+        return facts if isinstance(facts, dict) else None
+    try:
+        balance = int(transport.get_balance(address))
+        spendable, _live = transport.get_spendable_drops(address)
+        base, inc, _live2 = transport.get_reserve_detail()
+    except Exception:
+        return None
+    return {
+        "balance_drops": balance,
+        "base_reserve_drops": int(base),
+        "owner_reserve_drops": max(0, balance - int(spendable) - int(base)),
+        "spendable_drops": int(spendable),
+        "owner_count": 0,
+    }
+
+
+def _show_reserve(address: str) -> None:
+    """Say what the learner can actually spend, and why it is not all of it.
+
+    The faucet grants exactly 100.00 XRP, lesson 3 celebrates it, and roughly
+    1 XRP of it can never be spent. The reserve is the most XRPL-specific idea
+    in the whole product and it was invisible - computed twice inside a run
+    and shown to the learner in neither. One line, or nothing at all.
+    """
+    facts = _reserve_facts(address)
+    if not facts:
+        return
+    spendable = int(facts.get("spendable_drops", 0) or 0)
+    reserve = int(facts.get("base_reserve_drops", 0) or 0)
+    if spendable <= 0 or reserve <= 0:
+        return
+    console.print(
+        f"  [bold]Spendable:[/bold] {spendable / 1_000_000:.2f} XRP — the other "
+        f"{reserve / 1_000_000:.2f} is the [cyan]reserve[/cyan], locked for as long as the "
+        "account exists. The ledger charges rent for the space you take up.",
     )
 
 
@@ -721,6 +781,57 @@ def _resolve_mailbox() -> tuple[dict | None, CampError | None]:
         return None, wallet_corrupt_error(f"{type(exc).__name__}: {exc}")
 
 
+def _existing_mailbox_seed() -> str:
+    """The mailbox seed if there already is one. Never creates one.
+
+    `send --to` has no use for a mailbox, but the memo guard still has to know
+    that seed so it can refuse a learner who pastes it.
+    """
+    try:
+        record = wallet.load_mailbox()
+    except Exception:
+        return ""
+    return str(record.get("seed", "")) if record else ""
+
+
+def is_valid_address(address: str) -> bool:
+    """True when `address` passes the XRPL checksum, offline. No network call.
+
+    An XRPL address carries its own checksum, so a typo is catchable on the
+    learner's own machine in microseconds. Before this, a mistyped address
+    cost a network round-trip and came back as "Account malformed".
+    """
+    checker = getattr(transport, "is_valid_address", None)
+    if not callable(checker):
+        try:
+            from xrpl.core.addresscodec import is_valid_classic_address as checker
+        except Exception:
+            return True  # cannot answer: do not invent a refusal
+    try:
+        return bool(checker(str(address)))
+    except Exception:
+        return False
+
+
+#: A transaction hash: exactly 64 hex characters, either case.
+TX_HASH_PATTERN = re.compile(r"^[0-9a-fA-F]{64}$")
+
+
+def is_tx_hash(value: str) -> bool:
+    """True when `value` has the shape of an XRPL transaction hash."""
+    return bool(TX_HASH_PATTERN.match(str(value).strip()))
+
+
+def _ledger_index_now() -> int:
+    """The validated ledger index the network is on right now. 0 if unknown.
+
+    Never raises and never blocks a send: a missing index only means the
+    "N ledgers closed while you waited" line is not printed.
+    """
+    reading = _validated_ledger()
+    return reading[0] if reading else 0
+
+
 # ---------------------------------------------------------------------------
 # Memo handling
 # ---------------------------------------------------------------------------
@@ -839,33 +950,102 @@ def _announce_default_memo(memo: str) -> None:
 # ---------------------------------------------------------------------------
 
 
-def lesson_1_mental_model(session: Session) -> LessonResult:
-    """Lesson 1: Explain the XRPL mental model."""
+#: How long lesson 1 waits between its two readings of the ledger. Long enough
+#: that the number has to move (a Testnet ledger closes about every 3-4s),
+#: short enough that nobody in a room of thirty feels it.
+LEDGER_WATCH_SECONDS = 5.0
+
+
+def _validated_ledger() -> tuple[int, int] | None:
+    """``(ledger_index, seconds_since_it_closed)`` from the live network.
+
+    None on anything at all going wrong. Lesson 1 is the first screen a
+    beginner ever sees, and thirty people on conference wifi is the normal
+    case, so this must never be able to fail a lesson.
+    """
+    read = getattr(transport, "_server_state", None)
+    if not callable(read):
+        return None
+    try:
+        state = read(transport.get_rpc_url())
+        ledger = (state or {}).get("validated_ledger")
+        index = int((ledger or {}).get("seq", 0) or 0)
+        age = int((ledger or {}).get("age", 0) or 0)
+    except Exception:
+        return None
+    return (index, age) if index > 0 else None
+
+
+def _ask_prediction(question: str) -> None:
+    """Ask for a one-word guess, print nothing back, gate nothing on it.
+
+    Recall beats reading, and this is the only way to get it without the tool
+    becoming the arbiter of a right answer - which would be the one beat in
+    the product whose answer key is a hardcoded string rather than the ledger.
+    The ledger answers a moment later; the learner does the comparing.
+    """
+    if not is_interactive():
+        return
+    try:
+        console.input(f"\n  [bold]{escape(question)}[/bold] [dim](or Enter)[/dim] ")
+    except EOFError:
+        console.print()
+
+
+def lesson_1_mental_model(session: Session, *, dry_run: bool = False) -> LessonResult:
+    """Lesson 1: the mental model, demonstrated against the live network.
+
+    This used to be 103 words of assertion and a green tick for having read
+    them: no network call, no input, nothing produced, and no way to fail. It
+    now asks the live ledger the same question twice and lets the answer move.
+    Everything about it degrades to the static panel, because the FIRST screen
+    a beginner sees must not be the one that can break.
+    """
     ts, t0 = _start_timer()
 
     console.print(Panel(
         "[bold]Lesson 1: The Mental Model[/bold]\n\n"
-        "The XRP Ledger (XRPL) is a shared notebook.\n\n"
-        "  [cyan]Account[/cyan]   — Your identity on the ledger. "
-        "A public address that anyone can look up.\n"
-        "  [cyan]Balance[/cyan]   — How much XRP your account holds. "
-        "Measured in 'drops' (1 XRP = 1,000,000 drops).\n"
-        "  [cyan]Transaction[/cyan] — An entry in the notebook. "
-        "Once written, it can never be erased.\n"
-        "  [cyan]Memo[/cyan]      — A note attached to a transaction. "
-        "You can write anything here.\n\n"
-        "Every transaction is public. Every memo is permanent.\n"
-        "That's what makes it useful as a diary.",
+        "The XRP Ledger is a public notebook. Every few seconds the whole\n"
+        "network agrees on the next page and closes it, forever.\n\n"
+        "  [cyan]Account[/cyan]     — your identity on it: an address anyone can look up\n"
+        "  [cyan]Balance[/cyan]     — what it holds, in drops (1 XRP = 1,000,000 drops)\n"
+        "  [cyan]Transaction[/cyan] — one line in the notebook, which cannot be erased\n"
+        "  [cyan]Memo[/cyan]        — a note you attach to a transaction. Anything you like.",
         title="XRPL Camp",
         border_style="blue",
     ))
+
+    # A dry run promises no network calls and is asserted on. Checked both
+    # ways: the argument for a direct caller, the process mode for the CLI.
+    first = None if (dry_run or is_dry_run()) else _validated_ledger()
+    if first is not None:
+        index, age = first
+        closed = (
+            "a moment ago" if age <= 0
+            else f"{age} second{'' if age == 1 else 's'} ago"
+        )
+        console.print(
+            f"\n  [bold]Right now it is on page {index:,}[/bold], closed {closed}.",
+        )
+        _ask_prediction(
+            f"How many more pages in the next {int(LEDGER_WATCH_SECONDS)} seconds?",
+        )
+        with _working("Watching...", done="asked again."):
+            time.sleep(LEDGER_WATCH_SECONDS)
+        second = _validated_ledger()
+        if second is not None and second[0] > index:
+            closed = second[0] - index
+            console.print(
+                f"\n  [bold]Page {second[0]:,}.[/bold] "
+                f"{closed} more closed while you watched — with or without you.",
+            )
 
     session.mark_complete(1, LESSON_NAMES[1], started_at=ts, duration_seconds=_elapsed(t0))
     session.save()
 
     console.print(
-        "\n  [green]✓ Foundation set.[/green] The ledger is shared, "
-        "permanent, and verifiable. Everything builds on that.",
+        "\n  [green]✓ Foundation set.[/green] "
+        "It is already running. You are about to join it.",
     )
     return LessonResult(lesson=1, ok=True)
 
@@ -894,9 +1074,9 @@ def lesson_2_create_wallet(session: Session, *, dry_run: bool = False) -> Lesson
         "A wallet is a pair of keys:\n"
         "  [cyan]Address[/cyan] — your public identity (safe to share)\n"
         "  [cyan]Seed[/cyan]    — your private key (never share this)\n\n"
-        "The seed proves you own the address. Anyone with your seed\n"
-        "can spend your funds. Guard it like a password.\n\n"
-        "Your seed stays on this machine. XRPL Camp never sends it anywhere.",
+        "The seed proves you own the address, so anyone holding it can\n"
+        "spend your funds. It stays on this machine; XRPL Camp never\n"
+        "sends it anywhere.",
         title="XRPL Camp",
         border_style="blue",
     ))
@@ -966,9 +1146,8 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> LessonRe
         "The XRPL Testnet has a faucet that gives free test XRP.\n"
         "This is play money — no real value, nothing at risk.\n"
         "But it behaves exactly like real XRP on the ledger.\n\n"
-        "We'll request funds from the faucet and check your balance.\n"
-        "[dim]This usually takes about ten seconds, and up to a minute when\n"
-        "the faucet is busy — a whole room asking it at once will do that.[/dim]",
+        "[dim]Usually about ten seconds, and up to a minute when the faucet is\n"
+        "busy — a whole room asking it at once will do that.[/dim]",
         title="XRPL Camp",
         border_style="blue",
     ))
@@ -995,15 +1174,17 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> LessonRe
         try:
             balance = transport.get_balance(w["address"])
             xrp = balance / 1_000_000
-            console.print(f"\n  [bold]Balance:[/bold] {xrp:.2f} XRP ({balance:,} drops)")
+            console.print(f"\n  [bold]Balance:[/bold]   {xrp:.2f} XRP ({balance:,} drops)")
         except transport.XRPLAccountNotFound:
             console.print(
-                "\n  [bold]Balance:[/bold] [yellow]Account not yet activated[/yellow]",
+                "\n  [bold]Balance:[/bold]   [yellow]Account not yet activated[/yellow]",
             )
         except Exception as exc:
             warning = _classify(exc, balance_error, account=w["address"])
             console.print()
             _report(warning, command="lesson 3 balance")
+        else:
+            _show_reserve(w["address"])
 
     if not dry_run:
         session.mark_complete(3, LESSON_NAMES[3], started_at=ts, duration_seconds=_elapsed(t0))
@@ -1022,8 +1203,16 @@ def lesson_4_send_payment(
     *,
     dry_run: bool = False,
     interactive: bool = False,
+    destination: str = "",
 ) -> LessonResult:
-    """Lesson 4: Send a memo payment to a second wallet the learner owns."""
+    """Lesson 4: send a memo payment. To the learner's own mailbox by default.
+
+    ``destination`` is the opt-in ``send --to`` path and is never used by the
+    guided flow: putting an address exchange on the critical path of a room of
+    thirty turns a twenty-second lesson into a coordination problem. Offered
+    after the arc, where the payoff - writing into somebody else's permanent
+    record - is the whole point.
+    """
     ts, t0 = _start_timer()
 
     w, err = _require_wallet()
@@ -1044,11 +1233,32 @@ def lesson_4_send_payment(
         if endpoint_problem is not None:
             return _fail(4, endpoint_problem)
 
-    mailbox, err = _resolve_mailbox()
-    if err is not None:
-        return _fail(4, err)
-
-    secrets = [w.get("seed", ""), mailbox.get("seed", "")]
+    # The address's own checksum, checked offline, before a round-trip is
+    # spent on it. A mistyped address used to cost a network call and come
+    # back as "Account malformed"; caught here it costs nothing and is one of
+    # the best free teaching beats in the product.
+    to_address = str(destination or "").strip()
+    if to_address:
+        if not is_valid_address(to_address):
+            return _fail(4, bad_address_error(to_address))
+        if to_address == w.get("address", ""):
+            return _fail(4, CampError(
+                code="SEND_TO_SELF",
+                message="That is your own address, and the XRPL rejects a payment to itself.",
+                hint=(
+                    "Leave --to off to write to your own mailbox, or give "
+                    "somebody else's address."
+                ),
+                exit_code=EXIT_USER,
+            ))
+        mailbox = None
+        secrets = [w.get("seed", ""), _existing_mailbox_seed()]
+    else:
+        mailbox, err = _resolve_mailbox()
+        if err is not None:
+            return _fail(4, err)
+        to_address = mailbox["address"]
+        secrets = [w.get("seed", ""), mailbox.get("seed", "")]
 
     if interactive:
         console.print(Panel(
@@ -1086,20 +1296,21 @@ def lesson_4_send_payment(
         creates_account = True
         amount_drops = FALLBACK_RESERVE_DROPS
     else:
+        whose = "your mailbox account" if mailbox else "that account"
         console.print(
-            f"\n  [dim]Checking your mailbox account {escape(mailbox['address'])} "
+            f"\n  [dim]Checking {whose} {escape(to_address)} "
             "— does it exist on the ledger yet?[/dim]",
         )
         try:
-            transport.get_balance(mailbox["address"])
+            transport.get_balance(to_address)
             creates_account = False
         except transport.XRPLAccountNotFound:
             creates_account = True
         except Exception as exc:
-            # Name the account. The failing probe here is the MAILBOX's, and an
-            # unqualified "the account may not exist yet, fund it first" sent
-            # learners back to lesson 3 to re-fund a wallet that was fine.
-            return _fail(4, _classify(exc, balance_error, account=mailbox["address"]))
+            # Name the account. The failing probe here is the DESTINATION's,
+            # and an unqualified "the account may not exist yet, fund it first"
+            # sent learners back to lesson 3 to re-fund a wallet that was fine.
+            return _fail(4, _classify(exc, balance_error, account=to_address))
 
         if creates_account:
             console.print(
@@ -1114,30 +1325,47 @@ def lesson_4_send_payment(
             amount_drops = REPEAT_SEND_DROPS
 
     creation_note = (
-        "\n  [dim]This one brings the mailbox account into existence, so it has to\n"
+        "\n  [dim]This one brings that account into existence, so it has to\n"
         "  carry at least the network's base reserve.[/dim]\n"
         if creates_account else ""
     )
 
+    # The default destination is a wallet the learner also owns. `--to` is not,
+    # and the existing warning is phrased entirely about their own record.
+    intro = (
+        "You're sending a real transaction to your mailbox — a second wallet\n"
+        "whose keys are also yours."
+        if mailbox else
+        "You're sending this to somebody else's account. Your memo goes into\n"
+        "[bold]their[/bold] permanent public history, and nobody can take it out again."
+    )
+
     console.print(Panel(
         "[bold]Lesson 4: Send a Payment[/bold]\n\n"
-        "You're sending a real transaction to your mailbox — a second wallet\n"
-        "whose keys are also yours.\n\n"
+        f"{intro}\n\n"
         f"  [cyan]Memo:[/cyan]    {escape(memo)}\n"
         f"  [cyan]Encoded:[/cyan] {escape(_memo_hex(memo))}\n\n"
         "  [dim]Your memo is converted to hex bytes for the ledger.[/dim]\n\n"
-        f"  [cyan]To:[/cyan]      {escape(mailbox['address'])}\n"
+        f"  [cyan]To:[/cyan]      {escape(to_address)}\n"
         f"  [cyan]Amount:[/cyan]  {_drops_line(amount_drops)}\n"
-        "  [cyan]Fee:[/cyan]     a few drops, set by the network "
-        "(paid to validators, not an app charge)\n"
+        "  [cyan]Fee:[/cyan]     a few drops, set by the network — "
+        "and destroyed, not paid to anyone\n"
         f"{creation_note}\n"
-        "The amount is small because the point is the memo, not the value.\n"
-        "The fee is how the network processes your transaction.",
+        "The amount is small on purpose: the point is the memo, not the value.\n"
+        "The fee is not our charge, and it does not go to a miner or a validator\n"
+        "either — that XRP simply stops existing. Nobody profits from your\n"
+        "transaction; it just makes XRP very slightly scarcer.",
         title="XRPL Camp",
         border_style="blue",
     ))
 
     console.print()
+
+    # Which page the notebook was on a moment before this went in. Cheap
+    # (one server_state read), soft (0 means the line is simply not printed),
+    # and it turns "waiting for validators to agree" from a spinner into a
+    # number the learner can watch move.
+    before_ledger = 0 if dry_run else _ledger_index_now()
 
     # NOT retried, deliberately. A submission that timed out may already be on
     # the ledger; sending it again would write the learner's one permanent
@@ -1152,7 +1380,7 @@ def lesson_4_send_payment(
             result = transport.send_memo_payment(
                 w["seed"],
                 memo,
-                mailbox["address"],
+                to_address,
                 amount_drops=amount_drops,
                 dry_run=dry_run,
             )
@@ -1160,29 +1388,61 @@ def lesson_4_send_payment(
         return _fail(4, _classify(exc, send_error, account=w["address"]))
 
     txid = result.txid
+    landed = int(getattr(result, "ledger_index", 0) or 0)
     explorer = f"{transport.EXPLORER_URL}{txid}"
     console.print(f"\n  [bold]Transaction:[/bold] {escape(txid)}")
     console.print(f"  [bold]Delivered:[/bold]   {_drops_line(int(result.amount_drops))}")
     console.print(f"  [bold]Fee paid:[/bold]    {int(result.fee_drops):,} drops")
+    if landed:
+        console.print(f"  [bold]Ledger:[/bold]      {landed:,}")
+        # Both indices were already in hand: the destination probe read one,
+        # the validated result carries the other. No extra network call, and
+        # it is the only place the learner gets to SEE consensus happening.
+        closed = landed - before_ledger if before_ledger else 0
+        if 0 < closed < 1000:
+            console.print(
+                f"  [dim]{closed} ledger{'' if closed == 1 else 's'} closed while you "
+                "waited. The network does that every few seconds, "
+                "with or without you.[/dim]",
+            )
     console.print("  [dim]Explorer:[/dim]")
     _copyable(explorer, style="dim")
 
     if result.created_account:
+        keys_note = (
+            "into being, and you hold its keys — they are in\n"
+            ".xrpl-camp/mailbox.json, next to your own."
+            if mailbox else
+            "into being. You do not hold its keys; whoever gave you that\n"
+            "address does."
+        )
         console.print(Panel(
             "[bold]You just created an account on a public ledger.[/bold]\n\n"
             f"{escape(result.destination)}\n\n"
-            "That address did not exist a moment ago. Your payment brought it\n"
-            "into being, and you hold its keys — they are in\n"
-            ".xrpl-camp/mailbox.json, next to your own.\n\n"
+            f"That address did not exist a moment ago. Your payment brought it\n"
+            f"{keys_note}\n\n"
             "Nobody approved this. Nobody could have stopped it.",
             title="Account created",
             border_style="green",
         ))
 
     if not dry_run:
+        # Everything the send produced, into the permanent record. Every one of
+        # these values was in scope here and none of them was passed, so a
+        # real, validated run sealed a certificate with no memo on it and a
+        # proof pack carrying ledger_index=0 and close_time_iso="" - which is
+        # also what makes a Testnet reset indistinguishable from a forgery.
+        # `memo` is already length-capped and seed-screened by validate_memo.
         session.mark_complete(
             4, LESSON_NAMES[4], txid=txid,
             started_at=ts, duration_seconds=_elapsed(t0),
+            memo=memo,
+            destination=str(result.destination or to_address),
+            amount_drops=int(result.amount_drops or 0),
+            fee_drops=int(result.fee_drops or 0),
+            created_account=bool(result.created_account),
+            ledger_index=landed,
+            close_time_iso=str(getattr(result, "close_time_iso", "") or ""),
         )
         session.save()
 
@@ -1200,11 +1460,20 @@ def lesson_5_verify_tx(
     dry_run: bool = False,
     expected_memo: str = "",
 ) -> LessonResult:
-    """Lesson 5: Verify a transaction, and check the readback against what was sent."""
+    """Lesson 5: verify a transaction the learner sent, and compare the readback.
+
+    Two things this lesson has to get right and used to get wrong. It must
+    refuse a hash that is not on the ledger (fixed earlier), and it must refuse
+    a hash that IS on the ledger and belongs to somebody else - which anyone
+    could copy off the explorer to complete the lesson from a directory with no
+    wallet in it.
+    """
     ts, t0 = _start_timer()
 
+    own_hash = session.txids.get("lesson_4", "")
+    typed = bool(txid)
     if not txid:
-        txid = session.txids.get("lesson_4", "")
+        txid = own_hash
     if not txid:
         return _fail(5, CampError(
             code="NO_TRANSACTION",
@@ -1213,11 +1482,19 @@ def lesson_5_verify_tx(
             exit_code=1,
         ))
 
+    # "Ours" means this run produced the hash. It decides two behaviours: a
+    # hash the flow just submitted is worth waiting out (it may still be
+    # settling), and a hash somebody typed is worth checking for shape before
+    # any network call. Keyed off provenance, never off a heuristic - getting
+    # it backwards would make a fresh transaction look permanently missing.
+    ours = dry_run or not typed or txid == own_hash
+    if not ours and not is_tx_hash(txid):
+        return _fail(5, bad_hash_error(txid))
+
     console.print(Panel(
         "[bold]Lesson 5: Verify a Transaction[/bold]\n\n"
         "Anyone can look up any transaction on the XRPL.\n"
-        "No login needed. No API key. Just the transaction hash.\n\n"
-        "We'll query the ledger and show you exactly what it recorded.",
+        "No login needed. No API key. Just the transaction hash.",
         title="XRPL Camp",
         border_style="blue",
     ))
@@ -1230,13 +1507,24 @@ def lesson_5_verify_tx(
 
     # A lookup is a read: running it again cannot change the ledger, so a
     # transaction that has been submitted but not yet validated is worth
-    # waiting for rather than reporting as a failure.
+    # waiting for rather than reporting as a failure. A hash somebody TYPED is
+    # a different question - "not yet" is the wrong answer for a typo, and
+    # seven seconds of backoff is a bad way to say it.
+    recorded_ledger = 0
+    if txid == own_hash:
+        record = session.get_progress(4)
+        recorded_ledger = int(getattr(record, "ledger_index", 0) or 0)
+
     def still_settling(result: dict) -> CampError | None:
-        return None if result.get("found", True) else not_found_error(txid)
+        if result.get("found", True):
+            return None
+        return not_found_error(txid) if ours else tx_unknown_error(txid)
 
     tx, err = try_network(
         "Looking up transaction...",
-        lambda: transport.lookup_tx(txid, dry_run=dry_run),
+        lambda: transport.lookup_tx(
+            txid, dry_run=dry_run, recorded_ledger_index=recorded_ledger,
+        ),
         lookup_error,
         waiting="(asking the ledger what it recorded)",
         done="found.",
@@ -1245,6 +1533,72 @@ def lesson_5_verify_tx(
     if err is not None:
         return _fail(5, err)
 
+    console.print()
+    console.print(transaction_table(tx, txid))
+
+    # Everything below is the actual verification. Without it, this lesson
+    # prints a table of whatever came back and then congratulates the learner.
+    problem = _verification_problem(
+        tx, expected_memo, own_address=_own_address(session), dry_run=dry_run,
+    )
+    if problem is not None:
+        if problem.code in ("VERIFY_NOT_YOURS", "VERIFY_NO_ACCOUNT"):
+            # Looking it up was the right thing to have done - it is just not
+            # this lesson. Keep the payoff, lose the credit.
+            console.print(
+                "\n  [dim]It is still a real entry on a public ledger, "
+                "readable by anyone:[/dim]",
+            )
+            _copyable(f"{transport.EXPLORER_URL}{txid}", style="dim")
+        console.print()
+        return _fail(5, problem)
+
+    if expected_memo:
+        console.print(
+            f"\n  [bold]You wrote:[/bold]        {escape(expected_memo)}"
+            f"\n  [bold]Ledger returned:[/bold]  {escape(str(tx.get('memo', '')))}"
+            "\n  [green]Identical.[/green] Not our copy of it — the ledger's.",
+        )
+
+    # Independent witness - the strongest anti-handwaving beat, and the one
+    # place in the product where the learner is asked to leave and check. Both
+    # the hash and the URL are printed unbroken: a link that wraps mid-hash is
+    # a link that 404s when you copy the line you can see.
+    explorer = f"{transport.EXPLORER_URL}{txid}"
+    console.print(
+        "\n  [bold]You don't have to trust this tool.[/bold]"
+        "\n  Verify it yourself — this is the full hash:",
+    )
+    console.print(f"  [bold]{escape(str(tx.get('hash', txid)))}[/bold]",
+                  soft_wrap=True, highlight=False)
+    console.print("  [dim]and this is where to look it up:[/dim]")
+    _copyable(explorer)
+
+    if not dry_run:
+        ledger_index = int(tx.get("ledger_index") or 0)
+        close_time = str(tx.get("close_time_iso") or "")
+        session.mark_complete(
+            5, LESSON_NAMES[5], started_at=ts, duration_seconds=_elapsed(t0),
+            ledger_index=ledger_index, close_time_iso=close_time,
+        )
+        # The ledger's own answer for the lesson-4 write, back into the
+        # lesson-4 record. This is what lets a sealed pack tell a Testnet reset
+        # (the recorded ledger predates the endpoint's history) from a forgery.
+        if ledger_index and txid and txid == own_hash:
+            session.record_entry(
+                4, txid=txid, ledger_index=ledger_index, close_time_iso=close_time,
+            )
+        session.save()
+
+    console.print(
+        "\n  [green]✓ Independently verified.[/green] "
+        "No login, no API key — just the hash and the open ledger.",
+    )
+    return LessonResult(lesson=5, ok=True, txid=txid, memo=str(tx.get("memo", "")))
+
+
+def transaction_table(tx: dict, txid: str = "") -> Table:
+    """The details table for one transaction. Shared by `verify` and `read`."""
     table = Table(title="Transaction Details")
     table.add_column("Field", style="bold")
     # `fold` rather than the default ellipsis: at 80 columns the Hash cell was
@@ -1275,51 +1629,41 @@ def lesson_5_verify_tx(
     table.add_row("Result", cell(tx.get("result", "")))
     if "validated" in tx:
         table.add_row("Validated", cell(tx["validated"]))
-
-    console.print()
-    console.print(table)
-
-    # Everything below is the actual verification. Without it, this lesson
-    # prints a table of whatever came back and then congratulates the learner.
-    problem = _verification_problem(tx, expected_memo)
-    if problem is not None:
-        console.print()
-        return _fail(5, problem)
-
-    if expected_memo:
-        console.print(
-            f"\n  [bold]You wrote:[/bold]        {escape(expected_memo)}"
-            f"\n  [bold]Ledger returned:[/bold]  {escape(str(tx.get('memo', '')))}"
-            "\n  [green]Identical.[/green] Not our copy of it — the ledger's.",
-        )
-
-    # Independent witness - the strongest anti-handwaving beat, and the one
-    # place in the product where the learner is asked to leave and check. Both
-    # the hash and the URL are printed unbroken: a link that wraps mid-hash is
-    # a link that 404s when you copy the line you can see.
-    explorer = f"{transport.EXPLORER_URL}{txid}"
-    console.print(
-        "\n  [bold]You don't have to trust this tool.[/bold]"
-        "\n  Verify it yourself — this is the full hash:",
-    )
-    console.print(f"  [bold]{escape(str(tx.get('hash', txid)))}[/bold]",
-                  soft_wrap=True, highlight=False)
-    console.print("  [dim]and this is where to look it up:[/dim]")
-    _copyable(explorer)
-
-    if not dry_run:
-        session.mark_complete(5, LESSON_NAMES[5], started_at=ts, duration_seconds=_elapsed(t0))
-        session.save()
-
-    console.print(
-        "\n  [green]✓ Independently verified.[/green] "
-        "No login, no API key — just the hash and the open ledger.",
-    )
-    return LessonResult(lesson=5, ok=True, txid=txid, memo=str(tx.get("memo", "")))
+    return table
 
 
-def _verification_problem(tx: dict, expected_memo: str) -> CampError | None:
-    """Return a CampError if the looked-up transaction fails verification."""
+def _own_address(session: Session) -> str:
+    """The learner's own address: the session's, else the wallet on disk."""
+    address = str(getattr(session, "wallet_address", "") or "").strip()
+    if address:
+        return address
+    try:
+        record = wallet.load_wallet()
+    except Exception:
+        return ""
+    return str(record.get("address", "")).strip() if record else ""
+
+
+def _verification_problem(
+    tx: dict,
+    expected_memo: str,
+    *,
+    own_address: str = "",
+    dry_run: bool = False,
+) -> CampError | None:
+    """Return a CampError if the looked-up transaction fails verification.
+
+    The ownership check is the one that turns this from a display into a
+    proof. Without it, ``verify --tx <a hash off the explorer>`` printed the
+    details table, printed "Independently verified", exited 0 and marked
+    lesson 5 complete — in a directory with no wallet, no funding and no
+    payment. The lesson whose entire purpose is proving the record is the
+    learner's own could not tell their record from a stranger's.
+
+    Ordered so the more specific answer wins: a failed transaction is reported
+    as failed, and a malformed response as malformed, before anything is said
+    about whose it is.
+    """
     result_code = str(tx.get("result", ""))
     if result_code and result_code != "tesSUCCESS":
         return verification_error(
@@ -1337,6 +1681,15 @@ def _verification_problem(tx: dict, expected_memo: str) -> CampError | None:
             "The ledger's answer came back missing its " + ", ".join(missing) + ".",
             detail=f"keys present: {sorted(tx)}",
         )
+
+    # A dry run's lookup returns "(dry run)" for every field, so there is
+    # nothing here to own.
+    if not dry_run:
+        sender = str(tx.get("account", "")).strip()
+        if not own_address:
+            return no_account_yet_error()
+        if sender != own_address:
+            return not_your_transaction_error(sender, own_address)
 
     if expected_memo and str(tx.get("memo", "")) != expected_memo:
         return verification_error(
@@ -1373,19 +1726,16 @@ def lesson_6_certificate(
 
     console.print(Panel(
         "[bold]Lesson 6: Your Certificate[/bold]\n\n"
-        "Your certificate records what you did — which lessons you\n"
-        "completed, which transactions you sent, and your public\n"
-        "address. No seed. No private data. Safe to share.\n\n"
-        "The proof pack adds a SHA-256 hash, so an accidental edit\n"
-        "shows up immediately. But the hash is not what makes it\n"
-        "trustworthy — anyone could recompute it. What nobody can\n"
-        "fake is the transaction: the pack names a hash on a public\n"
-        "ledger, and that either exists or it doesn't.\n\n"
-        "[dim]One caveat, because it is true: this is the Testnet, and the\n"
-        "Testnet is reset from time to time. When that happens the\n"
-        "transaction stops resolving and the link below goes dead. The\n"
-        "mechanism is real — on Mainnet the same record would be\n"
-        "permanent — but this particular record is not forever.[/dim]",
+        "It records what you did: the lessons you finished, what you\n"
+        "sent, your public address, and the words you wrote. No seed,\n"
+        "nothing private. Safe to share.\n\n"
+        "The proof pack adds a SHA-256 hash, so an edit shows up. But\n"
+        "the hash is not what makes it trustworthy — anyone can\n"
+        "recompute one. What nobody can fake is the transaction: the\n"
+        "pack names a hash on a public ledger, and that either exists\n"
+        "or it doesn't.\n\n"
+        "[dim]Testnet is reset from time to time and this copy goes with it.\n"
+        "The mechanism is real; this particular record is not forever.[/dim]",
         title="XRPL Camp",
         border_style="blue",
     ))
@@ -1468,6 +1818,483 @@ def lesson_6_certificate(
         "This is yours to keep — and anyone can check it against the ledger.",
     )
     return LessonResult(lesson=6, ok=True)
+
+
+# ---------------------------------------------------------------------------
+# read - the diary, and everybody else's
+# ---------------------------------------------------------------------------
+
+#: Rows `read` will render at most. AccountTx is a heavier call than Tx, and a
+#: stranger's account can carry an arbitrary amount of history.
+READ_LIMIT_DEFAULT = 20
+READ_LIMIT_MAX = 100
+
+
+def _need(name: str):
+    """A transport function, or a structured error instead of an AttributeError."""
+    fn = getattr(transport, name, None)
+    if not callable(fn):
+        raise CampFailure(unsupported_feature_error(f"transport.{name}"))
+    return fn
+
+
+def _entry_row(entry: object, *, viewing: str) -> tuple[str, str]:
+    """One ledger write, as (headline, memo). Everything escaped."""
+    ledger = int(getattr(entry, "ledger_index", 0) or 0)
+    when = str(getattr(entry, "close_time_iso", "") or "")
+    outgoing = bool(getattr(entry, "outgoing", True))
+    other = str(
+        (getattr(entry, "destination", "") if outgoing else getattr(entry, "account", ""))
+        or "",
+    )
+    amount = int(getattr(entry, "amount_drops", 0) or 0)
+    arrow = "→" if outgoing else "←"
+    head = f"[bold]{ledger:,}[/bold]  [dim]{escape(when)}[/dim]  {arrow} {escape(other or viewing)}"
+    if amount:
+        head += f"  [dim]{amount:,} drop{'' if amount == 1 else 's'}[/dim]"
+    return head, str(getattr(entry, "memo", "") or "")
+
+
+def read_account(address: str, *, own: bool, limit: int = READ_LIMIT_DEFAULT) -> int:
+    """Print what the ledger has recorded for `address`. Exit code."""
+    limit = max(1, min(READ_LIMIT_MAX, int(limit)))
+    fetch = _need("account_transactions")
+
+    entries, err = try_network(
+        "Asking the ledger...",
+        lambda: fetch(address, limit=limit),
+        lookup_error,
+        waiting="(reading a public account — no key, no login)",
+        done="read.",
+    )
+    if err is not None:
+        _report(err, command="read")
+        return err.exit_code
+
+    rows = sorted(
+        list(entries or []),
+        key=lambda e: int(getattr(e, "ledger_index", 0) or 0),
+    )
+    if own:
+        console.print(
+            f"\n  [bold]{escape(address)}[/bold] — your entries, read back "
+            "[bold]off the ledger[/bold], not off this machine.",
+        )
+    else:
+        console.print(
+            f"\n  [bold]{escape(address)}[/bold] — somebody else's public history. "
+            "You needed no key and nobody's permission to read it.",
+        )
+
+    if not rows:
+        console.print(
+            "\n  [dim]Nothing recorded for that account yet.[/dim]"
+            + ("\n  [dim]Write something with: xrpl-camp send --memo \"...\"[/dim]"
+               if own else ""),
+        )
+        return EXIT_OK
+
+    console.print()
+    written = 0
+    for entry in rows:
+        head, memo = _entry_row(entry, viewing=address)
+        console.print(f"  {head}")
+        if memo:
+            written += 1
+            console.print(f'      [cyan]"{escape(memo)}"[/cyan]')
+    console.print(
+        f"\n  [dim]{len(rows)} transaction{'' if len(rows) == 1 else 's'}, "
+        f"{written} carrying words. None of this is stored here — it came back "
+        "from the network.[/dim]",
+    )
+    return EXIT_OK
+
+
+def read_transaction(txid: str) -> int:
+    """Print one transaction, whoever sent it. Exit code."""
+    def missing(result: dict) -> CampError | None:
+        return None if result.get("found", True) else tx_unknown_error(txid)
+
+    tx, err = try_network(
+        "Looking it up...",
+        lambda: transport.lookup_tx(txid),
+        lookup_error,
+        waiting="(one hash, no login, no API key)",
+        done="found.",
+        check=missing,
+    )
+    if err is not None:
+        _report(err, command="read")
+        return err.exit_code
+
+    console.print()
+    console.print(transaction_table(tx, txid))
+    console.print("\n  [dim]On the public ledger, where anyone can check it:[/dim]")
+    _copyable(f"{transport.EXPLORER_URL}{txid}", style="dim")
+    return EXIT_OK
+
+
+def read_ledger(
+    target: str = "", *, session: Session | None = None, limit: int = READ_LIMIT_DEFAULT,
+) -> int:
+    """`xrpl-camp read` — one verb, three questions.
+
+    No argument reads YOUR entries back off the ledger rather than out of
+    session.json: reading local state would make this a text file in a
+    blockchain costume. An address reads what somebody else wrote — the
+    neighbour across the room, or the genesis account. A hash reads one
+    transaction. All three need no key, no account and no permission, which is
+    the claim lesson 2 makes and nothing in the product demonstrated.
+    """
+    target = str(target or "").strip()
+
+    if not target:
+        address = _own_address(session) if session is not None else ""
+        if not address:
+            _report(wallet_missing_error(), command="read")
+            return EXIT_USER
+        return read_account(address, own=True, limit=limit)
+
+    if is_tx_hash(target):
+        return read_transaction(target)
+
+    # An address before a near-miss hash: 64 hex characters is unambiguous, and
+    # anything else that starts with 'r' is far likelier to be an address typed
+    # slightly wrong than a hash.
+    if is_valid_address(target):
+        own = session is not None and target == _own_address(session)
+        return read_account(target, own=own, limit=limit)
+
+    if target[:1] == "r":
+        _report(bad_address_error(target), command="read")
+        return EXIT_USER
+    if len(target) >= 40:
+        _report(bad_hash_error(target), command="read")
+        return EXIT_USER
+    _report(unknown_target_error(target), command="read")
+    return EXIT_USER
+
+
+# ---------------------------------------------------------------------------
+# try - failure as curriculum, for nothing
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class TryOutcome:
+    """What one deliberate failure did, and what it would have cost."""
+
+    key: str
+    title: str
+    layer: str
+    code: str
+    lesson: str
+    reached_ledger: bool
+    cost_drops: int
+    ok: bool = True
+
+
+#: Where a rejection was caught. Four layers stand between a mistyped
+#: character and a permanent, fee-paid row, and the learner meets all of them.
+LAYER_CODEC = "your machine, before anything is built"
+LAYER_LIBRARY = "the library, before anything is signed"
+LAYER_SERVER = "the server, before consensus"
+LAYER_LEDGER = "the ledger itself"
+
+#: Result prefixes that are applied to a ledger. `tec` is the one that costs:
+#: the transaction failed AND it is on the chain forever, fee paid.
+COSTLY_PREFIXES = ("tec", "tes")
+
+#: What a Testnet transaction costs when it reaches the ledger.
+LEDGER_COST_DROPS = 10
+
+
+def _prefix(code: str) -> str:
+    """The three-letter class of an engine result: tec / tem / tel / tef / tes."""
+    return code[:3] if len(code) >= 3 else ""
+
+
+def _simulated(tx, *, key: str, title: str, lesson: str) -> TryOutcome:
+    """Run one transaction through `simulate`: 0 drops, no signature, ~0.5s."""
+    simulate = _need("simulate_tx")
+    outcome = simulate(tx)
+    code = str(getattr(outcome, "engine_result", "") or "")
+    prefix = str(getattr(outcome, "prefix", "") or _prefix(code))
+    costly = prefix in COSTLY_PREFIXES
+    return TryOutcome(
+        key=key, title=title, layer=LAYER_LEDGER if costly else LAYER_SERVER,
+        code=code, lesson=lesson, reached_ledger=costly,
+        cost_drops=LEDGER_COST_DROPS if costly else 0,
+    )
+
+
+def _payment(**fields):
+    """A Payment model, built here so `try` never touches the signing path."""
+    from xrpl.models import Payment
+
+    return Payment(**fields)
+
+
+def _try_bad_address(address: str) -> TryOutcome:
+    """Change one character of a real address and watch it refuse, offline."""
+    broken = address[:-1] + ("A" if address[-1] != "A" else "B")
+    valid = is_valid_address(broken)
+    console.print(f"  [dim]Sending to:[/dim] {escape(broken)}  [dim](one character off)[/dim]")
+    return TryOutcome(
+        key="address", title="A mistyped address", layer=LAYER_CODEC,
+        code="refused" if not valid else "ACCEPTED",
+        lesson=(
+            "An XRPL address carries its own checksum, so this never left your "
+            "machine. You cannot send to an address that does not exist because "
+            "you cannot type one by accident."
+        ),
+        reached_ledger=False, cost_drops=0, ok=not valid,
+    )
+
+
+def _try_self_payment(address: str) -> TryOutcome:
+    """The library refuses to build it. Nothing is signed, nothing is sent."""
+    code = "temREDUNDANT"
+    try:
+        _payment(account=address, destination=address, amount="1")
+    except Exception as exc:
+        code = type(exc).__name__
+    console.print(f"  [dim]Sending to:[/dim] {escape(address)}  [dim](yourself)[/dim]")
+    return TryOutcome(
+        key="self", title="A payment to yourself", layer=LAYER_LIBRARY,
+        code=code,
+        lesson=(
+            "The ledger would reject this as temREDUNDANT, but it never got the "
+            "chance: the library refused to build the transaction at all."
+        ),
+        reached_ledger=False, cost_drops=0,
+    )
+
+
+def _try_low_fee(address: str, destination: str) -> TryOutcome:
+    """A fee below what the server will relay. Rejected locally, costs nothing."""
+    return _simulated(
+        _payment(account=address, destination=destination, amount="1", fee="1"),
+        key="fee", title="A fee that is too small",
+        lesson=(
+            "The server would not even pass it on. A transaction rejected here "
+            "never reaches consensus and never costs anything — which is why "
+            "the fee is a queue, not a charge."
+        ),
+    )
+
+
+def _try_past_sequence(address: str, destination: str) -> TryOutcome:
+    """Replay an old sequence number. This is why you cannot be double-charged."""
+    return _simulated(
+        _payment(account=address, destination=destination, amount="1", sequence=1),
+        key="replay", title="Sending the same transaction twice",
+        lesson=(
+            "Every transaction carries a sequence number and each one can be "
+            "used once. Replay a signed transaction and the ledger has already "
+            "moved past it. This is why nobody can charge you twice."
+        ),
+    )
+
+
+def _try_no_destination(address: str) -> TryOutcome:
+    """One drop to an address nobody has funded: too little to create it."""
+    from xrpl.wallet import Wallet
+
+    stranger = Wallet.create().address
+    console.print(f"  [dim]Sending 1 drop to:[/dim] {escape(stranger)}  [dim](brand new)[/dim]")
+    return _simulated(
+        _payment(account=address, destination=stranger, amount="1"),
+        key="nodest", title="One drop to an account that does not exist",
+        lesson=(
+            "An account has to be funded to at least the base reserve before it "
+            "exists at all. One drop is not enough to bring it into being — and "
+            "this is the first failure so far that would have reached the ledger."
+        ),
+    )
+
+
+def _try_unfunded(address: str, destination: str, spendable: int) -> TryOutcome:
+    """Spend almost everything. The reserve stops being a number and starts biting."""
+    amount = max(1, spendable + 2_000_000)
+    console.print(f"  [dim]Sending:[/dim] {_drops_line(amount)}  [dim](more than you have)[/dim]")
+    return _simulated(
+        _payment(account=address, destination=destination, amount=str(amount)),
+        key="broke", title="Spending more than the reserve leaves you",
+        lesson=(
+            "Your balance is not your spendable balance. The reserve is locked "
+            "for as long as the account exists, and a payment that ignores it "
+            "lands on the ledger as a failure you paid for."
+        ),
+    )
+
+
+def _try_missing_hash() -> TryOutcome:
+    """Look up a hash that was never real. A read: it cannot cost anything."""
+    import hashlib
+
+    fake = hashlib.sha256(b"xrpl-camp: a transaction nobody ever sent").hexdigest().upper()
+    console.print(f"  [dim]Looking up:[/dim] {escape(fake)}")
+    found = True
+    try:
+        found = bool(transport.lookup_tx(fake).get("found", False))
+    except Exception:
+        found = False
+    return TryOutcome(
+        key="hash", title="A hash that was never real", layer=LAYER_LEDGER,
+        code="txnNotFound" if not found else "FOUND",
+        lesson=(
+            "That is a perfectly well-formed hash. It is just not a transaction. "
+            "The ledger does not guess, and reading is free, so asking cost "
+            "nothing at all."
+        ),
+        reached_ledger=False, cost_drops=0, ok=not found,
+    )
+
+
+#: The cases, in the order they teach best: the two that never touch the wire,
+#: then the free network ones, then the two that would have cost real drops.
+TRY_CASES = ("address", "self", "fee", "hash", "replay", "nodest", "broke")
+
+
+def run_try(case: str = "") -> int:
+    """`xrpl-camp try` — break it on purpose, on the real network, for nothing.
+
+    Every network case goes through ``simulate``: the real ledger, the real
+    engine result, the metadata it WOULD have written, no signature, and zero
+    drops. Doing this for real cost 30 drops and left three junk `tec` rows on
+    the chain, which is exactly the lesson — three letters tell you which
+    failures are free and which are permanent.
+    """
+    wanted = str(case or "").strip().lower()
+    if wanted and wanted not in TRY_CASES:
+        _report(CampError(
+            code="BAD_CASE",
+            message=f"There is no failure called '{wanted}'.",
+            hint="Try one of: " + ", ".join(TRY_CASES) + " — or 'xrpl-camp try' for all.",
+            exit_code=EXIT_USER,
+        ), command="try")
+        return EXIT_USER
+
+    w, err = _require_wallet()
+    if err is not None:
+        _report(err, command="try")
+        return err.exit_code
+    address = str(w["address"])
+
+    endpoint_problem = check_endpoint()
+    if endpoint_problem is not None:
+        _report(endpoint_problem, command="try")
+        return endpoint_problem.exit_code
+
+    console.print(Panel(
+        "[bold]Breaking it on purpose[/bold]\n\n"
+        "Every one of these runs against the live network and none of them\n"
+        "signs anything, sends anything or costs a drop. The ledger tells us\n"
+        "exactly what it [bold]would[/bold] have done.",
+        title="XRPL Camp — try",
+        border_style="blue",
+    ))
+
+    destination = _read_mailbox_or_self(address)
+    spendable = 0
+    facts = _reserve_facts(address)
+    if facts:
+        spendable = int(facts.get("spendable_drops", 0) or 0)
+
+    runners = {
+        "address": lambda: _try_bad_address(address),
+        "self": lambda: _try_self_payment(address),
+        "fee": lambda: _try_low_fee(address, destination),
+        "hash": _try_missing_hash,
+        "replay": lambda: _try_past_sequence(address, destination),
+        "nodest": lambda: _try_no_destination(address),
+        "broke": lambda: _try_unfunded(address, destination, spendable),
+    }
+
+    keys = [wanted] if wanted else list(TRY_CASES)
+    outcomes: list[TryOutcome] = []
+    for key in keys:
+        console.print(f"\n  [bold]{escape(TRY_TITLES[key])}[/bold]")
+        try:
+            outcome = runners[key]()
+        except CampFailure as exc:
+            _report(exc.error, command=f"try {key}")
+            return exc.exit_code
+        except Exception as exc:
+            problem = _classify(exc, simulate_error, account=address)
+            _report(problem, command=f"try {key}")
+            return problem.exit_code
+        outcomes.append(outcome)
+        _show_outcome(outcome)
+
+    _try_receipt(outcomes)
+    return EXIT_OK
+
+
+#: Headline per case, shown before it runs so the learner knows what is coming.
+TRY_TITLES = {
+    "address": "Send to an address with one character wrong",
+    "self": "Send a payment to yourself",
+    "fee": "Offer a fee the network will not relay",
+    "hash": "Look up a transaction that never existed",
+    "replay": "Send the same transaction a second time",
+    "nodest": "Send one drop to an account that does not exist",
+    "broke": "Spend more than you have",
+}
+
+
+def _read_mailbox_or_self(address: str) -> str:
+    """A destination for the simulations. Never the sender - the XRPL refuses that."""
+    from xrpl.wallet import Wallet
+
+    try:
+        record = wallet.load_mailbox()
+    except Exception:
+        record = None
+    box = str((record or {}).get("address", "") or "")
+    return box if box and box != address else Wallet.create().address
+
+
+def _show_outcome(outcome: TryOutcome) -> None:
+    """One result: the code, where it was caught, and what it teaches."""
+    colour = "red" if outcome.reached_ledger else "green"
+    console.print(
+        f"  [{colour}]{escape(outcome.code or 'no result')}[/{colour}]"
+        f"  [dim]caught by {escape(outcome.layer)}[/dim]",
+    )
+    console.print(f"  {escape(outcome.lesson)}")
+    if outcome.reached_ledger:
+        console.print(
+            f"  [yellow]For real, this one lands on the ledger and costs "
+            f"{outcome.cost_drops} drops. It cost 0 here.[/yellow]",
+        )
+
+
+def _try_receipt(outcomes: list[TryOutcome]) -> None:
+    """The payoff: which prefixes cost you, and what this all would have cost."""
+    if not outcomes:
+        return
+    landed = [o for o in outcomes if o.reached_ledger]
+    free = [o for o in outcomes if not o.reached_ledger]
+    spent = sum(o.cost_drops for o in landed)
+    lines = [
+        f"[bold]{len(outcomes)} deliberate failure"
+        f"{'' if len(outcomes) == 1 else 's'}. This run cost 0 drops.[/bold]\n",
+        f"  [green]{len(free)} free[/green]   — refused before the ledger ever saw them",
+        f"  [red]{len(landed)} costly[/red] — would have landed, "
+        f"{spent} drops and a permanent row",
+        "\n[bold]The first three letters tell you which, before you press send:[/bold]",
+        "  [green]tem tel tef[/green]  malformed, rejected locally, already stale — "
+        "never applied, never charged",
+        "  [red]tec[/red]          the ledger accepted the transaction and "
+        "recorded that it failed. You pay.",
+        "  [green]tes[/green]          success",
+    ]
+    console.print()
+    console.print(Panel(
+        "\n".join(lines), title="The receipt", border_style="green",
+    ))
 
 
 # ---------------------------------------------------------------------------
@@ -1572,23 +2399,23 @@ def _guided_flow(*, dry_run: bool = False, memo: str = "") -> int:
     elif skipped == 6:
         console.print(Panel(
             "[bold]Welcome back to XRPL Camp[/bold]\n\n"
-            "You've already completed all 6 lessons.\n"
-            "Run [bold]xrpl-camp status[/bold] to see your progress, or\n"
-            "[bold]xrpl-camp reset[/bold] to start fresh.",
+            "All 6 lessons are done. Nothing here needs doing again —\n"
+            "but the network you joined has not stopped.",
             title="XRPL Camp",
             border_style="green",
         ))
+        _what_now()
+        console.print(
+            "\n  [dim]xrpl-camp status for the checklist, "
+            "xrpl-camp reset to wipe it and start over.[/dim]\n",
+        )
         return EXIT_OK
     else:
         console.print(Panel(
             "[bold]Welcome to XRPL Camp[/bold]\n\n"
-            "In the next few minutes, you'll:\n"
-            "  1. Learn what the XRPL is\n"
-            "  2. Create a Testnet wallet\n"
-            "  3. Fund it with test XRP\n"
-            "  4. Send your first payment\n"
-            "  5. Verify it on the ledger\n"
-            "  6. Get a completion certificate\n\n"
+            "Six steps, about ten minutes. You'll make an account, fund it,\n"
+            "write a permanent public sentence, and check that the ledger\n"
+            "kept it — then walk out with a certificate anyone can verify.\n\n"
             "No real money. No sign-ups. Just you and the ledger.",
             title="XRPL Camp",
             border_style="green",
@@ -1608,7 +2435,7 @@ def _guided_flow(*, dry_run: bool = False, memo: str = "") -> int:
         _skip_banner(1, LESSON_NAMES[1])
     else:
         _pause()
-        result = lesson_1_mental_model(session)
+        result = lesson_1_mental_model(session, dry_run=dry_run)
         if not result:
             return _halt(result)
         proven.add(1)
@@ -1710,14 +2537,37 @@ def _guided_flow(*, dry_run: bool = False, memo: str = "") -> int:
         console.print(line)
     if duration_line:
         console.print(f"\n{duration_line.rstrip()}")
-    console.print(
-        "\n  [dim]Your certificate and proof pack are listed above. Check one "
-        "any time with:[/dim]"
-        "\n  [dim]xrpl-camp proof verify xrpl_camp_proof_pack.json[/dim]",
-    )
+    _what_now()
     console.print(
         "\n  [dim]If you liked this, Sovereignty is the same idea at book "
         "length — a\n  text game about running your own keys:[/dim]"
         "\n  [dim]pipx install sovereignty-game && sov tutorial[/dim]\n",
     )
     return EXIT_OK
+
+
+def _what_now() -> None:
+    """The three things the learner can now do on a network they are part of.
+
+    The product used to end on a checklist, a command that destroys everything,
+    and then an advert for a different product — after the best moment in it.
+    The ledger they just joined is still running, still free, still open. Every
+    command named here exists.
+    """
+    console.print("\n  [bold]The ledger is still running, and you are on it.[/bold]")
+    console.print(
+        "    [cyan]xrpl-camp read[/cyan]                     "
+        "your entries, read back off the ledger",
+    )
+    console.print(
+        "    [cyan]xrpl-camp read <address>[/cyan]           "
+        "what somebody else wrote — no key needed",
+    )
+    console.print(
+        "    [cyan]xrpl-camp try[/cyan]                      "
+        "make it fail on purpose. Costs nothing.",
+    )
+    console.print(
+        "\n  [dim]Check your proof pack any time: "
+        "xrpl-camp proof verify xrpl_camp_proof_pack.json[/dim]",
+    )

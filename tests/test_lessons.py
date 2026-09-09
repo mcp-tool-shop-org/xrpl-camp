@@ -59,7 +59,10 @@ def capture():
 
 @pytest.fixture()
 def session() -> Session:
-    return Session(started_at="2026-01-01T00:00:00Z")
+    # `wallet_address` is SENDER because lesson 5 now credits only a
+    # transaction the learner actually sent, so a session that verifies the
+    # recorded fixture has to be the session that owns it.
+    return Session(started_at="2026-01-01T00:00:00Z", wallet_address=SENDER)
 
 
 @pytest.fixture()

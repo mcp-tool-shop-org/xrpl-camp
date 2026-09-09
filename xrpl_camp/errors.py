@@ -384,6 +384,153 @@ def verification_error(message: str, detail: str = "") -> CampError:
     )
 
 
+def not_your_transaction_error(sender: str, own_address: str) -> CampError:
+    """A real transaction, on the ledger, sent by somebody else.
+
+    Lesson 5 exists to prove the record is the LEARNER's. Without this, any
+    hash copied off the explorer completed it: the table rendered, the tick
+    printed, and the certificate attested to a stranger's payment.
+
+    The message teaches rather than refuses. The evidence is already on screen
+    - the From row - so it names both addresses and says which check failed.
+    """
+    return CampError(
+        code="VERIFY_NOT_YOURS",
+        message=(
+            f"That transaction is real, but it was sent by {sender}, and your "
+            f"account is {own_address}. It is somebody else's record."
+        ),
+        hint=(
+            "The 'From' row above is how you can tell - it has to match your own "
+            "address. Read it anyway with 'xrpl-camp read <hash>'; to complete "
+            "lesson 5, verify a transaction you sent."
+        ),
+        detail=f"tx.account={sender} wallet={own_address}",
+        exit_code=EXIT_RUNTIME,
+    )
+
+
+def no_account_yet_error() -> CampError:
+    """`verify` on a stranger's hash, from a directory with no wallet in it.
+
+    Reading it is fine and always was. Being CREDITED for it is the bug: this
+    is the path that marked lesson 5 complete for somebody who had never
+    created an account.
+    """
+    return CampError(
+        code="VERIFY_NO_ACCOUNT",
+        message=(
+            "There is no wallet here, so there is nothing to check that "
+            "transaction against."
+        ),
+        hint=(
+            "Anyone can READ it - try 'xrpl-camp read <hash>'. Lesson 5 is about "
+            "verifying your own, so run 'xrpl-camp start' first."
+        ),
+        exit_code=EXIT_USER,
+    )
+
+
+def bad_hash_error(value: str) -> CampError:
+    """Refused offline: that is not the shape of a transaction hash.
+
+    Free, instant, and a lesson in itself. The old path sent any string to the
+    network, waited out three attempts and about seven seconds of backoff, and
+    then said the transaction did not exist YET.
+    """
+    shown = value if len(value) <= 20 else value[:20] + "..."
+    return CampError(
+        code="BAD_TX_HASH",
+        message=(
+            f"'{shown}' is not a transaction hash. A hash is exactly 64 "
+            f"characters of hex (0-9, A-F); that one is {len(value)}."
+        ),
+        hint="Copy the full hash - xrpl-camp printed yours after the send.",
+        exit_code=EXIT_USER,
+    )
+
+
+def tx_unknown_error(txid: str) -> CampError:
+    """A well-formed hash the learner typed, that this network has no record of.
+
+    Deliberately NOT the same error as :func:`not_found_error`. That one says
+    "not yet" and is retried, which is right for a hash this run just submitted
+    and wrong for one that was mistyped or belongs to another network.
+    """
+    return CampError(
+        code="NET_TX_UNKNOWN",
+        message="No transaction with that hash exists on this network.",
+        hint=(
+            "Check for a typo - a hash is 64 characters and one wrong one is a "
+            "different transaction. Testnet is also reset from time to time, "
+            "which erases older transactions."
+        ),
+        retryable=False,
+        detail=txid,
+        exit_code=EXIT_RUNTIME,
+    )
+
+
+def bad_address_error(value: str) -> CampError:
+    """Refused offline by the address's own checksum. No network call spent."""
+    shown = value if len(value) <= 40 else value[:40] + "..."
+    return CampError(
+        code="BAD_ADDRESS",
+        message=f"'{shown}' is not a valid XRPL address.",
+        hint=(
+            "Nothing was sent to the network - an XRPL address carries its own "
+            "checksum, so a mistyped one is caught right here on your machine. "
+            "Addresses start with 'r'."
+        ),
+        exit_code=EXIT_USER,
+    )
+
+
+def unknown_target_error(value: str) -> CampError:
+    """`read` was handed something that is neither an address nor a hash."""
+    shown = value if len(value) <= 40 else value[:40] + "..."
+    return CampError(
+        code="BAD_READ_TARGET",
+        message=f"'{shown}' is neither an address nor a transaction hash.",
+        hint=(
+            "An address starts with 'r' and is about 34 characters. A hash is 64 "
+            "hex characters. Run 'xrpl-camp read' with no argument for your own "
+            "entries."
+        ),
+        exit_code=EXIT_USER,
+    )
+
+
+def unsupported_feature_error(name: str) -> CampError:
+    """A transport capability this build of xrpl-camp does not have.
+
+    Structured rather than an AttributeError traceback: Gate B forbids raw
+    stacks, and "your install is older than this command" is a sentence a
+    learner can act on.
+    """
+    return CampError(
+        code="NEEDS_UPGRADE",
+        message=f"This install cannot do that yet (missing: {name}).",
+        hint="Upgrade with 'pipx upgrade xrpl-camp', then try again.",
+        exit_code=EXIT_RUNTIME,
+    )
+
+
+def simulate_error(detail: str = "") -> CampError:
+    """The simulate call itself failed. Nothing was signed and nothing sent."""
+    return CampError(
+        code="NET_SIMULATE",
+        message="The network could not run that simulation.",
+        hint=(
+            "Nothing was signed and nothing was sent - a simulation never costs "
+            "anything. Check your connection and try again."
+        ),
+        retryable=True,
+        detail=detail,
+        exit_code=EXIT_RUNTIME,
+    )
+
+
 # ---------------------------------------------------------------------------
 # Local state and user input
 # ---------------------------------------------------------------------------

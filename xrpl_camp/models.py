@@ -515,11 +515,13 @@ def is_dry_run() -> bool:
 _ENTRY_KEYS = frozenset({
     "lesson", "txid", "memo", "destination", "amount_drops", "fee_drops",
     "created_account", "ledger_index", "close_time_iso", "recorded_at",
+    "memo_type", "destination_tag", "submitted_at_ledger_index",
 })
 _PROGRESS_KEYS = frozenset({
     "lesson", "name", "completed_at", "txid", "started_at", "duration_seconds",
     "total_seconds", "attempts", "memo", "destination", "amount_drops",
     "fee_drops", "created_account", "ledger_index", "close_time_iso",
+    "memo_type", "destination_tag",
 })
 _SESSION_KEYS = frozenset({
     "schema_version", "started_at", "wallet_address", "completed_lessons",
@@ -568,6 +570,17 @@ class LedgerEntry:
     ledger_index: int = 0
     close_time_iso: str = ""
     recorded_at: str = ""
+    #: MemoType the payment carried. Recorded because it is what makes a set
+    #: of entries filterable back OFF the ledger — `xrpl-camp/diary` picks the
+    #: learner's writing out of a history that also holds the faucet grant.
+    memo_type: str = ""
+    #: DestinationTag, when one was sent. ``None`` means "no tag"; ``0`` is a
+    #: real tag, which is why this is not an int with a 0 default.
+    destination_tag: int | None = None
+    #: Validated ledger index at the moment of sending. With `ledger_index`
+    #: (where it landed) this is how many ledgers closed while the learner
+    #: waited — a real number for the sentence lesson 4 hand-waves.
+    submitted_at_ledger_index: int = 0
     extra: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -582,6 +595,9 @@ class LedgerEntry:
             "ledger_index": self.ledger_index,
             "close_time_iso": self.close_time_iso,
             "recorded_at": self.recorded_at,
+            "memo_type": self.memo_type,
+            "destination_tag": self.destination_tag,
+            "submitted_at_ledger_index": self.submitted_at_ledger_index,
         }
         data.update(self.extra)
         return data
@@ -602,6 +618,14 @@ class LedgerEntry:
             ledger_index=_as_int(raw.get("ledger_index")),
             close_time_iso=str(raw.get("close_time_iso", "") or ""),
             recorded_at=str(raw.get("recorded_at", "") or ""),
+            memo_type=str(raw.get("memo_type", "") or ""),
+            destination_tag=(
+                None if raw.get("destination_tag") is None
+                else _as_int(raw.get("destination_tag"))
+            ),
+            submitted_at_ledger_index=_as_int(
+                raw.get("submitted_at_ledger_index"),
+            ),
             extra=_leftovers(raw, _ENTRY_KEYS),
         )
 
@@ -631,6 +655,8 @@ class LessonProgress:
     created_account: bool = False
     ledger_index: int = 0
     close_time_iso: str = ""
+    memo_type: str = ""
+    destination_tag: int | None = None
     extra: dict = field(default_factory=dict)
 
     def to_dict(self) -> dict:
@@ -650,6 +676,8 @@ class LessonProgress:
             "created_account": self.created_account,
             "ledger_index": self.ledger_index,
             "close_time_iso": self.close_time_iso,
+            "memo_type": self.memo_type,
+            "destination_tag": self.destination_tag,
         }
         data.update(self.extra)
         return data
@@ -676,6 +704,11 @@ class LessonProgress:
             created_account=bool(raw.get("created_account", False)),
             ledger_index=_as_int(raw.get("ledger_index")),
             close_time_iso=str(raw.get("close_time_iso", "") or ""),
+            memo_type=str(raw.get("memo_type", "") or ""),
+            destination_tag=(
+                None if raw.get("destination_tag") is None
+                else _as_int(raw.get("destination_tag"))
+            ),
             extra=_leftovers(raw, _PROGRESS_KEYS),
         )
 
@@ -707,6 +740,9 @@ class Session:
         created_account: bool = False,
         ledger_index: int = 0,
         close_time_iso: str = "",
+        memo_type: str = "",
+        destination_tag: int | None = None,
+        submitted_at_ledger_index: int = 0,
     ) -> None:
         """Mark a lesson as completed. Re-running a lesson UPDATES the record.
 
@@ -743,6 +779,8 @@ class Session:
                 created_account=created_account,
                 ledger_index=ledger_index,
                 close_time_iso=close_time_iso,
+                memo_type=memo_type,
+                destination_tag=destination_tag,
             )
             self.progress.append(existing)
         else:
@@ -773,6 +811,10 @@ class Session:
                 existing.ledger_index = ledger_index
             if close_time_iso:
                 existing.close_time_iso = close_time_iso
+            if memo_type:
+                existing.memo_type = memo_type
+            if destination_tag is not None:
+                existing.destination_tag = destination_tag
 
         if txid:
             self.txids[f"lesson_{lesson}"] = txid
@@ -786,15 +828,40 @@ class Session:
                 created_account=created_account,
                 ledger_index=ledger_index,
                 close_time_iso=close_time_iso,
+                memo_type=memo_type,
+                destination_tag=destination_tag,
+                submitted_at_ledger_index=submitted_at_ledger_index,
                 recorded_at=now,
             )
 
     def record_entry(self, lesson: int, *, txid: str = "", **fields) -> LedgerEntry:
-        """Append one ledger write to the permanent record (idempotent by hash)."""
+        """Append one ledger write to the permanent record (idempotent by hash).
+
+        Fields this build does not know are DROPPED, not stored — so a caller
+        that invents a name gets a silently empty record, which is the exact
+        failure mode this record was written to end (a real, live-funded run
+        producing ``ledger_index=0`` and ``close_time_iso=""`` throughout while
+        every value sat in local scope at the call site). Unknown keys are
+        therefore logged rather than swallowed in silence.
+        """
+        unknown = sorted(set(fields) - _ENTRY_KEYS - {"recorded_at"})
+        if unknown:
+            logger.debug(
+                "record_entry(lesson=%s) dropped unknown field(s): %s",
+                lesson, ", ".join(unknown),
+            )
         for existing in self.entries:
             if txid and existing.txid == txid:
                 for key, value in fields.items():
-                    if value and hasattr(existing, key):
+                    if not hasattr(existing, key):
+                        continue
+                    # `destination_tag` may legitimately be 0, so it cannot
+                    # share the truthiness test that protects the others from
+                    # being blanked by a re-run that produced no new value.
+                    if key == "destination_tag":
+                        if value is not None:
+                            setattr(existing, key, value)
+                    elif value:
                         setattr(existing, key, value)
                 return existing
         recorded_at = fields.pop("recorded_at", "") or datetime.now(UTC).isoformat()

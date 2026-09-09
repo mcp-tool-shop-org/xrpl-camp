@@ -47,8 +47,10 @@ from xrpl_camp.models import (
     DryRunSession,
     ExecutionMode,
     Session,
+    get_state_dir,
     is_dry_run,
     set_execution_mode,
+    state_is_directory_local,
 )
 
 app = typer.Typer(
@@ -486,6 +488,18 @@ def _print_status_detail(session: Session, next_lesson: int | None) -> None:
     for path in _artifact_paths():
         console.print(f"  [bold]Artifact:[/bold]  {escape(str(path))}")
 
+    # Where the state lives, absolute. `get_state_dir` exists precisely because
+    # the absolute path is the only honest answer to "where did my seed go?",
+    # and it had no callers outside models.py. A learner who opens a new
+    # terminal and finds an empty checklist is the failure this design
+    # manufactures; the tool has always had the answer and never printed it.
+    console.print(f"  [bold]State:[/bold]     {escape(str(get_state_dir()))}")
+    if state_is_directory_local():
+        console.print(
+            "  [dim]State follows the folder you run in. Run xrpl-camp somewhere "
+            "else and it starts over — set XRPL_CAMP_HOME to pin it.[/dim]",
+        )
+
     # Stuck hint - the same next lesson the list above marked
     if next_lesson is not None:
         next_name = LESSON_NAMES.get(next_lesson, "?")
@@ -586,6 +600,12 @@ def fund(
 @app.command()
 def send(
     memo: Annotated[str, typer.Option("--memo", "-m", help="Memo text")] = "",
+    to: Annotated[
+        str, typer.Option(
+            "--to",
+            help="Write into somebody else's public history instead of your mailbox",
+        )
+    ] = "",
     dry_run: Annotated[
         bool, typer.Option(
             "--dry-run",
@@ -593,12 +613,80 @@ def send(
         )
     ] = False,
 ) -> None:
-    """Send a memo payment to your mailbox wallet on the XRPL Testnet."""
+    """Send a memo payment on the XRPL Testnet. Defaults to your own mailbox."""
     simulate = _simulating(dry_run)
     session = _get_session(dry_run=simulate)
-    result = lessons.lesson_4_send_payment(session, memo=memo, dry_run=simulate)
+    result = lessons.lesson_4_send_payment(
+        session, memo=memo, dry_run=simulate, destination=to,
+    )
     if not result:
         raise typer.Exit(result.exit_code)
+
+
+# ---------------------------------------------------------------------------
+# Read command - the diary, and everybody else's
+# ---------------------------------------------------------------------------
+
+
+@app.command("read")
+def read_cmd(
+    target: Annotated[
+        str, typer.Argument(
+            help="An address, or a transaction hash. Leave it off for your own entries",
+        )
+    ] = "",
+    limit: Annotated[
+        int, typer.Option("--limit", help="Most recent entries to show (max 100)"),
+    ] = lessons.READ_LIMIT_DEFAULT,
+) -> None:
+    """Read entries back off the ledger: yours, somebody else's, or one hash.
+
+    With no argument this is your diary — and it comes from the network, not
+    from this machine. With an address it is somebody else's public history,
+    readable with no key and nobody's permission. With a 64-character hash it
+    is that one transaction.
+    """
+    session = _read_session()
+    code = lessons.read_ledger(target, session=session, limit=limit)
+    if code != EXIT_OK:
+        raise typer.Exit(code)
+
+
+# ---------------------------------------------------------------------------
+# Try command - failure as curriculum
+# ---------------------------------------------------------------------------
+
+
+@app.command("try")
+def try_cmd(
+    case: Annotated[
+        str, typer.Argument(
+            help="One failure to run. Leave it off to run all of them",
+        )
+    ] = "",
+    list_cases: Annotated[
+        bool, typer.Option("--list", help="List the failures without running any"),
+    ] = False,
+) -> None:
+    """Break it on purpose against the live network. Signs nothing, costs nothing.
+
+    Every case runs through the ledger's `simulate`: the real engine result and
+    the metadata it would have written, with no signature and zero drops. Two
+    of them would cost real money if you meant them — the output says which,
+    and how you could have known from the result code alone.
+    """
+    if list_cases:
+        console.print()
+        for key in lessons.TRY_CASES:
+            console.print(
+                f"  [cyan]{key:<8}[/cyan] {escape(lessons.TRY_TITLES[key])}",
+            )
+        console.print("\n  [dim]Run one: xrpl-camp try <name>. Run all: xrpl-camp try[/dim]\n")
+        return
+
+    code = lessons.run_try(case)
+    if code != EXIT_OK:
+        raise typer.Exit(code)
 
 
 # ---------------------------------------------------------------------------
@@ -616,12 +704,39 @@ def verify(
         )
     ] = False,
 ) -> None:
-    """Verify a transaction on the XRPL Testnet."""
+    """Verify a transaction you sent, on the XRPL Testnet.
+
+    Lesson 5 credits a transaction sent by THIS account. To read one that is
+    not yours — a hash off the explorer, a neighbour's — use `xrpl-camp read`.
+    """
     simulate = _simulating(dry_run)
     session = _get_session(dry_run=simulate)
-    result = lessons.lesson_5_verify_tx(session, txid=tx, dry_run=simulate)
+    # `expected_memo` is what makes the standalone path a comparison rather
+    # than a display. The session has stored the sent memo since the record was
+    # filled; before that, `memo_for` had no callers anywhere.
+    result = lessons.lesson_5_verify_tx(
+        session, txid=tx, dry_run=simulate, expected_memo=_expected_memo(session, tx),
+    )
     if not result:
         raise typer.Exit(result.exit_code)
+
+
+def _expected_memo(session: Session, txid: str) -> str:
+    """What this session recorded as the memo for `txid`. '' when it has none.
+
+    Keyed on the hash rather than on the lesson, so a learner verifying an
+    earlier send of their own is compared against the words THAT transaction
+    carried, not against the most recent ones.
+    """
+    txid = str(txid or "").strip()
+    if not txid:
+        return session.memo_for(4)
+    for entry in reversed(list(getattr(session, "entries", []) or [])):
+        if str(getattr(entry, "txid", "")) == txid:
+            return str(getattr(entry, "memo", "") or "")
+    if txid == session.txids.get("lesson_4", ""):
+        return session.memo_for(4)
+    return ""
 
 
 # ---------------------------------------------------------------------------
@@ -678,15 +793,42 @@ app.add_typer(proof_app, name="proof")
 
 @proof_app.command("verify")
 def proof_verify(
-    file: Annotated[Path, typer.Argument(help="Path to proof pack JSON file")],
+    file: Annotated[Path, typer.Argument(
+        help="A proof pack JSON file, or a folder of them",
+    )],
     json_output: Annotated[
         bool, typer.Option("--json", help="Machine-readable JSON output")
     ] = False,
+    online: Annotated[
+        bool, typer.Option(
+            "--online", help="Also check every transaction against the XRPL ledger",
+        )
+    ] = False,
+    rpc_url: Annotated[
+        str, typer.Option(
+            "--rpc-url",
+            help="Check against this endpoint instead of the public Testnet",
+        )
+    ] = "",
 ) -> None:
-    """Verify a proof pack's integrity."""
+    """Verify a proof pack's integrity. A folder verifies every pack in it.
+
+    Two separate claims, deliberately never blurred. The hash check is local
+    and proves only that the file has not been edited since it was written —
+    anyone can recompute it, so it is not evidence of authenticity. `--online`
+    asks the ledger whether the transactions the pack names actually happened,
+    which is the part nobody can fake.
+    """
     import json as json_mod
 
     from xrpl_camp.proof_pack import verify_proof_pack
+
+    # A facilitator with thirty packs had to run thirty commands. A folder
+    # iterates; a single file behaves exactly as it always did. Exit code is
+    # non-zero if ANY pack fails, stated up front so a room script cannot
+    # silently pass a bad pack.
+    if file.is_dir():
+        raise _verify_folder(file, json_output=json_output)
 
     def reject(err: CampError) -> typer.Exit:
         if json_output:
@@ -759,7 +901,195 @@ def proof_verify(
         console.print()
 
     if not valid:
+        # A pack whose contents disagree with its own hash is already answered.
+        # Going to the network here would be wasted round-trips, and
+        # record_verification must never write into a tampered file.
         raise typer.Exit(1)
+
+    if online:
+        raise _verify_online(pack, file, rpc_url=rpc_url, json_output=json_output)
+
+
+def _verify_online(
+    pack: dict, file: Path, *, rpc_url: str, json_output: bool,
+) -> typer.Exit:
+    """Ask the ledger whether the transactions this pack names actually happened.
+
+    Orchestration only. Every judgement lives in `proof_pack`'s pure
+    classifier, which makes no network calls and is therefore testable
+    offline — this function fetches and renders, nothing more.
+    """
+    import json as json_mod
+
+    from xrpl_camp import lessons, transport
+    from xrpl_camp.errors import lookup_error
+    from xrpl_camp.proof_pack import (
+        classify_lesson_online,
+        endpoint_claim,
+        online_exit_code,
+        online_lookup_plan,
+        resolve_verification_endpoint,
+        summarize_online,
+    )
+
+    # NEVER pack["rpc_url"]. A forged pack can name an endpoint its author
+    # controls, and a server that answers "yes, that transaction is real" is
+    # trivial to stand up — this was demonstrated against an earlier draft of
+    # this feature. Also not transport.get_rpc_url(): that resolution is right
+    # for a learner running lessons and wrong for auditing someone else's file.
+    endpoint = resolve_verification_endpoint(rpc_url)
+    claim = endpoint_claim(pack, endpoint)
+
+    by_lesson = {
+        e.get("lesson"): e for e in pack.get("lessons", []) if isinstance(e, dict)
+    }
+    address = str(pack.get("address", ""))
+    results = []
+
+    for item in online_lookup_plan(pack):
+        entry = by_lesson.get(item["lesson"], {})
+        if not item["checkable"]:
+            results.append(classify_lesson_online(entry, address, None))
+            continue
+        live, err = lessons.try_network(
+            f"Checking lesson {item['lesson']} against the ledger",
+            # recorded_ledger_index is MANDATORY. It is the only thing that
+            # lets a miss be reported as "the Testnet was reset" instead of as
+            # a forgery. Measured both ways: dropping it turns every
+            # post-reset pack into an accusation against an honest learner.
+            lambda i=item: transport.lookup_tx(
+                i["txid"],
+                url=endpoint,
+                recorded_ledger_index=i["recorded_ledger_index"],
+            ),
+            lookup_error,
+            done="checked.",
+        )
+        results.append(classify_lesson_online(
+            entry, address, live,
+            unreachable_reason=(err.message if err else ""),
+        ))
+
+    summary = summarize_online(results)
+    code = online_exit_code(summary)
+
+    if json_output:
+        print(json_mod.dumps({
+            "file": str(file),
+            "endpoint": endpoint,
+            "online": summary,
+            "lessons": results,
+        }, indent=2, default=str))
+        return typer.Exit(code)
+
+    # Rendered as a clearly separate second block. The hash result above and
+    # the ledger result below are different claims about different things, and
+    # running them together is how a green tick comes to mean more than it
+    # should.
+    marks = {
+        "ok": "[green]OK[/green]      ",
+        "mismatch": "[red]MISMATCH[/red]",
+        "miss_not_found": "[red]MISSING[/red] ",
+        "miss_ledger_history_gone": "[yellow]NO HISTORY[/yellow]",
+        "unreachable": "[yellow]UNREACHED[/yellow]",
+        "not_checkable": "[dim]SKIPPED[/dim] ",
+    }
+    console.print("  [bold]─── Ledger check ───[/bold]")
+    console.print(f"  [bold]Verified against:[/bold] {escape(endpoint)}")
+    if claim.get("note"):
+        console.print(f"  [dim]{escape(str(claim['note']))}[/dim]")
+    console.print()
+    for res in results:
+        status = str(res.get("status", ""))
+        mark = marks.get(status, escape(status))
+        name = escape(str(res.get("name") or f"lesson {res.get('lesson', '?')}"))
+        console.print(f"  {mark}  {name}")
+        for problem in res.get("problems") or []:
+            console.print(f"           [dim]{escape(str(problem))}[/dim]")
+    console.print()
+    console.print(f"  {escape(str(summary.get('message', summary.get('status', ''))))}")
+    console.print()
+    return typer.Exit(code)
+
+
+#: What a proof pack is called when the tool writes one. A folder scan looks
+#: for these first, then falls back to every .json in the folder.
+def _packs_in(folder: Path) -> list[Path]:
+    """Proof packs in `folder`, deterministic order. Never recurses."""
+    from xrpl_camp.proof_pack import PROOF_PACK_FILE
+
+    named = sorted(p for p in folder.glob(f"*{PROOF_PACK_FILE}") if p.is_file())
+    if named:
+        return named
+    return sorted(p for p in folder.glob("*.json") if p.is_file())
+
+
+def _verify_folder(folder: Path, *, json_output: bool) -> typer.Exit:
+    """Verify every pack in `folder`. Non-zero if any of them fails."""
+    import json as json_mod
+
+    from xrpl_camp.proof_pack import verify_proof_pack
+
+    packs = _packs_in(folder)
+    if not packs:
+        return _fail(CampError(
+            code="NO_PACKS",
+            message=f"No proof packs found in {folder}.",
+            hint="Packs are named xrpl_camp_proof_pack.json. Check the folder.",
+            exit_code=EXIT_USER,
+        ))
+
+    results = []
+    for path in packs:
+        try:
+            pack = json_mod.loads(path.read_text(encoding="utf-8"))
+        except (json_mod.JSONDecodeError, ValueError, OSError) as exc:
+            results.append((path, False, f"unreadable: {type(exc).__name__}", {}))
+            continue
+        if not isinstance(pack, dict):
+            results.append((path, False, "not a JSON object", {}))
+            continue
+        if str(pack.get("schema", "")) != PROOF_PACK_SCHEMA:
+            results.append((path, False, "not an xrpl-camp proof pack", pack))
+            continue
+        valid, message = verify_proof_pack(pack)
+        results.append((path, valid, message, pack))
+
+    failed = [r for r in results if not r[1]]
+
+    if json_output:
+        print(json_mod.dumps({
+            "folder": str(folder),
+            "checked": len(results),
+            "passed": len(results) - len(failed),
+            "failed": len(failed),
+            "packs": [
+                {
+                    "file": str(path),
+                    "valid": valid,
+                    "hash_match": valid,
+                    "address": pack.get("address", ""),
+                    "network": pack.get("network", ""),
+                    "lessons_completed": len(pack.get("lessons", [])),
+                    "sha256": pack.get("sha256", ""),
+                    "message": message,
+                }
+                for path, valid, message, pack in results
+            ],
+        }, indent=2))
+    else:
+        console.print()
+        for path, valid, message, pack in results:
+            mark = "[green]PASS[/green]" if valid else "[red]FAIL[/red]"
+            who = str(pack.get("address", "")) or "unknown address"
+            tail = "" if valid else f" — {escape(message)}"
+            console.print(f"  {mark}  {escape(path.name)}  [dim]{escape(who)}[/dim]{tail}")
+        console.print(
+            f"\n  [bold]{len(results) - len(failed)} of {len(results)} packs "
+            f"verified.[/bold]\n",
+        )
+
+    return typer.Exit(1 if failed else EXIT_OK)
 
 
 # ---------------------------------------------------------------------------
@@ -986,15 +1316,24 @@ def _collect_checks() -> list[tuple[str, str, str]]:
     except Exception as exc:
         checks.append(("fail", "Filesystem write", str(exc)))
 
-    # 6. State directory
+    # 6. State directory. ABSOLUTE: the old line named ".xrpl-camp" relatively,
+    # which is exactly as useful as not naming it - state is directory-local, so
+    # the folder it resolves against is the whole question.
+    resolved = get_state_dir()
+    local = " (follows your working directory)" if state_is_directory_local() else ""
     if STATE_DIR.exists():
         try:
             items = list(STATE_DIR.iterdir())
-            checks.append(("ok", "State directory", f"{len(items)} file(s) in {STATE_DIR}"))
+            checks.append((
+                "ok", "State directory", f"{len(items)} file(s) in {resolved}{local}",
+            ))
         except OSError as exc:
-            checks.append(("fail", "State directory", f"{STATE_DIR} unreadable: {exc}"))
+            checks.append(("fail", "State directory", f"{resolved} unreadable: {exc}"))
     else:
-        checks.append(("info", "State directory", "Not yet created (run: xrpl-camp start)"))
+        checks.append((
+            "info", "State directory",
+            f"not yet created: {resolved}{local} (run: xrpl-camp start)",
+        ))
 
     # 7. Dependencies (catch all exceptions - PyInstaller may partially bundle)
     for mod_name in ("xrpl", "typer", "rich"):

@@ -50,7 +50,15 @@ def working_network(monkeypatch):
     sent: dict = {}
 
     def fake_send(seed, memo, dest, url=None, **k):
+        from xrpl.wallet import Wallet
+
         sent["memo"] = memo
+        # Lesson 5 now refuses a transaction the learner did not send, so the
+        # canned response has to come back FROM the wallet under test. The
+        # fixture is a real capture from one specific account; leaving its
+        # Account hardcoded made every gate test look like an ownership
+        # failure.
+        sent["account"] = Wallet.from_seed(seed).address
         return transport.SendResult(
             txid=TXID, destination=dest, amount_drops=k.get("amount_drops") or 1,
             fee_drops=10, created_account=False,
@@ -61,6 +69,8 @@ def working_network(monkeypatch):
         fixture["tx_json"]["Memos"][0]["Memo"]["MemoData"] = transport._to_hex(
             sent.get("memo", ""),
         )
+        if sent.get("account"):
+            fixture["tx_json"]["Account"] = sent["account"]
         return make_response(fixture)
 
     monkeypatch.setattr(
@@ -270,7 +280,8 @@ def test_a_finished_run_does_not_redo_itself(working_network, tmp_path):
     code, output = _run_captured()
 
     assert code == 0
-    assert "already completed all 6 lessons" in output.lower()
+    assert "all 6 lessons are done" in output.lower()
+    assert "nothing here needs doing again" in output.lower()
     assert (tmp_path / "xrpl_camp_certificate.json").read_bytes() == cert_before
 
 

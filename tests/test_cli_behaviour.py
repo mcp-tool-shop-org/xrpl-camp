@@ -428,15 +428,23 @@ def test_verify_refuses_a_transaction_that_is_not_on_the_ledger(monkeypatch):
 
 
 def test_verify_shows_the_parsed_fields_for_a_real_transaction(monkeypatch):
+    """The table renders from the real parser even when the tx is not ours.
+
+    Reading someone else's transaction is the whole point of a public ledger,
+    so the details still print and the explorer link still works. What it is
+    NOT is lesson 5: crediting it would let anyone finish the lesson with a
+    hash copied off the explorer, which is exactly what this used to do.
+    """
     stub_client(monkeypatch, make_response(load_fixture("tx_v2_payment.json")))
 
     result = runner.invoke(app, ["verify", "--tx", TXID])
 
-    assert result.exit_code == 0, out(result)
     body = out(result)
     assert "r3B7h4qQERrzogwxrCqFMJBewNBzutXVn1" in body
     assert "rUUGAx14J9EwWbWLjQgVFfXA2zV5hfKqDP" in body
-    assert "Independently verified" in body
+    assert result.exit_code != 0, "a stranger's transaction must not pass lesson 5"
+    assert "VERIFY_NO_ACCOUNT" in body
+    assert "Independently verified" not in body
 
 
 def test_fund_without_a_wallet_is_a_clean_failure():

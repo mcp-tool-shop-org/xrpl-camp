@@ -10,9 +10,16 @@ from pathlib import Path
 
 from xrpl_camp.errors import EXIT_RUNTIME, CampError, CampFailure
 from xrpl_camp.models import Session
-from xrpl_camp.transport import TESTNET_URL, get_rpc_url
+from xrpl_camp.transport import EXPLORER_URL, TESTNET_URL, get_rpc_url
 
 CERTIFICATE_FILE = "xrpl_camp_certificate.json"
+
+#: The formats `generate_certificate`'s output can be rendered in. "json" is
+#: the artifact written to disk and the one anything machine-readable should
+#: consume; "text" is the keepsake -- deliberately NOT valid JSON, so a
+#: learner who opens it sees a short narrative rather than a data file with
+#: fewer keys than the proof pack sitting next to it.
+CERTIFICATE_FORMATS = ("json", "text")
 
 
 # ---------------------------------------------------------------------------
@@ -319,6 +326,12 @@ def generate_certificate(session: Session) -> dict:
     its own content and that a learner (or anyone else) can verify without
     trusting this tool. There is deliberately no verify-certificate
     counterpart to this function.
+
+    When the lesson that recorded a txid also captured the memo the learner
+    wrote onto the ledger (see models.LessonProgress), that sentence rides
+    along on the entry -- it is the one piece of this record the learner
+    actually authored, and a keepsake that omits it is a receipt, not a
+    memento. Getattr-guarded for sessions saved before the field existed.
     """
     completed = []
     for p in session.progress:
@@ -329,6 +342,9 @@ def generate_certificate(session: Session) -> dict:
         }
         if p.txid:
             entry["txid"] = p.txid
+            memo = getattr(p, "memo", "") or ""
+            if memo:
+                entry["memo"] = memo
         completed.append(entry)
 
     network, _rpc_url = _attested_network()
@@ -362,3 +378,197 @@ def save_certificate(cert: dict, path: str = CERTIFICATE_FILE) -> Path:
 def certificate_has_seed(cert: dict) -> bool:
     """Safety check: verify no real XRPL seed leaked into certificate."""
     return _contains_xrpl_seed(cert)
+
+
+# ---------------------------------------------------------------------------
+# Human-readable renderings
+#
+# The certificate's own docstring has always said it is "a human-readable
+# summary, not the artifact meant to be independently checked" -- but what it
+# emitted was indented JSON with the same lesson-array shape as the proof
+# pack, minus a few keys. The two files were different FILES, not different
+# KINDS of artifact. These two functions are what make the difference real,
+# without reshaping either file anyone may already be scripting against.
+#
+# Both are pure string formatting over data the caller already holds. No
+# network call, no disk write, no persistence, no server.
+# ---------------------------------------------------------------------------
+
+
+def _first_anchored_entry(cert: dict) -> dict:
+    """The first completed entry that names a transaction, or {}.
+
+    The certificate's one genuinely shareable fact is a link to something on
+    a public ledger. Everything else in the file is this tool's own word.
+    """
+    completed = cert.get("completed", [])
+    if not isinstance(completed, list):
+        return {}
+    for entry in completed:
+        if isinstance(entry, dict) and entry.get("txid"):
+            return entry
+    return {}
+
+
+def _format_duration(seconds: float) -> str:
+    """`seconds` as a short human phrase, e.g. "24 minutes", "1h 12m"."""
+    try:
+        total = int(round(float(seconds)))
+    except (TypeError, ValueError):
+        return ""
+    if total <= 0:
+        return ""
+    if total < 60:
+        return f"{total} seconds"
+    minutes, secs = divmod(total, 60)
+    if minutes < 60:
+        return f"{minutes} minutes" if secs < 30 else f"{minutes + 1} minutes"
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours}h {minutes:02d}m"
+
+
+def share_text(cert: dict, *, pack_file: str = "xrpl_camp_proof_pack.json") -> str:
+    """A short, copy-pasteable, plain-text block a learner can paste anywhere.
+
+    Three to four lines. No box-drawing characters, no ANSI, no Rich markup,
+    no trailing newline -- the caller decides how to print it. Deliberately
+    written in the register of "here is what I can independently prove,"
+    not "look what I achieved": it names the verify command alongside the
+    claim, so the person reading it is handed the means to check rather than
+    asked to believe.
+
+    Contains only data already computed and already partially printed. It
+    adds no capability, no file and nothing persistent.
+    """
+    completed = cert.get("completed", [])
+    count = len(completed) if isinstance(completed, list) else 0
+    address = str(cert.get("address", "") or "an XRPL address")
+    network = str(cert.get("network", "") or "testnet")
+
+    lesson_word = "lesson" if count == 1 else "lessons"
+    lines = [
+        f"I completed {count} XRPL Camp {lesson_word} on XRPL {network} "
+        f"as {address}.",
+    ]
+
+    anchored = _first_anchored_entry(cert)
+    if anchored:
+        lines.append(
+            f"The transaction is on the public ledger: "
+            f"{EXPLORER_URL}{anchored['txid']}",
+        )
+        lines.append(f"Check the record yourself: xrpl-camp proof verify {pack_file} --online")
+    else:
+        # Honest about the weaker case rather than quietly dropping a line:
+        # a run with no ledger anchor has nothing independently checkable in
+        # it, and saying so is the whole point of this product's register.
+        lines.append(
+            "No transaction was recorded, so there is nothing on the ledger "
+            "to link -- these lessons were completed offline.",
+        )
+        lines.append(f"Check the record yourself: xrpl-camp proof verify {pack_file}")
+
+    return "\n".join(lines)
+
+
+def render_certificate_text(
+    cert: dict, *, pack_file: str = "xrpl_camp_proof_pack.json",
+) -> str:
+    """Render a certificate as a plain-text keepsake. NOT valid JSON, by design.
+
+    `xrpl_camp_certificate.json` stays exactly as it is -- this is an
+    additional rendering of the same dict, for the learner who opens the file
+    rather than the script that parses it. It reads as a short narrative:
+    who, what, when, the one sentence they wrote onto the ledger, and the two
+    commands that let anyone check it without trusting this tool.
+
+    Ends with a newline (it is a whole document, unlike share_text).
+    """
+    address = str(cert.get("address", "") or "(unknown address)")
+    network = str(cert.get("network", "") or "unknown network")
+    completed = cert.get("completed", [])
+    if not isinstance(completed, list):
+        completed = []
+
+    lines: list[str] = ["XRPL Camp", "=" * 9, ""]
+
+    count = len(completed)
+    lesson_word = "lesson" if count == 1 else "lessons"
+    finished = ""
+    for entry in completed:
+        if isinstance(entry, dict) and entry.get("at"):
+            finished = str(entry["at"])
+    when = f", finishing {finished[:10]}" if finished else ""
+    lines.append(
+        f"{address} completed {count} XRPL Camp {lesson_word} on "
+        f"{network}{when}.",
+    )
+    lines.append("")
+
+    for entry in completed:
+        if not isinstance(entry, dict):
+            continue
+        num = entry.get("lesson", "?")
+        name = str(entry.get("name", "") or "")
+        at = str(entry.get("at", "") or "")[:10]
+        lines.append(f"  {num}. {name}".ljust(34) + at)
+        memo = str(entry.get("memo", "") or "")
+        if memo:
+            # The one thing in this whole record the learner actually wrote.
+            lines.append(f'     "{memo}"')
+        txid = str(entry.get("txid", "") or "")
+        if txid:
+            lines.append(f"     {EXPLORER_URL}{txid}")
+    lines.append("")
+
+    spent = _format_duration(cert.get("duration_seconds", 0))
+    if spent:
+        lines.append(f"Time at camp: {spent}.")
+        lines.append("")
+
+    if _first_anchored_entry(cert):
+        lines.append(
+            "Every lesson above that names a transaction is recorded on a "
+            "public ledger",
+        )
+        lines.append(
+            "nobody involved here controls. You do not have to take this "
+            "file's word for it:",
+        )
+        lines.append("")
+        lines.append(f"  xrpl-camp proof verify {pack_file} --online")
+        lines.append("")
+        lines.append(
+            "Testnet is periodically reset. If a link stops resolving, that "
+            "is the network",
+        )
+        lines.append(
+            "being wiped rather than the transaction being fake -- the proof "
+            "pack records",
+        )
+        lines.append(
+            "the ledger index each transaction closed in, so the two can be "
+            "told apart.",
+        )
+    else:
+        lines.append(
+            "No transaction was recorded for this session, so nothing here "
+            "is anchored to",
+        )
+        lines.append(
+            "a public ledger. These lessons were completed offline; this "
+            "page is this tool's",
+        )
+        lines.append("own word and nothing more.")
+    lines.append("")
+
+    issued = str(cert.get("issued_at", "") or "")
+    stamp = f" on {issued[:10]}" if issued else ""
+    lines.append(
+        f"Issued{stamp} by xrpl-camp. This is a record of what you did, not "
+        "a credential:",
+    )
+    lines.append("nobody accredits it and it certifies nothing about you.")
+    lines.append("")
+
+    return "\n".join(lines)

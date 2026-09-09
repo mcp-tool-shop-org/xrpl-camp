@@ -5,11 +5,23 @@ Two wallets live here:
 * the **main wallet** — the learner's account, funded by the Testnet faucet;
 * the **mailbox** — a second account the learner also owns, so lesson 4 can
   send a *real* payment to a *real* destination. The old lesson tried to pay
-  its own address, which xrpl-py refuses to even construct and which the
-  ledger rejects as `temREDUNDANT`.
+  its own address, which xrpl-py refuses to even CONSTRUCT
+  (`XRPLModelException`: "An XRP payment transaction cannot have the same
+  sender and destination"). Nothing was signed and nothing was submitted, so
+  the ledger never saw it — measured, the protocol's `temREDUNDANT` is
+  unreachable through xrpl-py's model layer and must not be described as what
+  happens when you pay yourself.
 
 The mailbox seed is the learner's and is saved alongside the main wallet.
 Nothing is thrown away: they hold the keys to both ends of the payment.
+
+Spending FROM the mailbox
+-------------------------
+The mailbox is funded with EXACTLY the base reserve, so its SPENDABLE balance
+is zero — measured, 1,000,000 drops held and 0 drops spendable. Anything that
+spends from it, or gives it an owned object, must call
+`transport.get_spendable_drops` first and top it up: a TrustSet from that
+account returned `tesSUCCESS` and left it at MINUS 200,010 drops spendable.
 """
 
 from __future__ import annotations

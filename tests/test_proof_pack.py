@@ -14,13 +14,18 @@ from xrpl_camp.proof_pack import (
     verify_proof_pack,
 )
 
+#: A real XRPL transaction hash is always 64 hex characters. The generator
+#: refuses to build an explorer link for anything else, because such a link
+#: can only ever 404 — so the fixture has to be shaped like the real thing.
+REAL_TXID = "1E721764B35CAFD9AB24CFA15D8DC5097E9B9CDFE967B3E2A99FC701A3E53E1D"
+
 
 def _make_session() -> Session:
     """Build a session with completed lessons."""
     s = Session(started_at="2026-01-01T00:00:00Z", wallet_address="rCampAddress")
     s.mark_complete(1, "Mental Model")
     s.mark_complete(2, "Create Wallet")
-    s.mark_complete(4, "Send Payment", txid="DEADBEEF1234")
+    s.mark_complete(4, "Send Payment", txid=REAL_TXID)
     return s
 
 
@@ -90,7 +95,7 @@ def test_proof_pack_lesson_explorer_url():
     pack = generate_proof_pack(_make_session())
     lesson_4 = [entry for entry in pack["lessons"] if entry["lesson"] == 4][0]
     assert "explorer_url" in lesson_4
-    assert "DEADBEEF1234" in lesson_4["explorer_url"]
+    assert REAL_TXID in lesson_4["explorer_url"]
 
 
 def test_proof_pack_lesson_no_explorer_without_txid():
