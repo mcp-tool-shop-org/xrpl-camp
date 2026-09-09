@@ -1,9 +1,20 @@
-"""Tests for XRPL Camp transport layer (offline only — no network calls)."""
+"""Unit tests for the transport layer's pure helpers and short-circuits.
+
+Scope note: everything here is offline and covers ONLY the hex helpers, the
+constants, endpoint resolution, and the dry-run short-circuits. The real
+network paths — the parsers, the Payment construction, the failure
+classification — are pinned in `test_transport_contract.py` against recorded
+wire responses, and the xrpl-py model contract in `test_xrpl_models.py`.
+
+The split matters. Every send/fund/lookup test in this file used to pass
+`dry_run=True`, which returns before any of the code the product depends on,
+and there were no tests anywhere else. The suite was measuring its own early
+returns.
+"""
 
 from __future__ import annotations
 
-import pytest
-
+from tests.helpers import LOOKUP_KEYS
 from xrpl_camp.transport import _from_hex, _to_hex
 
 # ---------------------------------------------------------------------------
@@ -49,96 +60,41 @@ def test_to_hex_special_chars():
     assert _from_hex(_to_hex(text)) == text
 
 
-def test_from_hex_invalid_raises():
-    with pytest.raises(ValueError):
-        _from_hex("not_hex!")
+def test_from_hex_invalid_does_not_raise():
+    """Bad hex degrades to a label. It must NOT raise.
+
+    Memos are stranger-controlled: `xrpl-camp verify --tx <hash>` accepts any
+    transaction on a public ledger, and binary memos are common. A decoder that
+    raised turned "found it, the memo is not text" into "lookup failed", which
+    is a wrong diagnosis for a transaction that was found perfectly well.
+    """
+    assert _from_hex("not_hex!") == "(unreadable memo)"
+
+
+def test_from_hex_non_utf8_bytes_are_replaced():
+    """0xFF is valid hex and invalid UTF-8. It decodes to the replacement char."""
+    assert _from_hex("FF") == "�"
+
+
+def test_from_hex_odd_length_is_tolerated():
+    """A truncated memo loses its last nibble rather than the whole lookup."""
+    assert _from_hex("68656c6c6") == "hell"
+
+
+def test_from_hex_whitespace_is_ignored():
+    assert _from_hex("68 65 6c 6c 6f") == "hello"
 
 
 # ---------------------------------------------------------------------------
-# Fixture-based tx parsing
+# NOTE: the two fixture-based "parsing" tests that used to live here were
+# deleted, not moved. They hand-copied lookup_tx's body into the test and
+# asserted against their own copy, so deleting lookup_tx entirely left them
+# green — and the shape they declared as truth (Account/Destination/Fee/Memos
+# at the top level, Amount not DeliverMax) was the API-v1 layout, which is
+# precisely the bug that blanked lesson 5's details table under API v2.
+# Their replacements drive the REAL parser over a REAL recorded response:
+# see tests/test_transport_contract.py.
 # ---------------------------------------------------------------------------
-
-
-def test_lookup_tx_parsing():
-    """Verify lookup_tx field extraction from a fixture response."""
-    from xrpl_camp.transport import _from_hex, _to_hex
-
-    # Simulate the dict that lookup_tx builds from an XRPL response
-    memo_text = "XRPLCAMP|L4|1709337600"
-    fixture_result = {
-        "hash": "ABCDEF1234567890",
-        "Amount": "1",
-        "Destination": "rTestAddr",
-        "Account": "rTestAddr",
-        "Fee": "12",
-        "Memos": [
-            {
-                "Memo": {
-                    "MemoData": _to_hex(memo_text),
-                    "MemoType": _to_hex("text/plain"),
-                    "MemoFormat": _to_hex("text/plain"),
-                }
-            }
-        ],
-        "ledger_index": 42000000,
-        "meta": {"TransactionResult": "tesSUCCESS"},
-        "date": 700000000,
-    }
-
-    # Extract the same way lookup_tx does
-    memo_decoded = ""
-    memos = fixture_result.get("Memos", [])
-    for m in memos:
-        memo_obj = m.get("Memo", {})
-        data = _from_hex(memo_obj.get("MemoData", ""))
-        if data:
-            memo_decoded = data
-            break
-
-    parsed = {
-        "hash": fixture_result.get("hash", ""),
-        "amount": fixture_result.get("Amount", "0"),
-        "destination": fixture_result.get("Destination", ""),
-        "account": fixture_result.get("Account", ""),
-        "fee": fixture_result.get("Fee", "0"),
-        "memo": memo_decoded,
-        "ledger_index": fixture_result.get("ledger_index", 0),
-        "result": fixture_result.get("meta", {}).get("TransactionResult", ""),
-        "date": fixture_result.get("date", 0),
-    }
-
-    assert parsed["hash"] == "ABCDEF1234567890"
-    assert parsed["amount"] == "1"
-    assert parsed["destination"] == "rTestAddr"
-    assert parsed["account"] == "rTestAddr"
-    assert parsed["fee"] == "12"
-    assert parsed["memo"] == memo_text
-    assert parsed["ledger_index"] == 42000000
-    assert parsed["result"] == "tesSUCCESS"
-
-
-def test_tx_parsing_no_memo():
-    """Handles transaction with no memos gracefully."""
-    fixture_result = {
-        "hash": "NOMEMO123",
-        "Amount": "100",
-        "Destination": "rDest",
-        "Account": "rSrc",
-        "Fee": "12",
-        "ledger_index": 42000001,
-        "meta": {"TransactionResult": "tesSUCCESS"},
-    }
-
-    memo_decoded = ""
-    memos = fixture_result.get("Memos", [])
-    for m in memos:
-        memo_obj = m.get("Memo", {})
-        data = _from_hex(memo_obj.get("MemoData", ""))
-        if data:
-            memo_decoded = data
-            break
-
-    assert memo_decoded == ""
 
 
 # ---------------------------------------------------------------------------
@@ -180,11 +136,16 @@ def test_get_rpc_url_env_empty_falls_back(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# Dry-run mode
+# Dry-run short-circuits
+#
+# These are named for what they actually prove: that the early return fires
+# before any client is constructed. They are NOT evidence that the real send,
+# fund or lookup paths work — those live in test_transport_contract.py.
 # ---------------------------------------------------------------------------
 
 
-def test_fund_wallet_dry_run():
+def test_fund_wallet_dry_run_short_circuits():
+    """Dry-run fund echoes the wallet's own address and touches no faucet."""
     from xrpl_camp.transport import fund_wallet
     from xrpl_camp.wallet import create_wallet
 
@@ -193,24 +154,37 @@ def test_fund_wallet_dry_run():
     assert result == address  # Returns the wallet's own address
 
 
-def test_send_memo_payment_dry_run():
-    from xrpl_camp.transport import DRY_RUN_TXID, send_memo_payment
+def test_send_memo_payment_dry_run_short_circuits():
+    """Dry-run send returns a complete SendResult without a network call."""
+    from xrpl_camp.transport import DRY_RUN_TXID, SendResult, send_memo_payment
     from xrpl_camp.wallet import create_wallet
 
     _, seed = create_wallet()
-    txid = send_memo_payment(seed, "test memo", dry_run=True)
-    assert txid == DRY_RUN_TXID
+    destination, _ = create_wallet()
+
+    result = send_memo_payment(seed, "test memo", destination, dry_run=True)
+
+    assert isinstance(result, SendResult)
+    assert result.txid == DRY_RUN_TXID
+    assert result.destination == destination
+    assert result.amount_drops >= 1
+    assert result.fee_drops >= 0
+    assert result.created_account is False
 
 
-def test_send_memo_payment_dry_run_memo_accepted():
-    """Dry-run accepts any memo without network call."""
+def test_send_memo_payment_dry_run_honours_amount():
+    """The simulated result reports the amount the caller asked for."""
     from xrpl_camp.transport import send_memo_payment
     from xrpl_camp.wallet import create_wallet
 
     _, seed = create_wallet()
-    txid = send_memo_payment(seed, "any memo works here", dry_run=True)
-    assert isinstance(txid, str)
-    assert len(txid) > 0
+    destination, _ = create_wallet()
+
+    result = send_memo_payment(
+        seed, "any memo works here", destination,
+        amount_drops=1_000_000, dry_run=True,
+    )
+    assert result.amount_drops == 1_000_000
 
 
 # ---------------------------------------------------------------------------
@@ -272,20 +246,26 @@ def test_lookup_tx_dry_run():
     from xrpl_camp.transport import lookup_tx
 
     result = lookup_tx("SOME_TXID", dry_run=True)
+    assert result["found"] is True
     assert result["hash"] == "SOME_TXID"
     assert result["result"] == "tesSUCCESS"
+    assert result["validated"] is True
     assert "dry run" in result["memo"].lower()
 
 
 def test_lookup_tx_dry_run_has_expected_keys():
+    """The simulated return carries the SHARED key contract.
+
+    `LOOKUP_KEYS` is asserted against the real parser's output over a recorded
+    response too (test_transport_contract.py). Pinning the key set in only one
+    of the two places is how the simulated and real paths were free to drift —
+    and they had: the simulation showed a populated details table while the
+    real run showed blanks.
+    """
     from xrpl_camp.transport import lookup_tx
 
     result = lookup_tx("SOME_TXID", dry_run=True)
-    expected_keys = {
-        "hash", "amount", "destination", "account", "fee",
-        "memo", "ledger_index", "result", "date",
-    }
-    assert set(result.keys()) == expected_keys
+    assert set(result.keys()) == set(LOOKUP_KEYS)
 
 
 def test_dry_run_txid_constant():

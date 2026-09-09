@@ -27,6 +27,7 @@ from xrpl_camp.certificate import generate_certificate, save_certificate
 from xrpl_camp.errors import (
     EXIT_OK,
     CampError,
+    CampFailure,
     balance_error,
     connection_error,
     endpoint_error,
@@ -45,7 +46,13 @@ from xrpl_camp.errors import (
     wallet_missing_error,
     write_error,
 )
-from xrpl_camp.models import DryRunSession, Session
+from xrpl_camp.models import (
+    DryRunSession,
+    ExecutionMode,
+    Session,
+    get_execution_mode,
+    set_execution_mode,
+)
 from xrpl_camp.proof_pack import generate_proof_pack, save_proof_pack
 
 console = Console()
@@ -289,6 +296,13 @@ def _load_wallet() -> tuple[dict | None, CampError | None]:
     """Load the wallet, converting a broken file into a CampError."""
     try:
         return wallet.load_wallet(), None
+    except CampFailure as exc:
+        # wallet.load_wallet raises StateFileError, which is a CampFailure and
+        # therefore inherits from Exception - not from any of the four types
+        # below. Without this clause the handler could never fire for the case
+        # it was written for, and the error only rendered because cli.run()
+        # catches CampFailure at the boundary.
+        return None, exc.error
     except (OSError, ValueError, TypeError, KeyError) as exc:
         return None, wallet_corrupt_error(f"{type(exc).__name__}: {exc}")
 
@@ -972,10 +986,19 @@ def run_guided_flow(*, dry_run: bool = False) -> int:
     non-zero when one failed. A failed lesson halts the flow - the run never
     walks past a failure into a certificate.
     """
+    # The wallet and models layers read the process-global execution mode, not
+    # this parameter. cli._simulating() sets it before calling us, so the CLI
+    # path was always correct - but a direct call with dry_run=True would still
+    # write a real seed to disk, which is the opposite of what the argument
+    # name promises. Set it here so the parameter means what it says from any
+    # caller, including tests.
+    set_execution_mode(ExecutionMode.DRY_RUN if dry_run else get_execution_mode())
     try:
         session = DryRunSession.get_or_create() if dry_run else Session.get_or_create()
-    except (OSError, ValueError, TypeError, KeyError) as exc:
-        err = state_corrupt_error(f"{type(exc).__name__}: {exc}")
+    except (CampFailure, OSError, ValueError, TypeError, KeyError) as exc:
+        err = exc.error if isinstance(exc, CampFailure) else state_corrupt_error(
+            f"{type(exc).__name__}: {exc}",
+        )
         _report(err)
         return err.exit_code
 
