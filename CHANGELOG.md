@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.4.1] - 2026-09-09
+
+### Fixed
+
+- The container's unmounted-`/work` warning went to **stdout**. It is a warning
+  about the environment, not output of the command being run, and on stdout it
+  corrupts anything piping the container — `docker run ... --version | awk` gets
+  the second word of the warning instead of the version. It demonstrated this
+  on the v1.4.0 release itself, failing that release's own image-verification
+  step against an image that was perfectly good. Now on stderr.
+
+  The v1.4.0 image is otherwise fine and was not re-pushed: a published tag
+  should not mutate under anyone who already pulled it.
+
+- The release check that this broke now matches the version line by name rather
+  than by field position, so warning text on the stream cannot be mistaken for
+  a version again.
+
+- `.gitattributes` pins LF on `*.sh`, the `Dockerfile` and the entrypoint. A
+  shell script checked out with CRLF on Windows makes the shebang
+  `#!/bin/sh`; Linux then fails with "no such file or directory" naming the
+  *script*, so it reads like a missing file rather than a line-ending problem.
+  CI never saw it — a Linux runner checks out LF and builds fine — so it was
+  visible only to a contributor building the image on Windows.
+
 ## [1.4.0] - 2026-09-09
 
 A dogfood swarm took this repo from "green CI, dead product" to something that

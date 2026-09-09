@@ -15,7 +15,7 @@ import os
 import sys
 from typing import Any
 
-__version__ = "1.4.0"
+__version__ = "1.4.1"
 
 # Streams we wrapped ourselves. Held so the underlying buffer is not closed
 # when the wrapper we replaced is garbage collected.

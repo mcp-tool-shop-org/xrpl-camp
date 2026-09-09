@@ -5,7 +5,7 @@
 
 **Tags:** `[all]` every repo · `[npm]` `[pypi]` `[vsix]` `[desktop]` `[container]` published artifacts · `[mcp]` MCP servers · `[cli]` CLI tools
 
-**Measured 2026-09-09 for v1.4.0.** Every date below is when the line was last
+**Measured 2026-09-09 for v1.4.0.** v1.4.1 is a patch that moves a container warning from stdout to stderr and pins LF on shell scripts; it changes nothing any line below measures, so the dates stand rather than being re-stamped to look fresher than the measurement is. Every date below is when the line was last
 actually verified, not when it was first written. The previous revision carried
 `2026-03-02` on every row and had gone unre-measured across four releases — including
 a row that skipped the entire npm section as "not an npm package" while four npm
