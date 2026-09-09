@@ -28,9 +28,30 @@ an invariant:
   undetectable.
 """
 
+
 from __future__ import annotations
 
 import socket
+
+# Import tracemalloc eagerly, before any test can raise an unraisable exception.
+#
+# Not cosmetic. pytest's unraisable-exception plugin reports a stray exception
+# by calling `tracemalloc.get_object_traceback`. If tracemalloc has not been
+# fully imported by then -- which happens when the unraisable fires late, during
+# interpreter shutdown -- that import is still in progress, the attribute does
+# not exist yet, and the REPORTER itself raises AttributeError. pytest turns
+# that into `RuntimeError: Failed to process unraisable exception`, which
+# surfaces as an ERROR attached to whichever test the garbage collector
+# happened to interrupt.
+#
+# The symptom was an intermittent ERROR on a different test each run, on
+# Windows only, that passed 3/3 in isolation and never appeared on Linux CI --
+# i.e. the most corrosive possible shape, because the obvious response is to
+# stop believing the suite. The trigger is xrpl-py's websocket client leaving a
+# ProactorEventLoop whose finalizer touches `self._ssock` on a loop that never
+# finished initialising; the crash is pytest's, not ours, and this import is
+# enough to stop it.
+import tracemalloc  # noqa: F401  (imported for its side effect, see above)
 
 import pytest
 
