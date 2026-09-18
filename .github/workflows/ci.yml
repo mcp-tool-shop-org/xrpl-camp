@@ -18,6 +18,9 @@ on:
       - "bin/**"
       - "scripts/**"
       - ".github/workflows/**"
+      - "site/package.json"
+      - "site/package-lock.json"
+      - "site/astro.config.mjs"
   pull_request:
     paths:
       - "xrpl_camp/**"
@@ -27,6 +30,9 @@ on:
       - "bin/**"
       - "scripts/**"
       - ".github/workflows/**"
+      - "site/package.json"
+      - "site/package-lock.json"
+      - "site/astro.config.mjs"
   workflow_dispatch:
 
 concurrency:
