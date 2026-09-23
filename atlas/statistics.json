@@ -1,0 +1,766 @@
+{
+  "boundaries": [
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": ".github",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "bin",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": [
+          "bin"
+        ]
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "root",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "scripts",
+      "qualifyingSourceCommits": 0,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "site",
+      "qualifyingSourceCommits": 2,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": []
+      },
+      "cohesion": null,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "tests",
+      "qualifyingSourceCommits": 9,
+      "rebaseline": null
+    },
+    {
+      "breakage": {
+        "coChangesOnly": [],
+        "collapsed": false,
+        "confidence": "low",
+        "importsAndCoChanges": [],
+        "importsOnly": [
+          "tests"
+        ]
+      },
+      "cohesion": 1,
+      "cohesionDropped": false,
+      "confidence": "low",
+      "highWater": null,
+      "name": "xrpl_camp",
+      "qualifyingSourceCommits": 12,
+      "rebaseline": null
+    }
+  ],
+  "churn": {
+    "definition": "commits is how many commits in the window touch the file, including merges and commits dropped from coupling. lines is added plus deleted in those commits.",
+    "files": [
+      {
+        "commits": 1,
+        "lines": 17,
+        "path": ".gitattributes"
+      },
+      {
+        "commits": 2,
+        "lines": 18,
+        "path": ".github/freshness-report.md"
+      },
+      {
+        "commits": 10,
+        "lines": 254,
+        "path": ".github/workflows/ci.yml"
+      },
+      {
+        "commits": 2,
+        "lines": 168,
+        "path": ".github/workflows/freshness-check.yml"
+      },
+      {
+        "commits": 4,
+        "lines": 54,
+        "path": ".github/workflows/pages.yml"
+      },
+      {
+        "commits": 7,
+        "lines": 629,
+        "path": ".github/workflows/publish.yml"
+      },
+      {
+        "commits": 5,
+        "lines": 186,
+        "path": ".github/workflows/release-binaries.yml"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": ".github/workflows/release.yml"
+      },
+      {
+        "commits": 3,
+        "lines": 14,
+        "path": ".gitignore"
+      },
+      {
+        "commits": 2,
+        "lines": 40,
+        "path": "BUILD.md"
+      },
+      {
+        "commits": 9,
+        "lines": 304,
+        "path": "CHANGELOG.md"
+      },
+      {
+        "commits": 2,
+        "lines": 124,
+        "path": "Dockerfile"
+      },
+      {
+        "commits": 2,
+        "lines": 334,
+        "path": "README.es.md"
+      },
+      {
+        "commits": 2,
+        "lines": 338,
+        "path": "README.fr.md"
+      },
+      {
+        "commits": 2,
+        "lines": 346,
+        "path": "README.hi.md"
+      },
+      {
+        "commits": 2,
+        "lines": 334,
+        "path": "README.it.md"
+      },
+      {
+        "commits": 2,
+        "lines": 326,
+        "path": "README.ja.md"
+      },
+      {
+        "commits": 5,
+        "lines": 393,
+        "path": "README.md"
+      },
+      {
+        "commits": 2,
+        "lines": 326,
+        "path": "README.pt-BR.md"
+      },
+      {
+        "commits": 2,
+        "lines": 354,
+        "path": "README.zh.md"
+      },
+      {
+        "commits": 2,
+        "lines": 152,
+        "path": "SCORECARD.md"
+      },
+      {
+        "commits": 2,
+        "lines": 188,
+        "path": "SECURITY.md"
+      },
+      {
+        "commits": 3,
+        "lines": 138,
+        "path": "SHIP_GATE.md"
+      },
+      {
+        "commits": 1,
+        "lines": 22,
+        "path": "bin/xrpl-camp.js"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "bin}/xrpl-camp.js"
+      },
+      {
+        "commits": 3,
+        "lines": 100,
+        "path": "docker-entrypoint.sh"
+      },
+      {
+        "commits": 2,
+        "lines": 32,
+        "path": "node_modules/.bin/mcptoolshop-launch"
+      },
+      {
+        "commits": 2,
+        "lines": 34,
+        "path": "node_modules/.bin/mcptoolshop-launch.cmd"
+      },
+      {
+        "commits": 2,
+        "lines": 56,
+        "path": "node_modules/.bin/mcptoolshop-launch.ps1"
+      },
+      {
+        "commits": 2,
+        "lines": 40,
+        "path": "node_modules/.package-lock.json"
+      },
+      {
+        "commits": 2,
+        "lines": 94,
+        "path": "node_modules/@mcptoolshop/npm-launcher/CHANGELOG.md"
+      },
+      {
+        "commits": 2,
+        "lines": 42,
+        "path": "node_modules/@mcptoolshop/npm-launcher/LICENSE"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": "node_modules/@mcptoolshop/npm-launcher/README.es.md"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": "node_modules/@mcptoolshop/npm-launcher/README.fr.md"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": "node_modules/@mcptoolshop/npm-launcher/README.hi.md"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": "node_modules/@mcptoolshop/npm-launcher/README.it.md"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": "node_modules/@mcptoolshop/npm-launcher/README.ja.md"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": "node_modules/@mcptoolshop/npm-launcher/README.md"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": "node_modules/@mcptoolshop/npm-launcher/README.pt-BR.md"
+      },
+      {
+        "commits": 2,
+        "lines": 286,
+        "path": "node_modules/@mcptoolshop/npm-launcher/README.zh.md"
+      },
+      {
+        "commits": 2,
+        "lines": 182,
+        "path": "node_modules/@mcptoolshop/npm-launcher/bin/mcptoolshop-launch.js"
+      },
+      {
+        "commits": 2,
+        "lines": 76,
+        "path": "node_modules/@mcptoolshop/npm-launcher/package.json"
+      },
+      {
+        "commits": 2,
+        "lines": 54,
+        "path": "node_modules/@mcptoolshop/npm-launcher/src/cache.js"
+      },
+      {
+        "commits": 2,
+        "lines": 238,
+        "path": "node_modules/@mcptoolshop/npm-launcher/src/github.js"
+      },
+      {
+        "commits": 2,
+        "lines": 336,
+        "path": "node_modules/@mcptoolshop/npm-launcher/src/index.js"
+      },
+      {
+        "commits": 2,
+        "lines": 120,
+        "path": "node_modules/@mcptoolshop/npm-launcher/src/lock.js"
+      },
+      {
+        "commits": 2,
+        "lines": 58,
+        "path": "node_modules/@mcptoolshop/npm-launcher/src/log.js"
+      },
+      {
+        "commits": 2,
+        "lines": 64,
+        "path": "node_modules/@mcptoolshop/npm-launcher/src/platform.js"
+      },
+      {
+        "commits": 2,
+        "lines": 30,
+        "path": "node_modules/@mcptoolshop/npm-launcher/src/run.js"
+      },
+      {
+        "commits": 2,
+        "lines": 100,
+        "path": "node_modules/@mcptoolshop/npm-launcher/src/verify.js"
+      },
+      {
+        "commits": 3,
+        "lines": 63,
+        "path": "npm/LICENSE"
+      },
+      {
+        "commits": 3,
+        "lines": 525,
+        "path": "npm/README.md"
+      },
+      {
+        "commits": 3,
+        "lines": 38,
+        "path": "npm/bin/xrpl-camp.js"
+      },
+      {
+        "commits": 2,
+        "lines": 68,
+        "path": "package-lock.json"
+      },
+      {
+        "commits": 6,
+        "lines": 71,
+        "path": "package.json"
+      },
+      {
+        "commits": 11,
+        "lines": 80,
+        "path": "pyproject.toml"
+      },
+      {
+        "commits": 2,
+        "lines": 332,
+        "path": "scripts/check-freshness.sh"
+      },
+      {
+        "commits": 3,
+        "lines": 84,
+        "path": "scripts/check-versions.sh"
+      },
+      {
+        "commits": 3,
+        "lines": 170,
+        "path": "scripts/verify-pypi-publish.sh"
+      },
+      {
+        "commits": 2,
+        "lines": 44,
+        "path": "scripts/verify.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "site/astro.config.mjs"
+      },
+      {
+        "commits": 1,
+        "lines": 6049,
+        "path": "site/package-lock.json"
+      },
+      {
+        "commits": 1,
+        "lines": 6,
+        "path": "site/package.json"
+      },
+      {
+        "commits": 3,
+        "lines": 102,
+        "path": "site/src/content/docs/handbook/beginners.md"
+      },
+      {
+        "commits": 4,
+        "lines": 24,
+        "path": "site/src/content/docs/handbook/getting-started.md"
+      },
+      {
+        "commits": 2,
+        "lines": 3,
+        "path": "site/src/content/docs/handbook/index.md"
+      },
+      {
+        "commits": 3,
+        "lines": 142,
+        "path": "site/src/content/docs/handbook/lessons.md"
+      },
+      {
+        "commits": 3,
+        "lines": 170,
+        "path": "site/src/content/docs/handbook/proof-pack.md"
+      },
+      {
+        "commits": 4,
+        "lines": 305,
+        "path": "site/src/content/docs/handbook/reference.md"
+      },
+      {
+        "commits": 3,
+        "lines": 94,
+        "path": "site/src/site-config.ts"
+      },
+      {
+        "commits": 3,
+        "lines": 422,
+        "path": "tests/conftest.py"
+      },
+      {
+        "commits": 2,
+        "lines": 36,
+        "path": "tests/fixtures/account_info_not_found_v2.json"
+      },
+      {
+        "commits": 2,
+        "lines": 66,
+        "path": "tests/fixtures/account_info_v2.json"
+      },
+      {
+        "commits": 2,
+        "lines": 146,
+        "path": "tests/fixtures/server_state_v2.json"
+      },
+      {
+        "commits": 2,
+        "lines": 136,
+        "path": "tests/fixtures/submit_created_account_v2.json"
+      },
+      {
+        "commits": 2,
+        "lines": 150,
+        "path": "tests/fixtures/submit_existing_account_v2.json"
+      },
+      {
+        "commits": 2,
+        "lines": 22,
+        "path": "tests/fixtures/tx_not_found_v2.json"
+      },
+      {
+        "commits": 2,
+        "lines": 128,
+        "path": "tests/fixtures/tx_v1_payment.json"
+      },
+      {
+        "commits": 2,
+        "lines": 136,
+        "path": "tests/fixtures/tx_v2_payment.json"
+      },
+      {
+        "commits": 3,
+        "lines": 396,
+        "path": "tests/helpers.py"
+      },
+      {
+        "commits": 4,
+        "lines": 228,
+        "path": "tests/test_cli.py"
+      },
+      {
+        "commits": 3,
+        "lines": 1056,
+        "path": "tests/test_cli_behaviour.py"
+      },
+      {
+        "commits": 2,
+        "lines": 193,
+        "path": "tests/test_dry_run.py"
+      },
+      {
+        "commits": 3,
+        "lines": 662,
+        "path": "tests/test_failure_gate.py"
+      },
+      {
+        "commits": 4,
+        "lines": 158,
+        "path": "tests/test_features.py"
+      },
+      {
+        "commits": 3,
+        "lines": 1322,
+        "path": "tests/test_lessons.py"
+      },
+      {
+        "commits": 2,
+        "lines": 274,
+        "path": "tests/test_live_testnet.py"
+      },
+      {
+        "commits": 2,
+        "lines": 10,
+        "path": "tests/test_models.py"
+      },
+      {
+        "commits": 2,
+        "lines": 18,
+        "path": "tests/test_proof_pack.py"
+      },
+      {
+        "commits": 2,
+        "lines": 350,
+        "path": "tests/test_seed_guard.py"
+      },
+      {
+        "commits": 3,
+        "lines": 570,
+        "path": "tests/test_state_hygiene.py"
+      },
+      {
+        "commits": 3,
+        "lines": 419,
+        "path": "tests/test_transport.py"
+      },
+      {
+        "commits": 2,
+        "lines": 1150,
+        "path": "tests/test_transport_contract.py"
+      },
+      {
+        "commits": 4,
+        "lines": 322,
+        "path": "tests/test_version.py"
+      },
+      {
+        "commits": 2,
+        "lines": 8,
+        "path": "tests/test_wallet.py"
+      },
+      {
+        "commits": 2,
+        "lines": 506,
+        "path": "tests/test_xrpl_models.py"
+      },
+      {
+        "commits": 10,
+        "lines": 192,
+        "path": "xrpl_camp/__init__.py"
+      },
+      {
+        "commits": 2,
+        "lines": 22,
+        "path": "xrpl_camp/__main__.py"
+      },
+      {
+        "commits": 4,
+        "lines": 1116,
+        "path": "xrpl_camp/certificate.py"
+      },
+      {
+        "commits": 9,
+        "lines": 2959,
+        "path": "xrpl_camp/cli.py"
+      },
+      {
+        "commits": 4,
+        "lines": 1318,
+        "path": "xrpl_camp/errors.py"
+      },
+      {
+        "commits": 9,
+        "lines": 5424,
+        "path": "xrpl_camp/lessons.py"
+      },
+      {
+        "commits": 6,
+        "lines": 2177,
+        "path": "xrpl_camp/models.py"
+      },
+      {
+        "commits": 4,
+        "lines": 2198,
+        "path": "xrpl_camp/proof_pack.py"
+      },
+      {
+        "commits": 5,
+        "lines": 6194,
+        "path": "xrpl_camp/transport.py"
+      },
+      {
+        "commits": 5,
+        "lines": 628,
+        "path": "xrpl_camp/wallet.py"
+      }
+    ]
+  },
+  "confidence": {
+    "level": "low",
+    "reason": "fewer than 30 qualifying commits in the window, and fewer than 20 source files reach 10 revisions"
+  },
+  "generatedAt": "2026-09-23T22:43:05.610Z",
+  "generatedFrom": {
+    "commit": "d3e4b7d477124176297546bde66653743d9eef0b"
+  },
+  "pairs": [
+    {
+      "a": ".github/workflows/ci.yml",
+      "b": ".github/workflows/publish.yml",
+      "either": 8,
+      "shared": 4,
+      "strength": 0.5
+    },
+    {
+      "a": "CHANGELOG.md",
+      "b": "pyproject.toml",
+      "either": 10,
+      "shared": 6,
+      "strength": 0.6
+    },
+    {
+      "a": "CHANGELOG.md",
+      "b": "xrpl_camp/__init__.py",
+      "either": 10,
+      "shared": 5,
+      "strength": 0.5
+    },
+    {
+      "a": "pyproject.toml",
+      "b": "xrpl_camp/__init__.py",
+      "either": 10,
+      "shared": 7,
+      "strength": 0.7
+    },
+    {
+      "a": "pyproject.toml",
+      "b": "xrpl_camp/cli.py",
+      "either": 11,
+      "shared": 6,
+      "strength": 0.545455
+    },
+    {
+      "a": "pyproject.toml",
+      "b": "xrpl_camp/lessons.py",
+      "either": 10,
+      "shared": 6,
+      "strength": 0.6
+    },
+    {
+      "a": "xrpl_camp/__init__.py",
+      "b": "xrpl_camp/lessons.py",
+      "either": 10,
+      "shared": 5,
+      "strength": 0.5
+    },
+    {
+      "a": "xrpl_camp/cli.py",
+      "b": "xrpl_camp/lessons.py",
+      "either": 9,
+      "shared": 6,
+      "strength": 0.666667
+    },
+    {
+      "a": "xrpl_camp/lessons.py",
+      "b": "xrpl_camp/models.py",
+      "either": 8,
+      "shared": 4,
+      "strength": 0.5
+    }
+  ],
+  "parameters": {
+    "appliedChangesetLimit": 21.25,
+    "changeset": 50,
+    "changesetFraction": 0.25,
+    "cohesionDrop": 0.2,
+    "couplingPopulation": "source",
+    "fallenShared": 3,
+    "floor": "fallen",
+    "floorHeld": false,
+    "floorTrigger": "both",
+    "headDate": "2026-09-17T18:24:59-07:00",
+    "inScopeFiles": 85,
+    "pinnedStart": null,
+    "priorFloor": null,
+    "qualifyingCommits": 21,
+    "qualifyingMinimum": 30,
+    "revisions": 5,
+    "shared": 10,
+    "sharedFloorUsed": 3,
+    "since": "2026-03-22T01:24:59.000Z",
+    "sourceExtensions": [
+      ".js",
+      ".mjs",
+      ".cjs",
+      ".jsx",
+      ".ts",
+      ".tsx",
+      ".mts",
+      ".cts",
+      ".py"
+    ],
+    "sourceFileReach": 20,
+    "sourceFileRise": 25,
+    "sourceFilesReachingStrongFloor": 0,
+    "strength": 0.5,
+    "windowDays": 180
+  },
+  "strengthDefinition": "strength is the shared qualifying commits divided by either. either is the number of qualifying commits that touch either file."
+}
