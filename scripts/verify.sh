@@ -21,7 +21,15 @@ uv run ruff check .
 
 echo ""
 echo "=== Tests ==="
-uv run pytest tests/ -v
+pytest_args=(tests/ -v)
+# ci.yml sets COVERAGE_LEG to 'true' on the one cell whose reports go to
+# Codecov. There the suite also measures xrpl_camp's coverage and writes JUnit
+# results, both at the root, for the workflow to hand on. Coverage is reported,
+# never held: no --cov-fail-under.
+if [ "${COVERAGE_LEG:-}" = "true" ]; then
+  pytest_args+=(--cov=xrpl_camp --cov-report=term --cov-report=xml:coverage.xml --junitxml=junit.xml)
+fi
+uv run pytest "${pytest_args[@]}"
 
 echo ""
 echo "=== Build ==="
