@@ -6,16 +6,6 @@
   ],
   "breaks": [
     {
-      "doors": 2,
-      "importedBy": [
-        "bin"
-      ],
-      "importedByTests": [],
-      "kind": "part",
-      "name": "root",
-      "partLabel": "the repository root"
-    },
-    {
       "doors": 4,
       "importedBy": [],
       "importedByTests": [],
@@ -24,7 +14,7 @@
       "partLabel": "scripts"
     },
     {
-      "doors": 2,
+      "doors": 3,
       "importedBy": [],
       "importedByTests": [
         "tests"
@@ -43,7 +33,90 @@
     }
   ],
   "changes": {
-    "first": true
+    "fileCounts": {
+      "added": 1,
+      "changed": 78,
+      "moved": 0,
+      "parts": 7,
+      "removed": 0
+    },
+    "items": [
+      {
+        "kind": "import-removed",
+        "sentence": "bin no longer imports the repository root.",
+        "subjects": [
+          "bin",
+          "root"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "CI's pull request trigger now also names `atlas/**` and `codecov.yml`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "CI's push trigger now also names `atlas/**` and `codecov.yml`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "Publish now also runs docker-entrypoint.sh and xrpl_camp/cli.py.",
+        "subjects": [
+          ".github/workflows/publish.yml",
+          "docker-entrypoint.sh",
+          "xrpl_camp/cli.py"
+        ]
+      },
+      {
+        "kind": "door",
+        "sentence": "And 2 more changes to doors.",
+        "subjects": []
+      },
+      {
+        "kind": "landing",
+        "sentence": "CHANGELOG.md is now read by tests/test_version.py.",
+        "subjects": [
+          "CHANGELOG.md",
+          "tests/test_version.py"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "README.md is now read by pyproject.toml.",
+        "subjects": [
+          "README.md",
+          "pyproject.toml"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "bin/xrpl-camp.js is now read by tests/test_version.py.",
+        "subjects": [
+          "bin/xrpl-camp.js",
+          "tests/test_version.py"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "And 3 more new writers and readers of places.",
+        "subjects": []
+      },
+      {
+        "kind": "counts",
+        "sentence": "1 file added and 78 changed content, across 7 parts.",
+        "subjects": []
+      }
+    ],
+    "since": {
+      "commit": "d3e4b7d477124176297546bde66653743d9eef0b",
+      "generatedAt": "2026-09-23T22:43:05.610Z"
+    },
+    "unchanged": false
   },
   "changesTogether": [
     {
@@ -64,6 +137,21 @@
     {
       "a": "xrpl_camp/__init__.py",
       "b": "xrpl_camp/lessons.py",
+      "either": 9,
+      "partLabels": [
+        "xrpl_camp",
+        "xrpl_camp"
+      ],
+      "parts": [
+        "xrpl_camp",
+        "xrpl_camp"
+      ],
+      "relation": "inside",
+      "shared": 5
+    },
+    {
+      "a": "xrpl_camp/__init__.py",
+      "b": "xrpl_camp/cli.py",
       "either": 10,
       "partLabels": [
         "xrpl_camp",
@@ -93,19 +181,22 @@
     }
   ],
   "changesTogetherNote": [
-    "Confidence is low: fewer than 30 qualifying commits in the window, and fewer than 20 source files reach 10 revisions.",
+    "Confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.",
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "d3e4b7d477124176297546bde66653743d9eef0b",
+  "commit": "eaa4028bdb0dbdf39f54bc1137b98716c83146fd",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly Python (31 files). Work enters through 7 doors; the busiest is Freshness Check, which reaches 1 part and commits into the repository (CI reaches 5 but commits nothing). It publishes to npm and PyPI, and a container image. People run xrpl-camp.",
+  "derived": "7 parts, mostly Python (31 files), shell (5), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
     {
       "checks": [
-        "xrpl_camp/"
+        "bin/xrpl-camp.js",
+        "xrpl_camp/",
+        "tests/"
       ],
-      "checksCount": 1,
+      "checksCount": 3,
+      "checksMore": 0,
       "file": ".github/workflows/ci.yml",
       "id": ".github/workflows/ci.yml",
       "landings": [],
@@ -131,31 +222,90 @@
           "boundary": "xrpl_camp",
           "depth": 0,
           "files": 10
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "files": 1
         }
       ],
       "runs": [
-        "bin/xrpl-camp.js",
         "scripts/check-versions.sh",
-        "scripts/verify.sh",
-        "tests/"
+        "scripts/verify.sh"
       ],
-      "runsCount": 4,
-      "sends": [],
+      "runsCount": 2,
+      "runsMore": 0,
+      "sends": [
+        "uploads coverage to Codecov"
+      ],
       "stages": [],
       "triggers": [
-        "on a pull request touching 10 paths",
-        "on a push touching 10 paths",
+        "on a pull request touching 12 paths",
+        "on a push touching 12 paths",
         "or by hand"
       ]
     },
     {
       "checks": [],
       "checksCount": 0,
+      "checksMore": 0,
+      "file": ".github/workflows/publish.yml",
+      "held": [
+        {
+          "builds": [
+            "xrpl_camp/__main__.py"
+          ],
+          "checks": [
+            "xrpl_camp/"
+          ],
+          "checksMore": 0,
+          "lead": "on a tag push",
+          "packs": [
+            "LICENSE",
+            "README.md",
+            "pyproject.toml"
+          ],
+          "runs": [
+            "docker-entrypoint.sh",
+            "scripts/verify-pypi-publish.sh",
+            "xrpl_camp/cli.py"
+          ],
+          "runsMore": 0,
+          "when": "on a tag push"
+        }
+      ],
+      "id": ".github/workflows/publish.yml",
+      "landings": [],
+      "name": "Publish",
+      "pushes": false,
+      "reach": [
+        {
+          "boundary": "root",
+          "depth": 0,
+          "files": 4
+        },
+        {
+          "boundary": "scripts",
+          "depth": 0,
+          "files": 1
+        },
+        {
+          "boundary": "xrpl_camp",
+          "depth": 0,
+          "files": 10
+        }
+      ],
+      "runs": [],
+      "runsCount": 0,
+      "runsMore": 0,
+      "sends": [
+        "publishes to PyPI and a container image, creates a GitHub release, and builds xrpl_camp/__main__.py into binaries for darwin-arm64, linux-x64 and win-x64 and uploads them to the release, on a tag push"
+      ],
+      "stages": [],
+      "triggers": [
+        "when a tag matching `v*` is pushed",
+        "or by hand"
+      ]
+    },
+    {
+      "checks": [],
+      "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/pages.yml",
       "id": ".github/workflows/pages.yml",
       "landings": [],
@@ -165,7 +315,7 @@
         {
           "boundary": "site",
           "depth": 0,
-          "files": 3
+          "files": 5
         }
       ],
       "runs": [
@@ -173,6 +323,7 @@
         "site/src/"
       ],
       "runsCount": 2,
+      "runsMore": 0,
       "sends": [
         "deploys the site"
       ],
@@ -185,35 +336,7 @@
     {
       "checks": [],
       "checksCount": 0,
-      "file": ".github/workflows/publish.yml",
-      "id": ".github/workflows/publish.yml",
-      "landings": [],
-      "name": "Publish",
-      "pushes": false,
-      "reach": [
-        {
-          "boundary": "scripts",
-          "depth": 0,
-          "files": 1
-        }
-      ],
-      "runs": [
-        "scripts/verify-pypi-publish.sh"
-      ],
-      "runsCount": 1,
-      "sends": [
-        "publishes to PyPI and a container image on a tag push",
-        "creates a GitHub release on a tag push"
-      ],
-      "stages": [],
-      "triggers": [
-        "when a tag matching `v*` is pushed",
-        "or by hand"
-      ]
-    },
-    {
-      "checks": [],
-      "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/release.yml",
       "id": ".github/workflows/release.yml",
       "landings": [],
@@ -230,6 +353,7 @@
         "scripts/check-versions.sh"
       ],
       "runsCount": 1,
+      "runsMore": 0,
       "sends": [
         "publishes to npm"
       ],
@@ -242,13 +366,15 @@
     {
       "checks": [],
       "checksCount": 0,
+      "checksMore": 0,
       "file": ".github/workflows/freshness-check.yml",
       "id": ".github/workflows/freshness-check.yml",
       "landings": [
         ".github/freshness-report.md"
       ],
       "name": "Freshness Check",
-      "pushes": true,
+      "pushes": false,
+      "pushesForReview": true,
       "reach": [
         {
           "boundary": "scripts",
@@ -260,6 +386,7 @@
         "scripts/check-freshness.sh"
       ],
       "runsCount": 1,
+      "runsMore": 0,
       "sends": [
         "opens a pull request"
       ],
@@ -274,6 +401,7 @@
     {
       "checks": [],
       "checksCount": 0,
+      "checksMore": 0,
       "file": "package.json",
       "id": "package.json#xrpl-camp",
       "kind": "command",
@@ -285,17 +413,13 @@
           "boundary": "bin",
           "depth": 0,
           "files": 1
-        },
-        {
-          "boundary": "root",
-          "depth": 1,
-          "files": 1
         }
       ],
       "runs": [
         "bin/xrpl-camp.js"
       ],
       "runsCount": 1,
+      "runsMore": 0,
       "sends": [],
       "stages": [],
       "triggers": []
@@ -303,6 +427,7 @@
     {
       "checks": [],
       "checksCount": 0,
+      "checksMore": 0,
       "file": "pyproject.toml",
       "id": "pyproject.toml#xrpl-camp",
       "kind": "command",
@@ -313,13 +438,14 @@
         {
           "boundary": "xrpl_camp",
           "depth": 0,
-          "files": 8
+          "files": 9
         }
       ],
       "runs": [
         "xrpl_camp/cli.py"
       ],
       "runsCount": 1,
+      "runsMore": 0,
       "sends": [],
       "stages": [],
       "triggers": []
@@ -328,13 +454,8 @@
   "duplicates": [],
   "duplicatesLead": null,
   "duplicatesNote": [],
-  "edges": [
-    {
-      "from": "bin",
-      "fromTests": false,
-      "to": "root"
-    }
-  ],
+  "edges": [],
+  "engine": "1.24.0",
   "generated": [
     {
       "place": ".github/freshness-report.md",
@@ -343,13 +464,15 @@
       ]
     }
   ],
-  "generatedAt": "2026-09-23T22:43:05.610Z",
+  "generatedAt": "2026-09-30T20:14:31.209Z",
   "limits": [
-    "1 import site could not be resolved.",
-    "4 writes and 11 reads use paths built at run time and are not named here.",
-    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 20 source files reach 10 revisions."
+    "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
+    "6 reads use paths built at run time and are not named here.",
+    "4 writes and 9 reads go to a path their caller passes, not to this repository.",
+    "1 write goes to a temporary directory, not to this repository.",
+    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions."
   ],
-  "mainDoor": ".github/workflows/freshness-check.yml",
+  "mainDoor": ".github/workflows/ci.yml",
   "partLabels": {
     ".github": ".github",
     "bin": "bin",
@@ -363,11 +486,12 @@
   "readers": [],
   "repo": "mcp-tool-shop-org/xrpl-camp",
   "sequences": [],
-  "startDoor": ".github/workflows/ci.yml",
+  "startDoor": "pyproject.toml#xrpl-camp",
   "startHere": [
-    ".github/workflows/ci.yml",
-    "tests/__init__.py"
+    "xrpl_camp/cli.py",
+    "xrpl_camp/errors.py"
   ],
+  "startReason": "This path follows xrpl-camp (a command people run, from pyproject.toml) from its entry, since CI only checks code.",
   "summary": null,
   "summaryFrom": null,
   "testFiles": 29,
@@ -375,7 +499,7 @@
     "bin": 0,
     "xrpl_camp": 19
   },
-  "unnamedWrites": 4,
+  "unnamedWrites": 0,
   "unread": [
     {
       "place": ".github/freshness-report.md",
@@ -384,6 +508,7 @@
       ]
     }
   ],
+  "unreadFiles": 0,
   "unreadNote": [],
   "untested": [
     {
