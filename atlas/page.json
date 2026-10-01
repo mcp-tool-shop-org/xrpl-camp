@@ -35,23 +35,30 @@
   "changes": {
     "fileCounts": {
       "added": 0,
-      "changed": 1,
+      "changed": 3,
       "moved": 0,
-      "parts": 1,
+      "parts": 2,
       "removed": 0
     },
     "items": [
       {
+        "kind": "door",
+        "sentence": "CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `bin/**`, `codecov.yml`, `package.json`, `pyproject.toml`, `scripts/**`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `tests/**` and `xrpl_camp/**`.",
+        "subjects": [
+          ".github/workflows/ci.yml"
+        ]
+      },
+      {
         "kind": "counts",
-        "sentence": "Nothing structural changed since 2026-09-30; 1 file changed content.",
+        "sentence": "3 files changed content, across 2 parts.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "eaa4028bdb0dbdf39f54bc1137b98716c83146fd",
-      "generatedAt": "2026-09-30T20:14:31.209Z"
+      "commit": "8796d1cc8fd67396b6e0a35726f619f03f805e54",
+      "generatedAt": "2026-10-01T01:32:51.598Z"
     },
-    "unchanged": true
+    "unchanged": false
   },
   "changesTogether": [
     {
@@ -120,7 +127,7 @@
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "8796d1cc8fd67396b6e0a35726f619f03f805e54",
+  "commit": "1763b68e5bf565abc6bdce9e6858e7f91de6901e",
   "defaultBranch": "main",
   "derived": "7 parts, mostly Python (31 files), shell (5), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
@@ -170,7 +177,7 @@
       ],
       "stages": [],
       "triggers": [
-        "on a pull request touching 12 paths",
+        "on a pull request",
         "on a push touching 12 paths",
         "or by hand"
       ]
@@ -399,7 +406,7 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-01T01:32:51.598Z",
+  "generatedAt": "2026-10-01T02:14:40.457Z",
   "limits": [
     "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
     "6 reads use paths built at run time and are not named here.",
