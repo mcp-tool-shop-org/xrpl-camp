@@ -17,7 +17,7 @@
           "path": ".github/workflows/ci.yml"
         },
         {
-          "hash": "978aa8ba675c6adb289d07c204f6ddd3d34db205e0888cfcce24814eeb4d9513",
+          "hash": "5c7cdaad3bbdbd33812e98f7439091bf206a06c63051aa9b9fa476dc95e67dcc",
           "path": ".github/workflows/freshness-check.yml"
         },
         {
@@ -8475,12 +8475,14 @@
           "dir": "",
           "job": "check",
           "programs": [
+            "cat",
             "date",
             "echo",
             "gh",
-            "git"
+            "git",
+            "printf"
           ],
-          "step": "Open PR if the report changed"
+          "step": "Push the report branch and update the tracking issue"
         }
       ],
       "elsewhere": [],
@@ -8516,7 +8518,7 @@
       "permissions": [
         "contents:read",
         "contents:write",
-        "pull-requests:write"
+        "issues:write"
       ],
       "pushes": false,
       "pushesForReview": true,
@@ -8540,9 +8542,9 @@
       "sends": {
         "deploysPages": false,
         "dispatchesTo": [],
-        "opensIssues": false,
+        "opensIssues": true,
         "opensIssuesOnFailure": false,
-        "opensPullRequests": true,
+        "opensPullRequests": false,
         "publishes": false,
         "publishesTo": [],
         "releases": false
@@ -9382,7 +9384,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "eaa4028bdb0dbdf39f54bc1137b98716c83146fd",
+    "commit": "8796d1cc8fd67396b6e0a35726f619f03f805e54",
     "tracked": 86
   },
   "landings": [

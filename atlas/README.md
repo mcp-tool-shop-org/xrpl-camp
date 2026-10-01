@@ -1,23 +1,14 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-09-30 from commit eaa4028 by Atlas 1.24.0.
+Mapped at 2026-10-01 from commit 8796d1c by Atlas 1.24.0.
 
 ## What this is
 
 7 parts, mostly Python (31 files), shell (5), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-09-23 (d3e4b7d)
+## What changed since 2026-09-30 (eaa4028)
 
-- bin no longer imports the repository root.
-- CI's pull request trigger now also names `atlas/**` and `codecov.yml`.
-- CI's push trigger now also names `atlas/**` and `codecov.yml`.
-- Publish now also runs docker-entrypoint.sh and xrpl_camp/cli.py.
-- And 2 more changes to doors.
-- CHANGELOG.md is now read by tests/test_version.py.
-- README.md is now read by pyproject.toml.
-- bin/xrpl-camp.js is now read by tests/test_version.py.
-- And 3 more new writers and readers of places.
-- 1 file added and 78 changed content, across 7 parts.
+Nothing structural changed since 2026-09-30; 1 file changed content.
 
 ## What comes in
 
@@ -46,7 +37,7 @@ CI writes nothing this map can see.
 
 **Release (npm)** runs scripts/check-versions.sh and publishes to npm.
 
-**Freshness Check** runs scripts/check-freshness.sh, writes to .github/freshness-report.md, commits .github/freshness-report.md and pushes to a branch for review, never to main, and opens a pull request.
+**Freshness Check** runs scripts/check-freshness.sh, writes to .github/freshness-report.md, commits .github/freshness-report.md and pushes to a branch for review, never to main, and opens an issue.
 
 **xrpl-camp** (a command people run, from package.json) runs bin/xrpl-camp.js.
 

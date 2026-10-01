@@ -6,10 +6,16 @@
 #
 # Nothing here auto-applies a fix. Drift is written to
 # .github/freshness-report.md and, only when that file's content actually
-# changed, opened as a PR for a human to review -- a version-pin bump is a
+# changed, pushed on ONE fixed branch (freshness-check/latest) and reported in
+# a single tracking issue for a human to review -- a version-pin bump is a
 # real, reviewable diff; a dependency-ceiling row is notify-only (the
 # ceiling itself is a deliberate human gate -- see pyproject.toml's own
 # comment -- so this workflow never widens it automatically).
+#
+# The workflow files an issue instead of a PR because the org has "Allow
+# GitHub Actions to create and approve pull requests" disabled, so the default
+# token cannot run `gh pr create`. The issue carries a link that opens the PR
+# in one click. Same pattern as ai-rpg-stage's bump-upstream-pins.yml.
 #
 # Added under the 2026-09-08 automation.md amendment permitting scheduled,
 # PR-opening workflows in org repos when every condition holds. This one:
@@ -18,7 +24,7 @@
 #     THIS repo's own history)
 #   - runs weekly (Monday 08:00 UTC), not daily
 #   - is bounded: ubuntu-latest, timeout-minutes below, a concurrency group
-#   - opens a PR against a new branch -- never pushes to main directly
+#   - pushes a branch and files an issue -- never pushes to main directly
 #   - carries workflow_dispatch as a manual fallback
 #
 # This does not count against the 2-push-triggered-workflow-file cap: it has
@@ -48,7 +54,7 @@ jobs:
     timeout-minutes: 10
     permissions:
       contents: write
-      pull-requests: write
+      issues: write # Actions may open issues; it may NOT open PRs (org setting)
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
@@ -58,27 +64,44 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: bash scripts/check-freshness.sh --out .github/freshness-report.md
 
-      - name: Open PR if the report changed
+      - name: Push the report branch and update the tracking issue
         if: steps.freshness.outputs.drift == 'true'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
           if [ -z "$(git status --porcelain -- .github/freshness-report.md)" ]; then
-            echo "Report content is unchanged since the last run -- nothing new to review, skipping PR."
+            echo "Report content is unchanged since the last run -- nothing new to review, skipping."
             exit 0
           fi
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          BRANCH="freshness-check/$(date -u +%Y-%m-%d)"
-          git checkout -b "$BRANCH"
+          BRANCH=freshness-check/latest
+          git checkout -B "$BRANCH"
           git add .github/freshness-report.md
           git commit -m "chore: weekly freshness check ($(date -u +%Y-%m-%d))"
-          git push origin "$BRANCH"
+          git push -f origin "$BRANCH"
 
-          gh pr create \
-            --title "Freshness check: pin / dependency drift ($(date -u +%Y-%m-%d))" \
-            --body-file .github/freshness-report.md \
-            --base main \
-            --head "$BRANCH"
+          {
+            printf 'The weekly freshness check found drift (%s).\n\n' "$(date -u +%Y-%m-%d)"
+            printf 'A branch carrying the report is already pushed. Open the PR here:\n\n'
+            printf '  https://github.com/%s/pull/new/%s\n\n' "$GITHUB_REPOSITORY" "$BRANCH"
+            printf 'This job pushes the branch and files an issue rather than opening the PR '
+            printf 'itself, because the org has "Allow GitHub Actions to create and approve pull '
+            printf 'requests" disabled. The branch is overwritten each week, so there is one '
+            printf 'branch and one issue, not one of each per run.\n\n'
+            printf '## Report\n\n'
+            cat .github/freshness-report.md
+          } > /tmp/issue-body.md
+
+          TITLE="Freshness check: pin / dependency drift"
+          existing=$(gh issue list --state open --label freshness-check --json number --jq '.[0].number // empty')
+          if [ -n "$existing" ]; then
+            gh issue edit "$existing" --title "$TITLE" --body-file /tmp/issue-body.md
+            echo "updated issue #$existing"
+          else
+            gh label create freshness-check --description 'Weekly pin / dependency drift report' --color ededed 2>/dev/null || true
+            gh issue create --title "$TITLE" --label freshness-check --body-file /tmp/issue-body.md
+          fi
