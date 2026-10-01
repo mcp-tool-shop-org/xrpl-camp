@@ -138,8 +138,8 @@
         "path": ".github/workflows/ci.yml"
       },
       {
-        "commits": 2,
-        "lines": 168,
+        "commits": 4,
+        "lines": 266,
         "path": ".github/workflows/freshness-check.yml"
       },
       {
@@ -223,8 +223,8 @@
         "path": "README.zh.md"
       },
       {
-        "commits": 2,
-        "lines": 152,
+        "commits": 4,
+        "lines": 156,
         "path": "SCORECARD.md"
       },
       {
@@ -233,13 +233,13 @@
         "path": "SECURITY.md"
       },
       {
-        "commits": 3,
-        "lines": 138,
+        "commits": 5,
+        "lines": 142,
         "path": "SHIP_GATE.md"
       },
       {
-        "commits": 4,
-        "lines": 320,
+        "commits": 6,
+        "lines": 354,
         "path": "atlas/README.md"
       },
       {
@@ -248,18 +248,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 4,
-        "lines": 1340,
+        "commits": 6,
+        "lines": 1510,
         "path": "atlas/page.json"
       },
       {
-        "commits": 4,
-        "lines": 1816,
+        "commits": 6,
+        "lines": 1876,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 4,
-        "lines": 20334,
+        "commits": 6,
+        "lines": 20366,
         "path": "atlas/structure.json"
       },
       {
@@ -688,9 +688,9 @@
     "level": "low",
     "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
   },
-  "generatedAt": "2026-10-01T01:32:51.598Z",
+  "generatedAt": "2026-10-01T02:14:40.457Z",
   "generatedFrom": {
-    "commit": "8796d1cc8fd67396b6e0a35726f619f03f805e54"
+    "commit": "1763b68e5bf565abc6bdce9e6858e7f91de6901e"
   },
   "pairs": [
     {
@@ -767,16 +767,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "both",
-    "headDate": "2026-09-30T13:53:41-07:00",
+    "headDate": "2026-09-30T18:37:09-07:00",
     "inScopeFiles": 91,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 23,
+    "qualifyingCommits": 25,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-03T20:53:41.000Z",
+    "since": "2026-04-04T01:37:09.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

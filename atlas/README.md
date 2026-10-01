@@ -1,18 +1,19 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-01 from commit 8796d1c by Atlas 1.24.0.
+Mapped at 2026-10-01 from commit 1763b68 by Atlas 1.24.0.
 
 ## What this is
 
 7 parts, mostly Python (31 files), shell (5), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-09-30 (eaa4028)
+## What changed since 2026-10-01 (8796d1c)
 
-Nothing structural changed since 2026-09-30; 1 file changed content.
+- CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `bin/**`, `codecov.yml`, `package.json`, `pyproject.toml`, `scripts/**`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `tests/**` and `xrpl_camp/**`.
+- 3 files changed content, across 2 parts.
 
 ## What comes in
 
-1. **CI.** On a pull request touching 12 paths; on a push touching 12 paths; or by hand. Runs scripts/check-versions.sh and scripts/verify.sh; checks bin/xrpl-camp.js, xrpl_camp/ and tests/.
+1. **CI.** On a pull request; on a push touching 12 paths; or by hand. Runs scripts/check-versions.sh and scripts/verify.sh; checks bin/xrpl-camp.js, xrpl_camp/ and tests/.
 2. **Publish.** When a tag matching `v*` is pushed; or by hand. On a tag push, it runs docker-entrypoint.sh, scripts/verify-pypi-publish.sh and xrpl_camp/cli.py; builds xrpl_camp/__main__.py; checks xrpl_camp/; packs LICENSE, README.md and pyproject.toml into an image.
 3. **Deploy site to GitHub Pages.** On a push to main touching 2 paths; or by hand. Runs site/astro.config.mjs and site/src/.
 4. **Release (npm).** When a tag matching `v*` is pushed; or by hand. Runs scripts/check-versions.sh.

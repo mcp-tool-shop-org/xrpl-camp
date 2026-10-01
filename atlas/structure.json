@@ -13,7 +13,7 @@
           "path": ".github/freshness-report.md"
         },
         {
-          "hash": "07688bffa5fed606907e71924f5ae9293e72d456b65b8278172e3a34d1415aed",
+          "hash": "874acb6bbe54faafe64d62906a901b1ce157d2b36259422ccadc2151ef367b0c",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -133,7 +133,7 @@
           "path": "README.zh.md"
         },
         {
-          "hash": "3529f9de1088fb50a890be4f7ac525e1dab206187f6792f4bc02b2f0ceb35894",
+          "hash": "0ad9edf39b4b1875c5486c913c2425664c31bf2b37aec062f89709f18f9356e7",
           "path": "SCORECARD.md"
         },
         {
@@ -141,7 +141,7 @@
           "path": "SECURITY.md"
         },
         {
-          "hash": "f5cc09bb88cddaea27ca1daf7c6049744fc87e4ed78a7a0937d4990c0e44fdc6",
+          "hash": "fd8ead84b27c177d625aa04729baccc4e30d3d7b7d826286bd89afe33a523d6d",
           "path": "SHIP_GATE.md"
         },
         {
@@ -8393,21 +8393,7 @@
       ],
       "triggers": [
         {
-          "event": "pull_request",
-          "paths": [
-            ".github/workflows/**",
-            "atlas/**",
-            "bin/**",
-            "codecov.yml",
-            "package.json",
-            "pyproject.toml",
-            "scripts/**",
-            "site/astro.config.mjs",
-            "site/package-lock.json",
-            "site/package.json",
-            "tests/**",
-            "xrpl_camp/**"
-          ]
+          "event": "pull_request"
         },
         {
           "event": "push",
@@ -9384,7 +9370,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "8796d1cc8fd67396b6e0a35726f619f03f805e54",
+    "commit": "1763b68e5bf565abc6bdce9e6858e7f91de6901e",
     "tracked": 86
   },
   "landings": [
