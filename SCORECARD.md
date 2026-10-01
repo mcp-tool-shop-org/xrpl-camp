@@ -44,7 +44,7 @@ evidence.
 | A. Security | 5/10 | 10/10 | Endpoint verified before signing; seed guards wired fail-closed on xrpl-py's `decode_seed`; 0600/0700; memo scanned for secrets; identity scan `RESULT CLEAN` |
 | B. Error Handling | 3/10 | 10/10 | All 12 transport exceptions carry a `CampError`; one handler at the command boundary; 13/13 corrupt-state paths clean; all four exit codes in use; retry bounded and never applied to a payment |
 | C. Operator Docs | 4/10 | 10/10 | README/landing/handbook rewritten against measured behaviour; 7 translations regenerated before the tag; claims match mechanisms |
-| D. Shipping Hygiene | 2/10 | 10/10 | Two tag-triggered publish workflows, each with a post-publish registry check; `check-versions.sh` in CI; `pip-audit`; weekly freshness PR; container published and version-verified |
+| D. Shipping Hygiene | 2/10 | 10/10 | Two tag-triggered publish workflows, each with a post-publish registry check; `check-versions.sh` in CI; `pip-audit`; weekly freshness issue; container published and version-verified |
 | E. Identity (soft) | 6/10 | 10/10 | Logo, translations, landing page, handbook, metadata |
 | **Overall** | **20/50** | **50/50** | |
 

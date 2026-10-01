@@ -55,7 +55,7 @@ versions were live. A gate that is not re-measured is decoration.
 - [x] `[all]` `verify` script exists (test + build + smoke in one command) (2026-09-09) — `scripts/verify.sh`; `ci.yml` calls it directly so the two cannot drift
 - [x] `[all]` Version in manifest matches git tag (2026-09-09) — `scripts/check-versions.sh` gates `pyproject.toml` / `__init__.py` / `package.json` in CI; both publish workflows re-verify against the tag
 - [x] `[all]` Dependency scanning runs in CI (ecosystem-appropriate) (2026-09-09) — `pip-audit`. The previous revision credited "ruff in CI", which is a linter and scans nothing
-- [x] `[all]` Automated dependency update mechanism exists (2026-09-09) — weekly `freshness-check.yml` opens a PR on stale action pins and dependency ceilings. The previous revision credited "uv.lock, manual updates", which is both self-contradicting and cites a gitignored file
+- [x] `[all]` Automated dependency update mechanism exists (2026-09-09) — weekly `freshness-check.yml` pushes `freshness-check/latest` and opens or updates one tracking issue on stale action pins and dependency ceilings (2026-09-30: a PR cannot be opened with the default token). The previous revision credited "uv.lock, manual updates", which is both self-contradicting and cites a gitignored file
 - [x] `[npm]` Package published from CI with no long-lived token (2026-09-09) — `release.yml`, OIDC trusted publishing, `--provenance`
 - [x] `[npm]` `files` allowlist set and packed artifact inspected (2026-09-09) — `npm pack --dry-run`: 11 files, bin + README(s) + LICENSE + package.json
 - [x] `[npm]` Registry serves what the tag claims, verified in CI (2026-09-09) — bounded post-publish poll in `release.yml`
