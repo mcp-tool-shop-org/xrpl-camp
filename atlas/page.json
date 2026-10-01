@@ -34,89 +34,24 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 1,
-      "changed": 78,
+      "added": 0,
+      "changed": 1,
       "moved": 0,
-      "parts": 7,
+      "parts": 1,
       "removed": 0
     },
     "items": [
       {
-        "kind": "import-removed",
-        "sentence": "bin no longer imports the repository root.",
-        "subjects": [
-          "bin",
-          "root"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "CI's pull request trigger now also names `atlas/**` and `codecov.yml`.",
-        "subjects": [
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "CI's push trigger now also names `atlas/**` and `codecov.yml`.",
-        "subjects": [
-          ".github/workflows/ci.yml"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "Publish now also runs docker-entrypoint.sh and xrpl_camp/cli.py.",
-        "subjects": [
-          ".github/workflows/publish.yml",
-          "docker-entrypoint.sh",
-          "xrpl_camp/cli.py"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "And 2 more changes to doors.",
-        "subjects": []
-      },
-      {
-        "kind": "landing",
-        "sentence": "CHANGELOG.md is now read by tests/test_version.py.",
-        "subjects": [
-          "CHANGELOG.md",
-          "tests/test_version.py"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "README.md is now read by pyproject.toml.",
-        "subjects": [
-          "README.md",
-          "pyproject.toml"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "bin/xrpl-camp.js is now read by tests/test_version.py.",
-        "subjects": [
-          "bin/xrpl-camp.js",
-          "tests/test_version.py"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "And 3 more new writers and readers of places.",
-        "subjects": []
-      },
-      {
         "kind": "counts",
-        "sentence": "1 file added and 78 changed content, across 7 parts.",
+        "sentence": "Nothing structural changed since 2026-09-30; 1 file changed content.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "d3e4b7d477124176297546bde66653743d9eef0b",
-      "generatedAt": "2026-09-23T22:43:05.610Z"
+      "commit": "eaa4028bdb0dbdf39f54bc1137b98716c83146fd",
+      "generatedAt": "2026-09-30T20:14:31.209Z"
     },
-    "unchanged": false
+    "unchanged": true
   },
   "changesTogether": [
     {
@@ -185,7 +120,7 @@
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "eaa4028bdb0dbdf39f54bc1137b98716c83146fd",
+  "commit": "8796d1cc8fd67396b6e0a35726f619f03f805e54",
   "defaultBranch": "main",
   "derived": "7 parts, mostly Python (31 files), shell (5), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
@@ -388,7 +323,7 @@
       "runsCount": 1,
       "runsMore": 0,
       "sends": [
-        "opens a pull request"
+        "opens an issue"
       ],
       "stages": [
         ".github/freshness-report.md"
@@ -464,7 +399,7 @@
       ]
     }
   ],
-  "generatedAt": "2026-09-30T20:14:31.209Z",
+  "generatedAt": "2026-10-01T01:32:51.598Z",
   "limits": [
     "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
     "6 reads use paths built at run time and are not named here.",
