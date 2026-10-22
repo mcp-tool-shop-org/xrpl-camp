@@ -89,7 +89,7 @@
           "path": "BUILD.md"
         },
         {
-          "hash": "7e391842afc2b3d100a9e53aad2ee38d601ba2ccc71072d9a18a6a4cce8f4bca",
+          "hash": "ef6023b6bf1cbac4a5fab9efa329d52b4214ee695cfbf42e42e36b9a650f7f65",
           "path": "CHANGELOG.md"
         },
         {
@@ -248,7 +248,7 @@
           "path": "site/src/content/docs/handbook/lessons.md"
         },
         {
-          "hash": "bf49a1bb944d5f85a4ffbc95e4a79975affd38dd27bc15361f61fb6910a38771",
+          "hash": "79dc022e35255a138611ed72ecb94f5c475e7b5c95e0830e00ee5362602a9abc",
           "path": "site/src/content/docs/handbook/proof-pack.md"
         },
         {
@@ -1013,6 +1013,7 @@
             "test_certificate_format_text_writes_txt_beside_json_and_is_not_json",
             "test_contradicted_pack_with_record_leaves_bytes_unchanged_and_exits_1",
             "test_in_memory_verify_failure_aborts_before_writing_and_leaves_bytes_unchanged",
+            "test_proof_verify_json_hash_match_null_before_hash_check_and_false_when_tampered",
             "test_record_refusals_folder_without_online_and_dry_run",
             "test_record_write_failure_with_json_emits_single_json_error_document",
             "test_reserve_burn_failure_exits_nonzero_and_names_nftoken_id",
@@ -1034,7 +1035,7 @@
             "test_unknown_pack_with_record_leaves_bytes_unchanged_and_exits_3",
             "test_valid_pack_with_record_gains_one_receipt_and_keeps_sha256"
           ],
-          "hash": "640095a51070543f0a706cf6807e9be1dba3328c76af81b71538b8beb847dd5c",
+          "hash": "204a639f56b2ac023a701fbb9bfe753c9bd29094d357ff6f74020fc0cb234dba",
           "importOrder": [
             "tests/helpers.py",
             "xrpl_camp/__init__.py",
@@ -1668,7 +1669,7 @@
               "line": 1996
             }
           ],
-          "hash": "a3fe11c5b2dcff6fbfab0bcbe0953d6d22665feb2846fad398c9c9e6d80cfea2",
+          "hash": "083ed16009156b78a28701a5f2c95da1ddd16700ce702164909dc27798e8f544",
           "importsFiles": [
             "xrpl_camp/__init__.py",
             "xrpl_camp/certificate.py",
@@ -4470,45 +4471,45 @@
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2824
+              "line": 2827
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2829
+              "line": 2832
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2844
+              "line": 2847
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2859
+              "line": 2862
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2864
+              "line": 2867
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2891
+              "line": 2894
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2928
+              "line": 2931
             },
             {
               "in": "_guided_flow",
               "kind": "except",
-              "line": 3069
+              "line": 3072
             }
           ],
-          "hash": "5c8c1899996d25c18d4ca5e51b05d53002f4582acffbb6c8ce536cf8e094ad66",
+          "hash": "64650727be9b9e1b9f567d395cb6a6f1445dbf66ba81f9d45fb74327f2f6607e",
           "importsFiles": [
             "xrpl_camp/__init__.py",
             "xrpl_camp/certificate.py",
@@ -8220,14 +8221,14 @@
             {
               "calls": [
                 {
-                  "line": 3021,
+                  "line": 3024,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
                 },
                 {
-                  "line": 3022,
+                  "line": 3025,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8242,7 +8243,7 @@
             {
               "calls": [
                 {
-                  "line": 3066,
+                  "line": 3069,
                   "name": "get_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8250,7 +8251,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3066,
+                  "line": 3069,
                   "name": "set_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8258,7 +8259,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3068,
+                  "line": 3071,
                   "name": "get_or_create",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8266,7 +8267,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3070,
+                  "line": 3073,
                   "name": "CampFailure",
                   "passed": true,
                   "target": {
@@ -8275,7 +8276,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3070,
+                  "line": 3073,
                   "name": "state_corrupt_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8344,7 +8345,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3021,
+                  "line": 3024,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8353,7 +8354,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3022,
+                  "line": 3025,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8442,28 +8443,28 @@
             {
               "calls": [
                 {
-                  "line": 3066,
+                  "line": 3069,
                   "name": "get_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3066,
+                  "line": 3069,
                   "name": "set_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3068,
+                  "line": 3071,
                   "name": "get_or_create",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3070,
+                  "line": 3073,
                   "name": "CampFailure",
                   "passed": true,
                   "target": {
@@ -8471,7 +8472,7 @@
                   }
                 },
                 {
-                  "line": 3070,
+                  "line": 3073,
                   "name": "state_corrupt_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8539,7 +8540,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3021,
+                  "line": 3024,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8548,7 +8549,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3022,
+                  "line": 3025,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -11156,8 +11157,8 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "cafcb2a0f20abab0c148f8c03d9da2370aca0257",
-    "tracked": 620
+    "commit": "eae5d5fdb225025f05fc60b85e6d2a594806fcee",
+    "tracked": 670
   },
   "landings": [
     {
@@ -12844,7 +12845,7 @@
       "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/packs/honest.json"
     },
     {
-      "hash": "bc5132c578e0a27c50ea855438387a52a20a81d7c6687f76e9be5a17fe89ee9f",
+      "hash": "921411415022a3760b3405da30acea840db5b37b3d0c92f8c2734f2b0e0e991a",
       "path": "docs/receipts/1.5.0-live-check/README.md"
     },
     {
@@ -12976,7 +12977,7 @@
       "path": "docs/receipts/1.5.0-live-check/harness/trace_camp.py.txt"
     },
     {
-      "hash": "636723b6ddc197714bbd91918fe1de6b717b5df1d2a7ac1de6dabb8f635e187e",
+      "hash": "aad7a3ed875a5413360dcde38c5e52a7f6f7523be3f4d3f8973a1095b28abaec",
       "path": "docs/receipts/1.5.0-live-check/hashes.txt"
     },
     {
@@ -13114,6 +13115,206 @@
     {
       "hash": "eb225a6909032b43933aa04f929f6b80b26cc50dee06ac127012ed3cea5ed508",
       "path": "docs/receipts/1.5.0-live-check/npm/40-cwd-left.txt"
+    },
+    {
+      "hash": "c288b2e9707d08fbd05a895c2f1b81178f1e7106ca45cdfd420492dd88ab7a45",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/code.txt"
+    },
+    {
+      "hash": "82a637471c63bbf8ae38f464f52051f020858a0e6d144664f33a52cf3e65cda8",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/00-setup.txt"
+    },
+    {
+      "hash": "50666c5440a8130c7f17d1f8f7093bd136cb1d704b3579d4a47e6eaeeaee82bd",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/01-refuse-no-online.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/01-refuse-no-online.err"
+    },
+    {
+      "hash": "c47c3a3cc37c063bf58ef73cdebb9f5160ed348f67ca575fbd5a38f44dd0d1ec",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/01-refuse-no-online.out"
+    },
+    {
+      "hash": "9cb23e1ceb8312a1812ec5ca798760f81f692801ae3b22fadf0ac4b0a03f963c",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/02-refuse-folder.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/02-refuse-folder.err"
+    },
+    {
+      "hash": "e3eb194c5493dbe7316a6ad3a661b0577ca1e623356daadf2e292d91006da6c3",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/02-refuse-folder.out"
+    },
+    {
+      "hash": "9754bbd6df9c794a591a7c1727fda24f897cb0e1bc5cbd519c64ab943c801d3a",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/03-refuse-dryrun.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/03-refuse-dryrun.err"
+    },
+    {
+      "hash": "83e696b054d5f49416eb2c4946ae59192e9a07372233e82f1523644d647fcc18",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/03-refuse-dryrun.out"
+    },
+    {
+      "hash": "4dc8edcbeaad86b3fc56c5c65e40751daa2a51e36b375045a1f691c87346e200",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/04-missing.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/04-missing.err"
+    },
+    {
+      "hash": "f1793d51a627342f2b5f0b15d8e868e919e4b442b61f1a145719dbb95e39715b",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/04-missing.out"
+    },
+    {
+      "hash": "24d5f60bca73960a3a8923e1a70c113e0a912e94b366c222854b5abd2df2ba5e",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/05-invalid-notjson.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/05-invalid-notjson.err"
+    },
+    {
+      "hash": "c7e4643d4eb45ff9b9d9acbc3b19806cd64685f6e0303f977772ff8f10e9197d",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/05-invalid-notjson.out"
+    },
+    {
+      "hash": "cd104e7a03f796b6cf5997b8759fe319c9a6c78bdeac789d9a9ad5aaed382a7e",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/06-invalid-empty.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/06-invalid-empty.err"
+    },
+    {
+      "hash": "775e6f36ef3cdec6fbb75a01688a516d9cf435b819cfcea17ffd0b8fb39e8039",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/06-invalid-empty.out"
+    },
+    {
+      "hash": "0a9b92c81facfedf88be7263e0c1e52269fcf8445f135aad319f6f27bbf2c021",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/07-tampered.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/07-tampered.err"
+    },
+    {
+      "hash": "55255b7118da483ad250b61b8d3f92c9b9a50bdfaac0cf2960d8b3205ea84796",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/07-tampered.out"
+    },
+    {
+      "hash": "700b687ec9561bb411bcf3a17daf072f3ba269b13e8542073df9cabed9f3b567",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/08-tampered-online-record.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/08-tampered-online-record.err"
+    },
+    {
+      "hash": "55255b7118da483ad250b61b8d3f92c9b9a50bdfaac0cf2960d8b3205ea84796",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/08-tampered-online-record.out"
+    },
+    {
+      "hash": "ea236c3fff1cc39cced0b352ca6f5ea8edaac86a54231ee9934a10385618fb6f",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/09-record-write-fails.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/09-record-write-fails.err"
+    },
+    {
+      "hash": "3f1cd2ac322f0faf48844591f0776d6d3a0e3ff687224a52371c8b3703d59637",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/09-record-write-fails.out"
+    },
+    {
+      "hash": "a2f514d86b7c7460b0d521b400b388e7462aaf803162066aba2f2d1d41ea94e1",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/10-forged-online-record.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/10-forged-online-record.err"
+    },
+    {
+      "hash": "b24c0ae604488e452667beced0d962ce9adebc4b15a142e9554bae1511acbfee",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/10-forged-online-record.out"
+    },
+    {
+      "hash": "6c1d177849b031bf8188befaceb2a1a09f75b04c56e991eee5c0d5aee5998cc4",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/11-valid-online-record.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/11-valid-online-record.err"
+    },
+    {
+      "hash": "c1aa37a035aa3d0373ba4f747309bf0a7d22c8f71fe34fd7249a6303082c8327",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/11-valid-online-record.out"
+    },
+    {
+      "hash": "4e1ae2012f55734a3103a0559e91476af08f7b639c6cfdaf240a7c2775a76918",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/12-files-after.txt"
+    },
+    {
+      "hash": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/packs/invalid-empty.json"
+    },
+    {
+      "hash": "c3f07c17117dc1953b6b514cc4e816c00a33fb6cbbe66cbb31e5e22cd1a05fd0",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/packs/invalid-notjson.json"
+    },
+    {
+      "hash": "c69c292c7145b6d69de326c80dc9f35f980e985aff55cb40e67877ebd9d5e186",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/packs/tampered.json"
+    },
+    {
+      "hash": "37b8659608b777136269ef3cf3f85f0a856e91ee9e01dbdb2e42852e81685f9d",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/summary.txt"
+    },
+    {
+      "hash": "bd68eb1b25b81a11592c4dd927fae61840f96df8e0af53ea3cff8a2bb8f17616",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/50-account-before.json"
+    },
+    {
+      "hash": "bf4564d6a00add5707480c9b5f3ad57de2af3f9fea6769b249dd93555c9f6233",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/51-reserve.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/51-reserve.err"
+    },
+    {
+      "hash": "408c71784dcbaee8ef15228635f0947503e0394108b32e1ab8182716ba2d2736",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/51-reserve.out"
+    },
+    {
+      "hash": "724c7bdeb272805a87a41dbad201f78b824dd769fbfb03446a761decacd701a3",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/52-account-after.json"
+    },
+    {
+      "hash": "ecf69c0a5ddd483c5cfb4ef90edf17e66099fa7853b0b5fa073fbc2fcb8619a8",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/53-reserve-dryrun.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/53-reserve-dryrun.err"
+    },
+    {
+      "hash": "e37059c495cf337f01d217a6d3f957f880e37131851634aeb72df1af16ec990f",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/53-reserve-dryrun.out"
+    },
+    {
+      "hash": "5516c814df0f2166d7ce670f552b054b63059d13d35ed7cb4d43aece7b453100",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/54-txs.json"
+    },
+    {
+      "hash": "ee103d1ab9f19e7d0abae1f86949aac4c3615740e4097cfbb5cce17811ad56ba",
+      "path": "docs/receipts/1.5.0-live-check/recheck-3b80987/reserve/preflight.txt"
     },
     {
       "hash": "113ce305cfdd5a5ea1add466a0459b4b4062bdb175b7adc918cc4bb49f46b030",
