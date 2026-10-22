@@ -1,0 +1,35 @@
+  Endpoint: https://s.altnet.rippletest.net:51234/
+
+  Checking your mailbox account rpq9Jpej46ycuHZH4gJnwuCY42B87P2x1E — does it exist on the ledger yet?
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 4: Send a Payment                                                                                                                │
+│                                                                                                                                         │
+│ You're sending a real transaction to your mailbox — a second wallet                                                                     │
+│ whose keys are also yours.                                                                                                              │
+│                                                                                                                                         │
+│   Memo:    book keeper 142-1abab5a send check                                                                                           │
+│   Encoded: 626f6f6b206b6565706572203134322d316162616235612073656e6420636865636b                                                         │
+│                                                                                                                                         │
+│   Your memo is converted to hex bytes for the ledger.                                                                                   │
+│                                                                                                                                         │
+│   To:      rpq9Jpej46ycuHZH4gJnwuCY42B87P2x1E                                                                                           │
+│   Amount:  1 drop (0.000001 XRP)                                                                                                        │
+│   Fee:     a few drops, set by the network — and destroyed, not paid to anyone                                                          │
+│                                                                                                                                         │
+│ The amount is small on purpose: the point is the memo, not the value.                                                                   │
+│ The fee is not our charge, and it does not go to a miner or a validator                                                                 │
+│ either — that XRP simply stops existing. Nobody profits from your                                                                       │
+│ transaction; it just makes XRP very slightly scarcer.                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Submitting transaction... (waiting for validators to agree — usually a few seconds) confirmed.
+
+  Transaction: 0D06FAFCD8084B1B88720113B0585F0BABD90ABA2F815B9C12037FC5BAE90C19
+  Delivered:   1 drop (0.000001 XRP)
+  Fee paid:    10 drops
+  Ledger:      21,728,313
+  3 ledgers closed while you waited. The network does that every few seconds, with or without you.
+  Explorer:
+  https://testnet.xrpl.org/transactions/0D06FAFCD8084B1B88720113B0585F0BABD90ABA2F815B9C12037FC5BAE90C19
+
+  ✓ Written to the ledger. Your memo is permanent and public — no one can erase it.

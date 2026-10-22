@@ -1,0 +1,11 @@
+  Asking the ledger... (reading a public account — no key, no login) read.
+
+  ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL — your entries, read back off the ledger, not off this machine.
+
+  21,728,302  2026-10-22T06:41:32Z  ← rJjHYTCPpNA3qAM8ZpCDtip3a8xg7B8PFo  100,000,000 drops
+  21,728,306  2026-10-22T06:41:42Z  → rpq9Jpej46ycuHZH4gJnwuCY42B87P2x1E  1,000,000 drops
+      "book keeper 142-1abab5a live check"
+  21,728,313  2026-10-22T06:42:11Z  → rpq9Jpej46ycuHZH4gJnwuCY42B87P2x1E  1 drop
+      "book keeper 142-1abab5a send check"
+
+  3 transactions, 2 carrying words. None of this is stored here — it came back from the network.
