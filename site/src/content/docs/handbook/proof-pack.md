@@ -60,7 +60,7 @@ Exit 3 means *could not check*, and it is deliberately not the same as *checked 
 xrpl-camp proof verify xrpl_camp_proof_pack.json
 ```
 
-Plain `proof verify` makes **zero network calls**. It works on a plane, in a locked-down classroom, and in an air-gapped lab. `--online` is strictly opt-in.
+Plain `proof verify` makes **zero network calls**. It works on a plane, in a locked-down classroom, and in an air-gapped lab. `--online` is strictly opt-in, and under `--dry-run` it says it skipped the network instead of calling it.
 
 Add `--json` to either form for machine-readable output.
 
@@ -70,7 +70,11 @@ Add `--json` to either form for machine-readable output.
 xrpl-camp proof verify ./submissions --online
 ```
 
-Point it at a folder and it verifies every pack in it, exiting non-zero if any fails. That is how you confirm a room of thirty people finished without trusting thirty screenshots.
+Point it at a folder and it verifies every pack in it. With `--online`, every pack whose hash holds is also checked against the ledger and marked VERIFIED, UNVERIFIABLE or FAILED. The exit code is 1 if any pack fails, 3 if some could not be checked, and 0 otherwise. That is how you confirm a room of thirty people finished without trusting thirty screenshots.
+
+With `--json`, a file or a folder prints exactly one JSON document, and progress goes to stderr. A pack the ledger contradicts reads `"valid": false` with `"hash_match": true`.
+
+A pack in a newer format than this version knows (`xrpl-camp-proof-pack-v*`) is still checked: its hash is verified, and the output says the version is unknown.
 
 ## Longevity
 
