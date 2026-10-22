@@ -1,18 +1,18 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-22 from commit 61f45e1 by Atlas 1.24.0.
+Mapped at 2026-10-22 from commit cafcb2a by Atlas 1.24.0.
 
 ## What this is
 
-7 parts, mostly Python (33 files), shell (8), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (34 files), shell (9), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-22 (bf78d27)
+## What changed since 2026-10-22 (61f45e1)
 
-- docs/receipts/1.4.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.4.1-live-check/account_checks.txt is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
-- And 175 more new files that belong to no part.
-- 178 files added.
+- docs/receipts/1.5.0-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.0-live-check/code.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.0-live-check/course/01-start.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
+- And 149 more new files that belong to no part.
+- 153 files added and 25 changed content, across 6 parts.
 
 ## What comes in
 
@@ -55,15 +55,11 @@ CI writes nothing this map can see.
 
 ## What tends to change together
 
-- **xrpl_camp/cli.py** and **xrpl_camp/lessons.py** changed together in 7 of 9 commits, inside the xrpl_camp part.
-- **xrpl_camp/cli.py** and **xrpl_camp/transport.py** changed together in 6 of 8 commits, inside the xrpl_camp part.
-- **xrpl_camp/lessons.py** and **xrpl_camp/transport.py** changed together in 6 of 8 commits, inside the xrpl_camp part.
-- **xrpl_camp/models.py** and **xrpl_camp/transport.py** changed together in 5 of 7 commits, inside the xrpl_camp part.
-- **xrpl_camp/cli.py** and **xrpl_camp/models.py** changed together in 5 of 9 commits, inside the xrpl_camp part.
+- **xrpl_camp/cli.py** and **xrpl_camp/lessons.py** changed together in 6 of 8 commits, inside the xrpl_camp part.
 
-Confidence is low: fewer than 25 source files reach 10 revisions in the window.
+Confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.
 
-Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do.
+Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits.
 
 ## What no test touches
 
@@ -95,9 +91,9 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 
 - 1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.
 - 6 reads use paths built at run time and are not named here.
-- 4 writes and 9 reads go to a path their caller passes, not to this repository.
+- 4 writes and 10 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
-- 379 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 376 more.
-- Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
+- 531 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 528 more.
+- Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.
