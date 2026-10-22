@@ -1,0 +1,64 @@
+{
+  "folder": "packs",
+  "checked": 2,
+  "passed": 1,
+  "failed": 1,
+  "unverifiable": 0,
+  "packs": [
+    {
+      "file": "packs\\forged.json",
+      "valid": false,
+      "hash_match": true,
+      "address": "ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL",
+      "network": "testnet",
+      "lessons_completed": 6,
+      "sha256": "sha256:4089636140e90324fed17a5846fbfc2ac72873728bd70cb504a2870c0ec4577d",
+      "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. This confirms the file has not been edited since it was written -- it does not independently confirm each transaction against the XRPL ledger. Run this same command with --online to check every transaction against the network, or look each txid up yourself in a block explorer.",
+      "online": {
+        "status": "contradicted",
+        "message": "1 of 1 transactions do not match what the ledger says. The ledger is the authority here, not this file.",
+        "counts": {
+          "not_checkable": 5,
+          "mismatch": 1
+        },
+        "checked": 0,
+        "total_lookups": 1
+      }
+    },
+    {
+      "file": "packs\\honest.json",
+      "valid": true,
+      "hash_match": true,
+      "address": "ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL",
+      "network": "testnet",
+      "lessons_completed": 6,
+      "sha256": "sha256:9dd92c8d19d5eb5ed5d49dad655d1b5e0254337bb7304b87b39cd086589fb456",
+      "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. This confirms the file has not been edited since it was written -- it does not independently confirm each transaction against the XRPL ledger. Run this same command with --online to check every transaction against the network, or look each txid up yourself in a block explorer.",
+      "online": {
+        "status": "confirmed",
+        "message": "All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.",
+        "counts": {
+          "not_checkable": 5,
+          "ok": 1
+        },
+        "checked": 1,
+        "total_lookups": 1
+      }
+    }
+  ],
+  "endpoint": "https://s.altnet.rippletest.net:51234/",
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "needs_attention": [
+      {
+        "file": "packs\\forged.json",
+        "address": "ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL",
+        "reason": "the ledger contradicts this pack",
+        "online_status": "contradicted",
+        "hash_ok": true
+      }
+    ],
+    "message": "1 of 2 proof packs need a look; 1 passed."
+  }
+}

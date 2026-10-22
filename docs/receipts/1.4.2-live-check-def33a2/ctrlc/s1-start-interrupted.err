@@ -1,0 +1,2 @@
+[interrupt_cli] Ctrl-C 0.3s after 'Submitting transaction' appeared
+[interrupt_cli] fired=True exit=130

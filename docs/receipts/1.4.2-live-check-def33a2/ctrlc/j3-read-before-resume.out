@@ -1,0 +1,9 @@
+  Asking the ledger... (reading a public account — no key, no login) read.
+
+  rUPWujDUdr8c5rUjQN11WqoxoXcCUNxiQE — your entries, read back off the ledger, not off this machine.
+
+  21,728,619  2026-10-22T06:59:10Z  ← rJjHYTCPpNA3qAM8ZpCDtip3a8xg7B8PFo  100,000,000 drops
+  21,728,623  2026-10-22T06:59:21Z  → rsJqj9JJ3LSo6bJXTFT7h4VyuXiQt3yni1  1,000,000 drops
+      "ctrlc 142-def33a2 j"
+
+  2 transactions, 1 carrying words. None of this is stored here — it came back from the network.
