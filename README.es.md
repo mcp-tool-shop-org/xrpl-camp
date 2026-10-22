@@ -10,6 +10,7 @@
   <a href="https://github.com/mcp-tool-shop-org/xrpl-camp/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/xrpl-camp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://pypi.org/project/xrpl-camp/"><img src="https://img.shields.io/pypi/v/xrpl-camp?label=PyPI" alt="PyPI version"></a>
   <a href="https://www.npmjs.com/package/@mcptoolshop/xrpl-camp"><img src="https://img.shields.io/npm/v/@mcptoolshop/xrpl-camp?label=npm" alt="npm version"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/xrpl-camp"><img src="https://codecov.io/gh/mcp-tool-shop-org/xrpl-camp/branch/main/graph/badge.svg" alt="Coverage"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-camp/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
 </p>
@@ -24,9 +25,9 @@ Diseñado para talleres, aulas y estudio individual. El flujo guiado se reanuda 
 
 - **Transacciones reales, no diapositivas.** Escribe en un libro mayor real. Cuando la lección 5 dice "verifíquelo usted mismo", le proporciona un hash y un enlace a un explorador que cualquiera puede consultar.
 - **Su pago crea una cuenta.** La lección 4 no es una transferencia de prueba; financia una segunda cuenta que no existía un momento antes, y cuyas claves también son suyas.
-- **El fracaso es parte del plan de estudios.** `xrpl-camp try` provoca fallos a propósito en la red activa, luego le muestra qué fallos habrían tenido un costo y cuáles son gratuitos, *antes* de que presione enviar.
-- **Prueba de que realmente puede verificar.** El paquete de prueba nombra transacciones reales y `proof verify --online` pregunta al libro mayor si realmente ocurrieron. Nadie puede falsificar esa parte.
-- **Seguro por diseño.** Solo testnet. El XRP de prueba no tiene valor. Su semilla nunca sale de su máquina. Sin telemetría, sin análisis, sin cuentas.
+- **El fracaso es parte del plan de estudios.** `xrpl-camp try` provoca fallos a propósito en la red activa, luego le muestra qué fallos habrían supuesto una pérdida de dinero y cuáles son gratuitos, *antes* de que pulse el botón de enviar.
+- **Prueba de que realmente puede verificarlo.** El paquete de prueba nombra transacciones reales y `proof verify --online` pregunta al libro mayor si realmente ocurrieron. Nadie puede falsificar esa parte.
+- **Seguro por diseño.** Solo testnet. El XRP de prueba no tiene valor. Su semilla nunca abandona su máquina. Sin telemetría, sin análisis, sin cuentas.
 
 ## Instalación
 
@@ -36,7 +37,7 @@ Diseñado para talleres, aulas y estudio individual. El flujo guiado se reanuda 
 npx @mcptoolshop/xrpl-camp start
 ```
 
-Con Python:
+Con Python (3.11, 3.12 o 3.13):
 
 ```bash
 pipx install xrpl-camp
@@ -60,17 +61,17 @@ Seis lecciones, en orden, que se reanudan si reinicia:
 
 1. **Modelo mental:** qué es el XRPL, preguntado a la red activa en lugar de afirmado.
 2. **Crear billetera:** generar un par de claves de Testnet; la semilla permanece en su máquina.
-3. **Financiar billetera:** XRP de prueba gratuito del grifo y por qué parte de él no se puede gastar.
+3. **Financiar billetera:** XRP de prueba gratuito del grifo, y por qué parte de él no se puede gastar.
 4. **Enviar pago:** escriba su nota en el libro mayor, en un pago que crea una cuenta.
 5. **Verificar transacción:** busque lo que escribió y compárelo con lo que escribió.
-6. **Certificado:** un registro que guarda y puede probar.
+6. **Certificado:** un registro que conserva y puede probar.
 
 ## Comandos
 
 | Comando | Qué hace |
 |---------|-------------|
 | `xrpl-camp start` | Flujo guiado a través de las 6 lecciones (se reanuda automáticamente) |
-| `xrpl-camp start --memo "..."` | Proporcione el mensaje de la lección 4 por adelantado, para ejecuciones programadas o no interactivas |
+| `xrpl-camp start --memo "..."` | Proporcione el mensaje de la lección 4 por adelantado, para ejecuciones con guion o no interactivas |
 | `xrpl-camp read` | Sus entradas, leídas **del libro mayor**, no de esta máquina |
 | `xrpl-camp read <address>` | Lo que otra persona escribió. Sin clave, sin inicio de sesión, sin permiso |
 | `xrpl-camp read <hash>` | Una transacción completa |
@@ -78,16 +79,16 @@ Seis lecciones, en orden, que se reanudan si reinicia:
 | `xrpl-camp status` | Lista de verificación del progreso, con tiempos |
 | `xrpl-camp status --detail` | Vista del facilitador: billetera, punto final, directorio de estado, siguiente paso |
 | `xrpl-camp wallet create` / `show` | Crear o mostrar su billetera de Testnet |
-| `xrpl-camp fund` | Financie su billetera a través del grifo de Testnet |
-| `xrpl-camp send --memo "hello"` | Envíe un pago de nota a su buzón |
-| `xrpl-camp verify --tx <hash>` | Verifique una transacción que **usted** envió |
-| `xrpl-camp certificate` | Genere el certificado + paquete de prueba |
-| `xrpl-camp proof verify <file>` | Verifique el hash de un paquete de prueba. Completamente fuera de línea |
-| `xrpl-camp proof verify <file> --online` | También pregunte al libro mayor si las transacciones realmente ocurrieron |
-| `xrpl-camp proof verify <folder>` | Verifique cada paquete en una carpeta, para facilitadores |
-| `xrpl-camp reset` | Borre todo el estado (requiere escribir `RESET`) |
-| `xrpl-camp self-check` | Diagnostique su entorno **y** su conexión con el libro mayor |
-| `xrpl-camp support-bundle` | Escriba un archivo ZIP de diagnóstico para informes de errores |
+| `xrpl-camp fund` | Financiar su billetera a través del grifo de Testnet |
+| `xrpl-camp send --memo "hello"` | Enviar un pago de nota a su buzón |
+| `xrpl-camp verify --tx <hash>` | Verificar una transacción que **usted** envió |
+| `xrpl-camp certificate` | Generar el certificado + paquete de prueba |
+| `xrpl-camp proof verify <file>` | Verificar el hash de un paquete de prueba. Completamente fuera de línea |
+| `xrpl-camp proof verify <file> --online` | También preguntar al libro mayor si las transacciones realmente ocurrieron |
+| `xrpl-camp proof verify <folder>` | Verificar cada paquete en una carpeta, para facilitadores |
+| `xrpl-camp reset` | Borrar todo el estado (requiere escribir `RESET`) |
+| `xrpl-camp self-check` | Diagnosticar su entorno **y** su conexión con el libro mayor |
+| `xrpl-camp support-bundle` | Escribir un archivo ZIP de diagnóstico para informes de errores |
 
 Banderas globales: `--version`, `--dry-run`, `--yes` (no interactivo), `--verbose` (detalles técnicos sobre errores).
 
@@ -109,14 +110,14 @@ Lo que no se puede falsificar es el libro mayor:
 xrpl-camp proof verify xrpl_camp_proof_pack.json --online
 ```
 
-Este resuelve cada transacción que nombra el paquete y verifica que exista, que fue enviada por la dirección del paquete, que contiene la nota que afirma el paquete y que se cerró correctamente. Un paquete con una dirección reescrita pasa la verificación de hash fuera de línea y falla esta.
+Este resuelve cada transacción que nombra el paquete y verifica que existe, que fue enviada por la dirección del paquete, que contiene la nota que afirma el paquete y que se cerró correctamente. Un paquete con una dirección reescrita pasa la verificación de hash fuera de línea y falla esta.
 
-Dos detalles que vale la pena conocer, porque ambos son fáciles de equivocarse:
+Dos detalles que vale la pena conocer, porque ambos son fáciles de entender mal:
 
-- La verificación siempre consulta el Testnet público (o `--rpc-url`), **nunca** el punto final que se indica dentro del paquete. Un paquete falsificado puede nombrar un servidor que controla su autor.
-- El XRPL Testnet se restablece periódicamente. Cuando eso sucede, las transacciones honestas dejan de resolverse. El paquete registra el índice del libro mayor de cada transacción, por lo que un restablecimiento se informa como *no verificable* (salida 3) en lugar de como fraude (salida 1).
+- La verificación siempre consulta la Testnet pública (o `--rpc-url`), **nunca** el punto final que se indica dentro del paquete. Un paquete falsificado puede nombrar un servidor que controla su autor.
+- La XRPL Testnet se restablece periódicamente. Cuando eso sucede, las transacciones honestas dejan de resolverse. El paquete registra el índice del libro mayor de cada transacción, por lo que un restablecimiento se informa como *no verificable* (salida 3) en lugar de como fraude (salida 1).
 
-La verificación fuera de línea sigue siendo el valor predeterminado y no realiza llamadas a la red, por lo que todavía funciona en un avión o en una máquina de aula con acceso restringido.
+La verificación fuera de línea sigue siendo el valor predeterminado y no realiza llamadas a la red, por lo que sigue funcionando en un avión o en una máquina de aula con acceso restringido.
 
 ## Modo de prueba
 
@@ -132,7 +133,7 @@ Sin llamadas a la red, sin escrituras en el disco y sin resultados engañosos: l
 export XRPL_CAMP_RPC_URL="https://your-node:51234/"
 ```
 
-La herramienta rechaza los puntos finales que no puede confirmar que son de Testnet, antes de firmar nada. Establezca `XRPL_CAMP_ALLOW_ANY_NETWORK=1` solo si comprende a qué está apuntando.
+La herramienta rechaza los puntos finales que no puede confirmar que sean de Testnet, antes de firmar nada. Establezca `XRPL_CAMP_ALLOW_ANY_NETWORK=1` solo si comprende a qué está apuntando.
 
 El estado se guarda de forma predeterminada en `./.xrpl-camp`; una sesión pertenece a la carpeta en la que se ejecutó. `XRPL_CAMP_HOME` anula esto, y `xrpl-camp status --detail` imprime la ruta absoluta resuelta.
 
@@ -140,7 +141,7 @@ El estado se guarda de forma predeterminada en `./.xrpl-camp`; una sesión perte
 
 Su semilla se guarda localmente en `.xrpl-camp/wallet.json` (solo para el propietario en POSIX) y nunca se incluye en el certificado o en el paquete de prueba; la generación se niega a escribir un artefacto que contenga una.
 
-De forma predeterminada, esta herramienta utiliza la red de prueba XRPL, donde las pruebas de XRP no tienen valor real, y rechaza los puntos finales que no son de la red de prueba a menos que se desactive explícitamente. No hay telemetría, ni análisis, ni comunicación con un servidor central.
+De forma predeterminada, esta herramienta utiliza la red de prueba XRPL, donde las XRP de prueba no tienen valor real, y rechaza los puntos finales que no son de la red de prueba a menos que se desactive explícitamente. No hay telemetría, ni análisis, ni comunicación con un servidor central.
 
 Consulte [SECURITY.md](SECURITY.md).
 
@@ -148,14 +149,14 @@ Consulte [SECURITY.md](SECURITY.md).
 
 | Amenaza | Mitigación |
 |--------|-----------|
-| La semilla se filtró en un artefacto | La generación ejecuta una comprobación de la semilla basada en `decode_seed` de xrpl-py y **se niega a escribir el archivo** si falla. |
-| La semilla se incluyó en git | `.xrpl-camp/` está ignorado por git *en este repositorio*; el estado se escribe en su directorio de trabajo, así que añádalo a su propio `.gitignore`. |
-| La semilla es legible por otros usuarios | Archivo de la billetera 0600, directorio de estado 0700 en POSIX |
-| Un usuario introduce un secreto en un memo público | El texto del memo se analiza en busca de cadenas con formato de semilla y se rechaza antes de enviarlo. |
+| La semilla se filtró en un artefacto | La generación ejecuta una comprobación de la semilla basada en la función `decode_seed` de xrpl-py y **se niega a escribir el archivo** si se detecta un problema. |
+| La semilla se incluyó en git | `.xrpl-camp/` está ignorado por git *en este repositorio*; el estado se escribe en su directorio de trabajo, por lo que debe agregarlo a su propio `.gitignore`. |
+| La semilla es legible para otros usuarios | Archivo de la billetera 0600, directorio de estado 0700 en POSIX |
+| Un usuario introduce un secreto en un memo público | El texto del memo se analiza para detectar cadenas con formato de semilla y se rechaza antes de enviarlo. |
 | Se reutiliza una semilla de la red de prueba en la red principal | Se advierte al crear la billetera; la herramienta rechaza los puntos finales que no son de la red de prueba de forma predeterminada. |
-| Manipulación del paquete de prueba | SHA-256 detecta ediciones superficiales; `--online` detecta una falsificación que se ha vuelto a sellar preguntando al libro mayor. |
-| Verificación contra el punto final de un atacante | `--online` nunca utiliza el punto final que se indica en el paquete que se está probando. |
-| Los diagnósticos filtran su identidad | `support-bundle` elimina el directorio de inicio y el nombre de la cuenta. |
+| Manipulación del paquete de prueba | SHA-256 detecta ediciones superficiales; `--online` detecta una falsificación que ha sido sellada de nuevo consultando el libro mayor. |
+| Verificación frente al punto final de un atacante | `--online` nunca utiliza el punto final que se indica en el paquete que se está probando. |
+| Diagnósticos que revelan su identidad | `support-bundle` elimina el directorio de inicio y el nombre de la cuenta. |
 
 ## Para talleres y aulas
 
