@@ -486,6 +486,53 @@ class ExecutionMode(Enum):
 _execution_mode = ExecutionMode.REAL
 
 
+# ---------------------------------------------------------------------------
+# Lesson 4's payment in flight (1.4.2)
+# ---------------------------------------------------------------------------
+#
+# A payment lesson 4 has signed and is about to submit, kept until it is
+# recorded: {txid, last_ledger, memo, destination, amount_drops}. Its own file,
+# not a key in session.json: Session.save() merges the file on disk back in,
+# so a cleared key could be restored by another process's save, or a live one
+# overwritten (Argon F5). Here a clear is an unlink, and nothing merges.
+
+IN_FLIGHT_NAME = "in_flight.json"
+
+
+def in_flight_file() -> Path:
+    """Path of in_flight.json, resolved now."""
+    return state_dir() / IN_FLIGHT_NAME
+
+
+def load_in_flight() -> dict | None:
+    """The payment in flight, or None. An unreadable file counts as one.
+
+    Fails closed: a file that exists but can't be parsed is returned as a
+    record with no txid under ``unreadable``, so lesson 4 refuses to send
+    rather than risk writing the memo twice.
+    """
+    path = in_flight_file()
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return None
+    except (OSError, ValueError) as exc:
+        return {"unreadable": f"{type(exc).__name__}: {exc}"}
+    return raw if isinstance(raw, dict) else {"unreadable": "not a JSON object"}
+
+
+def save_in_flight(record: dict) -> None:
+    """Write the payment in flight, under the state lock, atomically."""
+    with state_lock(required=False):
+        atomic_write_text(in_flight_file(), json.dumps(record, indent=2), mode=0o600)
+
+
+def clear_in_flight() -> None:
+    """Forget the payment in flight: it is recorded, or can never land."""
+    with state_lock(required=False):
+        in_flight_file().unlink(missing_ok=True)
+
+
 def set_execution_mode(mode: ExecutionMode) -> None:
     """Set the global execution mode."""
     global _execution_mode

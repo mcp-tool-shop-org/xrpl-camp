@@ -74,8 +74,12 @@ from xrpl_camp.models import (
     DryRunSession,
     ExecutionMode,
     Session,
+    clear_in_flight,
     get_execution_mode,
+    in_flight_file,
     is_dry_run,
+    load_in_flight,
+    save_in_flight,
     set_execution_mode,
 )
 from xrpl_camp.proof_pack import (
@@ -1179,7 +1183,9 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> LessonRe
     # second one takes it from somebody else in the room. 1.4.2: say so,
     # instead of "Requesting funds... funded." for a request never made.
     funded, err = try_network(
-        "Funding your wallet from the Testnet faucet...",
+        # Worded for both outcomes: the balance is read first, and the faucet
+        # is asked only when it is empty (Book Keeper, 1.4.2 live check).
+        "Checking your balance, and asking the Testnet faucet if it's empty...",
         lambda: transport.fund_wallet_detail(w["seed"], dry_run=dry_run),
         faucet_error,
         waiting="(usually about ten seconds)",
@@ -1227,11 +1233,6 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> LessonRe
     return LessonResult(lesson=3, ok=True)
 
 
-#: Where lesson 4 keeps a payment it has signed and submitted until it is
-#: recorded (1.4.2): {txid, last_ledger, memo, destination, amount_drops}.
-IN_FLIGHT_KEY = "lesson_4_in_flight"
-
-
 def _settle_in_flight(session: Session):
     """Find out what happened to a payment a cut-off run sent (1.4.2).
 
@@ -1241,10 +1242,32 @@ def _settle_in_flight(session: Session):
     earlier payment landed, ``(None, "", None)`` when it is safe to send, and
     ``(None, "", error)`` while it could still land or can't be checked.
     """
-    record = session.extra.get(IN_FLIGHT_KEY)
-    if not isinstance(record, dict) or not record.get("txid"):
+    record = load_in_flight()
+    if record is None:
         return None, "", None
-    txid = str(record["txid"])
+    txid = str(record.get("txid", "") or "")
+    if not txid:
+        # Fails closed: a payment may be in flight and its record is damaged.
+        return None, "", CampError(
+            code="SEND_IN_FLIGHT_UNREADABLE",
+            message=(
+                "Your last run may have sent a payment, and its record can't "
+                "be read, so nothing new was sent."
+            ),
+            hint=(
+                f"Check your recent transactions in the explorer, then delete "
+                f"{in_flight_file().as_posix()} and run this again."
+            ),
+            detail=str(record.get("unreadable", "")),
+            exit_code=EXIT_USER,
+        )
+    recorded = {p.txid for p in session.progress if p.lesson == 4}
+    recorded |= {e.txid for e in session.entries}
+    if txid in recorded:
+        # Recorded already; only the clear was cut off. Not a reason to stop
+        # a deliberate new send.
+        clear_in_flight()
+        return None, "", None
     console.print(
         f"\n  [dim]Your last run sent a payment and stopped before it was "
         f"recorded. Checking the ledger for it first: {escape(txid)}[/dim]",
@@ -1259,9 +1282,14 @@ def _settle_in_flight(session: Session):
     except transport.XRPLSubmissionUnresolved as exc:
         return None, "", _classify(exc, send_error)
     except (transport.XRPLTransactionFailed, transport.XRPLUnfundedAccount):
-        # It reached the ledger and failed there: nothing was written, so a
-        # new send is the right next step.
-        result = None
+        # It reached the ledger and failed there (a tec claims the fee and
+        # delivers nothing): no memo was written, so a new send is right.
+        console.print(
+            "  [dim]It did not succeed on the ledger, so it is safe to send "
+            "again.[/dim]",
+        )
+        clear_in_flight()
+        return None, "", None
     except Exception as exc:
         return None, "", _classify(exc, send_error)
     if result is None:
@@ -1269,8 +1297,7 @@ def _settle_in_flight(session: Session):
             "  [dim]It never made it onto the ledger, so it is safe to send "
             "again.[/dim]",
         )
-        session.extra[IN_FLIGHT_KEY] = {}
-        session.save()
+        clear_in_flight()
         return None, "", None
     console.print("  [green]It landed.[/green] Recording it instead of sending again.")
     return result, str(record.get("memo", "")), None
@@ -1347,10 +1374,9 @@ def _report_send(
             ledger_index=landed,
             close_time_iso=str(getattr(result, "close_time_iso", "") or ""),
         )
-        # Recorded: nothing is in flight any more. Emptied, not removed,
-        # because save() merges the file back and would restore the key.
-        session.extra[IN_FLIGHT_KEY] = {}
         session.save()
+        # Recorded, and saved first: nothing is in flight any more.
+        clear_in_flight()
 
     console.print(
         "\n  [green]✓ Simulated.[/green] Nothing was written to the ledger — dry run."
@@ -1541,11 +1567,10 @@ def lesson_4_send_payment(
     # message twice. Everything else in this file that touches the network is
     # a read or the faucet, and those go through try_network.
     def _remember(txid: str, last_ledger: int) -> None:
-        session.extra[IN_FLIGHT_KEY] = {
+        save_in_flight({
             "txid": txid, "last_ledger": last_ledger, "memo": memo,
             "destination": to_address, "amount_drops": amount_drops,
-        }
-        session.save()
+        })
 
     try:
         with _working(
@@ -1564,8 +1589,7 @@ def lesson_4_send_payment(
     except Exception as exc:
         if isinstance(exc, (transport.XRPLTransactionFailed, transport.XRPLUnfundedAccount)):
             # Settled on the ledger as a failure: nothing is in flight.
-            session.extra[IN_FLIGHT_KEY] = {}
-            session.save()
+            clear_in_flight()
         return _fail(4, _classify(exc, send_error, account=w["address"]))
 
     return _report_send(

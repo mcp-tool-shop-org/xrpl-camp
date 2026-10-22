@@ -46,7 +46,7 @@ def folder(tmp_path):
 def test_a_folder_with_online_asks_the_ledger(folder, monkeypatch):
     seen = []
 
-    def fake(pack, endpoint):
+    def fake(pack, endpoint, **k):
         seen.append((pack["address"], endpoint))
         return _summary("confirmed")
 
@@ -66,7 +66,7 @@ def test_a_folder_with_online_asks_the_ledger(folder, monkeypatch):
 def test_a_folder_exit_code_follows_the_ledger(folder, monkeypatch, status, code, word):
     """The forged-and-rehashed pack: its hash passes, the ledger refutes it."""
     answers = iter([_summary("confirmed"), _summary(status)])
-    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint: next(answers))
+    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint, **k: next(answers))
     result = runner.invoke(app, ["proof", "verify", str(folder), "--online"])
     assert result.exit_code == code
     out = strip_ansi(result.output)
@@ -74,7 +74,7 @@ def test_a_folder_exit_code_follows_the_ledger(folder, monkeypatch, status, code
 
 
 def test_a_folder_json_carries_each_ledger_verdict(folder, monkeypatch):
-    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint: _summary("confirmed"))
+    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint, **k: _summary("confirmed"))
     result = runner.invoke(app, ["proof", "verify", str(folder), "--online", "--json"])
     data = json.loads(result.output)
     assert [p["online"]["status"] for p in data["packs"]] == ["confirmed", "confirmed"]
@@ -89,7 +89,7 @@ def test_a_tampered_pack_is_never_sent_to_the_ledger(folder, monkeypatch):
     seen = []
     monkeypatch.setattr(
         cli, "_online_check",
-        lambda pack, endpoint: seen.append(pack["address"]) or _summary("confirmed"),
+        lambda pack, endpoint, **k: seen.append(pack["address"]) or _summary("confirmed"),
     )
     result = runner.invoke(app, ["proof", "verify", str(folder), "--online"])
     assert result.exit_code == 1
@@ -97,13 +97,13 @@ def test_a_tampered_pack_is_never_sent_to_the_ledger(folder, monkeypatch):
 
 
 def test_a_folder_without_online_stays_offline(folder, monkeypatch):
-    monkeypatch.setattr(cli, "_online_check", lambda *a: pytest.fail("went online"))
+    monkeypatch.setattr(cli, "_online_check", lambda *a, **k: pytest.fail("went online"))
     assert runner.invoke(app, ["proof", "verify", str(folder)]).exit_code == 0
 
 
 @pytest.mark.parametrize("target", ["folder", "file"])
 def test_online_is_skipped_under_dry_run(folder, monkeypatch, target):
-    monkeypatch.setattr(cli, "_online_check", lambda *a: pytest.fail("went online"))
+    monkeypatch.setattr(cli, "_online_check", lambda *a, **k: pytest.fail("went online"))
     path = folder if target == "folder" else folder / "a_xrpl_camp_proof_pack.json"
     result = runner.invoke(app, ["--dry-run", "proof", "verify", str(path), "--online"])
     assert result.exit_code == 0
@@ -319,7 +319,7 @@ def test_online_check_looks_up_each_checkable_lesson(tmp_path, monkeypatch):
 
 def test_a_single_file_online_check_uses_the_shared_lookup(tmp_path, monkeypatch):
     _, path = _txid_pack(tmp_path)
-    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint: _summary("confirmed"))
+    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint, **k: _summary("confirmed"))
     result = runner.invoke(app, ["proof", "verify", str(path), "--online"])
     assert result.exit_code == 0 and "Ledger check" in strip_ansi(result.output)
 
@@ -390,3 +390,91 @@ def test_read_by_hash_links_only_to_a_known_explorer(monkeypatch, capsys, url, s
     lessons.read_transaction("A" * 64)
     out = strip_ansi(capsys.readouterr().out)
     assert ("where anyone can check it" in out) is shows_link
+
+
+# ── Argon round 1: --online --json is one clean document (F1, F4) ─────
+
+
+def test_a_single_file_online_json_is_one_document(tmp_path, monkeypatch):
+    _, path = _txid_pack(tmp_path)
+    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint, **k: _summary("confirmed"))
+    result = runner.invoke(app, ["proof", "verify", str(path), "--online", "--json"])
+    data = json.loads(result.stdout)
+    assert data["hash_match"] is True and data["valid"] is True
+    assert data["online"]["status"] == "confirmed" and "endpoint" in data
+
+
+def test_a_contradicted_single_file_is_not_valid(tmp_path, monkeypatch):
+    _, path = _txid_pack(tmp_path)
+    monkeypatch.setattr(
+        cli, "_online_check", lambda pack, endpoint, **k: _summary("contradicted"),
+    )
+    result = runner.invoke(app, ["proof", "verify", str(path), "--online", "--json"])
+    data = json.loads(result.stdout)
+    assert result.exit_code == 1
+    assert data["hash_match"] is True and data["valid"] is False
+
+
+@pytest.mark.parametrize("target", ["folder", "file"])
+def test_dry_run_online_json_parses(folder, target):
+    path = folder if target == "folder" else folder / "a_xrpl_camp_proof_pack.json"
+    result = runner.invoke(
+        app, ["--dry-run", "proof", "verify", str(path), "--online", "--json"],
+    )
+    assert json.loads(result.stdout)["online"]["status"] == "skipped"
+
+
+@pytest.mark.parametrize("target", ["folder", "file"])
+def test_online_json_progress_stays_off_stdout(tmp_path, monkeypatch, target):
+    """The real lookup path: try_network's progress line goes to stderr."""
+    _, path = _txid_pack(tmp_path)
+    monkeypatch.setattr(
+        transport, "lookup_tx",
+        lambda *a, **k: {"found": False, "reason": "not found"},
+    )
+    arg = path.parent if target == "folder" else path
+    result = runner.invoke(app, ["proof", "verify", str(arg), "--online", "--json"])
+    json.loads(result.stdout)
+    assert "against the ledger" not in result.stdout
+    assert lessons.console.file is not None  # the swap was undone
+
+
+def test_folder_json_counts_a_contradicted_pack_as_failed(folder, monkeypatch):
+    answers = iter([_summary("confirmed"), _summary("contradicted")])
+    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint, **k: next(answers))
+    result = runner.invoke(app, ["proof", "verify", str(folder), "--online", "--json"])
+    data = json.loads(result.stdout)
+    assert result.exit_code == 1
+    assert (data["passed"], data["failed"], data["unverifiable"]) == (1, 1, 0)
+    assert [p["valid"] for p in data["packs"]] == [True, False]
+    assert [p["hash_match"] for p in data["packs"]] == [True, True]
+
+
+def test_folder_json_counts_an_unverifiable_pack_apart(folder, monkeypatch):
+    answers = iter([_summary("confirmed"), _summary("unknown")])
+    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint, **k: next(answers))
+    result = runner.invoke(app, ["proof", "verify", str(folder), "--online", "--json"])
+    data = json.loads(result.stdout)
+    assert result.exit_code == 3
+    assert (data["passed"], data["failed"], data["unverifiable"]) == (1, 0, 1)
+
+
+def test_a_folder_warns_about_a_newer_schema(folder):
+    path = folder / "a_xrpl_camp_proof_pack.json"
+    pack = json.loads(path.read_text("utf-8"))
+    pack["schema"] = "xrpl-camp-proof-pack-v9"
+    pack["sha256"] = _reseal(pack)
+    path.write_text(json.dumps(pack), encoding="utf-8")
+    result = runner.invoke(app, ["proof", "verify", str(folder)])
+    out = strip_ansi(result.output).replace("\n", " ")
+    assert result.exit_code == 0
+    assert "does not recognize" in out
+
+
+def _reseal(pack):
+    import hashlib
+
+    digest = hashlib.sha256(
+        proof_pack.canonical_json(proof_pack._sealed_content(pack)).encode("utf-8"),
+    ).hexdigest()
+    return f"sha256:{digest}"

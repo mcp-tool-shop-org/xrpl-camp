@@ -15,9 +15,11 @@ Testnet.
 - **A payment is never sent twice.** Stopping the program (Ctrl-C) in the few
   seconds after lesson 4 submitted its payment lost the record of it. The
   payment still landed, and the next `start` sent the same memo to the ledger a
-  second time. The payment's hash is now saved before it is submitted. The next
-  run looks it up first: if it landed, it is recorded; if it could still land,
-  nothing new is sent; only once it can never land is it sent again.
+  second time. The payment's hash is now saved, in its own file, before it is
+  submitted, and nothing is submitted without it. The next run looks it up
+  first: if it landed, it is recorded; if it could still land, or the server
+  no longer holds the ledgers it could be in, nothing new is sent; only once
+  it can never land is it sent again.
 - **`support-bundle` no longer includes your home folder.** With
   `XRPL_CAMP_HOME` set to a full path, the bundle's `environment.json` held
   that path, account name included, though the bundle said it had none. It is
@@ -27,6 +29,10 @@ Testnet.
   hash passed a facilitator's batch check. Every pack whose hash holds is now
   checked against the ledger and marked VERIFIED, UNVERIFIABLE or FAILED. The
   exit code is 1 if any pack fails, 3 if some could not be checked, else 0.
+- **`proof verify --online --json` prints one JSON document.** A single file
+  printed two, and progress lines landed before the JSON; progress now goes to
+  stderr. A pack the ledger contradicts is `"valid": false`, with
+  `"hash_match": true`, and a folder counts it as failed.
 - **`--dry-run` never goes online.** `proof verify --online` under `--dry-run`
   made network calls; it now says it skipped them. A dry run no longer says
   "Account funded" or "Written to the ledger".
@@ -42,7 +48,7 @@ Testnet.
   `.xrpl-camp/`.
 - **A newer proof pack format is checked, not refused.** `proof verify`
   accepts any `xrpl-camp-proof-pack-v*`, checks its hash, and says it doesn't
-  know that version.
+  know that version, for a file or a folder.
 - **`reset` with no keyboard attached cancels** instead of crashing.
 - **A damaged state file is a clear error**, and it is logged for
   `support-bundle`, instead of a crash.

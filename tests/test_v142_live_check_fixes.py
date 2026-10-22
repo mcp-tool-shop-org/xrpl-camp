@@ -77,6 +77,31 @@ def test_a_failing_on_signed_submits_nothing(monkeypatch):
     assert order == []
 
 
+def test_a_failed_pre_sign_sends_nothing_when_the_hash_is_needed(monkeypatch):
+    """F3: with on_signed, no unsigned fallback that would skip saving it."""
+    import xrpl.transaction
+    from xrpl.wallet import Wallet
+
+    stub_client(monkeypatch, make_response({"state": {}}, successful=False))
+
+    def no_fee(*a, **k):
+        raise TimeoutError("fee read timed out")
+
+    monkeypatch.setattr(xrpl.transaction, "autofill_and_sign", no_fee)
+    monkeypatch.setattr(
+        xrpl.transaction, "submit_and_wait",
+        lambda *a, **k: pytest.fail("submitted without a saved hash"),
+    )
+    with pytest.raises(transport.XRPLConnectionError) as exc:
+        transport.send_memo_payment(
+            Wallet.create().seed, "note", MAILBOX, amount_drops=1,
+            on_signed=lambda txid, last: pytest.fail("no hash to save"),
+        )
+    assert exc.value.error.code == "NET_PRESIGN"
+    assert "Nothing was sent" in exc.value.error.message
+    assert exc.value.error.retryable
+
+
 def _sent(txid=TXID):
     return transport.SendResult(
         txid=txid, destination=MAILBOX, amount_drops=1, fee_drops=10,
@@ -97,10 +122,46 @@ def _unresolved(detail="hash=x last_ledger=900"):
     return raise_it
 
 
+def _state(seq, complete="800-1000"):
+    return {"validated_ledger": {"seq": seq}, "complete_ledgers": complete}
+
+
 def test_resolve_in_flight_is_none_once_the_window_has_passed(monkeypatch):
     monkeypatch.setattr(transport, "_resolve_after_lapse", _unresolved())
-    monkeypatch.setattr(transport, "_server_state", lambda url: {"validated_ledger": {"seq": 901}})
+    monkeypatch.setattr(transport, "_server_state", lambda url: _state(901))
     assert transport.resolve_in_flight(TXID, 900, MAILBOX, 1) is None
+
+
+def test_resolve_in_flight_reads_the_ledger_before_the_lookup(monkeypatch):
+    """F2: a payment validated between the lookup and the state read."""
+    calls = []
+    monkeypatch.setattr(
+        transport, "_server_state", lambda url: calls.append("state") or _state(899),
+    )
+
+    def lookup(*a, **k):
+        calls.append("lookup")
+        raise transport.XRPLSubmissionUnresolved(
+            "not yet", txid=TXID, last_ledger=900, detail="hash=x",
+        )
+
+    monkeypatch.setattr(transport, "_resolve_after_lapse", lookup)
+    with pytest.raises(transport.XRPLSubmissionUnresolved, match="may still land"):
+        transport.resolve_in_flight(TXID, 900, MAILBOX, 1)
+    assert calls == ["state", "lookup"]
+
+
+@pytest.mark.parametrize("complete", [
+    "895-1000",        # history starts inside the window (online deletion)
+    "800-890,905-1000",  # a gap over the window
+    "",                # nothing reported
+    "empty",
+])
+def test_resolve_in_flight_refuses_without_the_window_history(monkeypatch, complete):
+    monkeypatch.setattr(transport, "_resolve_after_lapse", _unresolved())
+    monkeypatch.setattr(transport, "_server_state", lambda url: _state(901, complete))
+    with pytest.raises(transport.XRPLSubmissionUnresolved, match="may still land"):
+        transport.resolve_in_flight(TXID, 900, MAILBOX, 1)
 
 
 @pytest.mark.parametrize(("seq", "detail"), [
@@ -112,7 +173,7 @@ def test_resolve_in_flight_refuses_while_it_could_land(monkeypatch, seq, detail)
     monkeypatch.setattr(transport, "_resolve_after_lapse", _unresolved(detail))
     monkeypatch.setattr(
         transport, "_server_state",
-        lambda url: {"validated_ledger": {"seq": seq}} if seq else None,
+        lambda url: _state(seq) if seq else None,
     )
     with pytest.raises(transport.XRPLSubmissionUnresolved, match="may still land"):
         transport.resolve_in_flight(TXID, 900, MAILBOX, 1)
@@ -131,11 +192,11 @@ def camp(monkeypatch):
         lambda *a, **k: pytest.fail("sent a second payment"),
     )
     s = Session(started_at="2026-01-01T00:00:00Z", wallet_address="rCampLearner")
-    s.extra[lessons.IN_FLIGHT_KEY] = {
+    s.save()
+    models.save_in_flight({
         "txid": TXID, "last_ledger": 900, "memo": "resume check after submit",
         "destination": MAILBOX, "amount_drops": 1,
-    }
-    s.save()
+    })
     return Session.load()
 
 
@@ -146,7 +207,7 @@ def test_a_payment_that_landed_is_recorded_not_resent(camp, monkeypatch):
     saved = Session.load()
     assert saved.txids["lesson_4"] == TXID
     assert saved.get_progress(4).memo == "resume check after submit"
-    assert not saved.extra.get(lessons.IN_FLIGHT_KEY)
+    assert models.load_in_flight() is None
 
 
 def test_a_payment_that_may_still_land_blocks_a_new_send(camp, monkeypatch):
@@ -155,7 +216,7 @@ def test_a_payment_that_may_still_land_blocks_a_new_send(camp, monkeypatch):
     )
     result = lessons.lesson_4_send_payment(camp, "a new memo")
     assert not result.ok
-    assert Session.load().extra[lessons.IN_FLIGHT_KEY]["txid"] == TXID
+    assert models.load_in_flight()["txid"] == TXID
 
 
 def test_a_payment_that_can_never_land_clears_and_sends(camp, monkeypatch):
@@ -165,14 +226,14 @@ def test_a_payment_that_can_never_land_clears_and_sends(camp, monkeypatch):
 
     def send(*a, on_signed=None, **k):
         on_signed("C" * 64, 950)
-        assert Session.load().extra[lessons.IN_FLIGHT_KEY]["txid"] == "C" * 64
+        assert models.load_in_flight()["txid"] == "C" * 64
         sent.append(a[1])
         return _sent("C" * 64)
 
     monkeypatch.setattr(transport, "send_memo_payment", send)
     result = lessons.lesson_4_send_payment(camp, "a new memo")
     assert result.ok and sent == ["a new memo"]
-    assert not Session.load().extra.get(lessons.IN_FLIGHT_KEY)
+    assert models.load_in_flight() is None
 
 
 def test_a_payment_that_failed_on_the_ledger_clears_and_sends(camp, monkeypatch):
@@ -195,7 +256,51 @@ def test_a_send_that_fails_on_the_ledger_clears_the_record(camp, monkeypatch):
 
     monkeypatch.setattr(transport, "send_memo_payment", send)
     assert not lessons.lesson_4_send_payment(camp, "again").ok
-    assert not Session.load().extra.get(lessons.IN_FLIGHT_KEY)
+    assert models.load_in_flight() is None
+
+
+def test_the_record_is_its_own_file_not_session_state(camp):
+    """F5: Session.save() merges session.json back; the record isn't in it."""
+    assert models.in_flight_file().exists()
+    assert TXID not in models.session_file().read_text(encoding="utf-8")
+    stale = Session.load()
+    models.clear_in_flight()
+    stale.save()  # a process that loaded before the clear
+    assert models.load_in_flight() is None
+
+
+def test_a_tec_says_it_did_not_succeed(camp, monkeypatch, capsys):
+    def failed(*a, **k):
+        raise transport.XRPLTransactionFailed("tecPATH_DRY")
+
+    monkeypatch.setattr(transport, "resolve_in_flight", failed)
+    monkeypatch.setattr(transport, "get_balance", lambda *a, **k: 50_000_000)
+    monkeypatch.setattr(transport, "send_memo_payment", lambda *a, **k: _sent("D" * 64))
+    lessons.lesson_4_send_payment(camp, "again")
+    out = strip_ansi(capsys.readouterr().out)
+    assert "did not succeed on the ledger" in out
+    assert "never made it" not in out
+
+
+def test_an_unreadable_record_refuses_to_send(camp):
+    models.in_flight_file().write_text("{not json", encoding="utf-8")
+    result = lessons.lesson_4_send_payment(camp, "again")
+    assert not result.ok
+    assert models.in_flight_file().exists()
+
+
+def test_a_record_already_recorded_is_cleared_not_resolved(camp, monkeypatch):
+    """The clear after recording was cut off; the next send is deliberate."""
+    monkeypatch.setattr(transport, "resolve_in_flight", lambda *a, **k: _sent())
+    assert lessons.lesson_4_send_payment(camp, "first").ok
+    models.save_in_flight({"txid": TXID, "last_ledger": 900})
+    monkeypatch.setattr(
+        transport, "resolve_in_flight", lambda *a, **k: pytest.fail("looked up again"),
+    )
+    monkeypatch.setattr(transport, "get_balance", lambda *a, **k: 50_000_000)
+    monkeypatch.setattr(transport, "send_memo_payment", lambda *a, **k: _sent("F" * 64))
+    assert lessons.lesson_4_send_payment(Session.load(), "second").ok
+    assert models.load_in_flight() is None
 
 
 def test_an_unreadable_ledger_while_settling_is_a_clean_failure(camp, monkeypatch):
@@ -315,3 +420,39 @@ def test_a_plain_exit_130_shows_no_panel(monkeypatch, capsys):
     with pytest.raises(SystemExit):
         cli.run()
     assert "Paused" not in strip_ansi(capsys.readouterr().out)
+
+
+# ── Book Keeper's 1.4.2 live check: two wording notes ─────────────────
+
+
+def test_a_folder_progress_line_names_its_pack(tmp_path, monkeypatch):
+    from xrpl_camp import proof_pack
+
+    s = Session(started_at="2026-01-01T00:00:00Z", wallet_address="rCamp")
+    s.mark_complete(4, "Send", txid="A" * 64, ledger_index=100)
+    proof_pack.save_proof_pack(
+        proof_pack.generate_proof_pack(s), str(tmp_path / "bob_xrpl_camp_proof_pack.json"),
+    )
+    monkeypatch.setattr(
+        transport, "lookup_tx", lambda *a, **k: {"found": False, "reason": "not found"},
+    )
+    result = runner.invoke(app, ["proof", "verify", str(tmp_path), "--online"])
+    out = strip_ansi(result.output).replace("\n", " ")
+    assert "bob_xrpl_camp_proof_pack.json: Checking lesson 4" in out
+    assert "ledger checked." not in out
+
+
+def test_fund_progress_does_not_claim_the_faucet_was_asked(monkeypatch, capsys):
+    from xrpl_camp import wallet
+
+    wallet.save_wallet("rCampLearner", "sEdTM1uX8pu2do5XvTnutH6HsouMaM2")
+    monkeypatch.setattr(lessons, "check_endpoint", lambda: None)
+    monkeypatch.setattr(
+        transport, "fund_wallet_detail",
+        lambda *a, **k: transport.FundResult("rCampLearner", 50_000_000, already_funded=True),
+    )
+    monkeypatch.setattr(transport, "get_balance", lambda *a, **k: 50_000_000)
+    lessons.lesson_3_fund_wallet(Session(started_at="2026-01-01T00:00:00Z"))
+    out = strip_ansi(capsys.readouterr().out).replace("\n", " ")
+    assert "Funding your wallet" not in out
+    assert "if it's empty" in out and "not asked again" in out
