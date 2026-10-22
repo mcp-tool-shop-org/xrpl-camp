@@ -26,11 +26,11 @@ pytest_args=(tests/ -v)
 # Codecov. There the suite also measures xrpl_camp's coverage and writes JUnit
 # results, both at the root, for the workflow to hand on. The org's coverage
 # bar is 90%, adopted gradually: below it, the floor ratchets to the measured
-# coverage, rounded down, so it can't slip (61% measured for 1.4.2; raise the
+# coverage, rounded down, so it can't slip (69% measured for 1.4.2, up from 61; raise the
 # floor as tests are added, never lower it). Codecov stays informational until
 # the repo reaches 90%.
 if [ "${COVERAGE_LEG:-}" = "true" ]; then
-  pytest_args+=(--cov=xrpl_camp --cov-report=term --cov-report=xml:coverage.xml --junitxml=junit.xml --cov-fail-under=61)
+  pytest_args+=(--cov=xrpl_camp --cov-report=term --cov-report=xml:coverage.xml --junitxml=junit.xml --cov-fail-under=69)
 fi
 uv run pytest "${pytest_args[@]}"
 
