@@ -44,6 +44,8 @@ dated verification receipts in proof packs.
 - `proof verify --online --record` appends a receipt only on a `confirmed`
   ledger check; unconfirmed outcomes (`contradicted`, `unknown`,
   `ledger_history_gone`, `nothing_to_check`) leave the pack untouched.
+- `proof verify --json` errors that come before the hash check now report
+  `"hash_match": null`, not `false`.
 
 ## [1.4.2] - 2026-10-22
 

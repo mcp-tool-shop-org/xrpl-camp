@@ -131,7 +131,8 @@ def test_reserve_mints_then_burns_and_displays_reserve_move_deltas(monkeypatch):
     assert "-12 drops" in output
     assert "-200,012 drops" in output
     assert "+199,988 drops" in output
-    assert "200,000 drops (0.200000 XRP) locked" in output
+    assert "+200,000 drops (+0.200000 XRP) locked" in output
+    assert "(+0.200000 XRP)" in output
     assert "200,000 drops (0.200000 XRP) released" in output
     assert MINT_TXID in output
     assert BURN_TXID in output
@@ -225,6 +226,8 @@ def test_reserve_dry_run_makes_no_network_calls(tmp_path):
     assert list(tmp_path.iterdir()) == []
     assert "DRY RUN" in output
     assert "simulated" in output.lower()
+    assert "DEFAULT_RESERVE" not in output
+    assert "an owner reserve of 200,000 drops (0.2 XRP)" in " ".join(output.split())
     assert "200,000 drops" in output
     assert "-10 drops" in output
 
@@ -870,3 +873,59 @@ def test_record_write_failure_with_json_emits_single_json_error_document(
     assert doc["code"] == "ARTIFACT_WRITE_FAILED"
     assert "read-only filesystem" in doc["message"]
     assert doc["hint"]
+
+
+def test_proof_verify_json_hash_match_null_before_hash_check_and_false_when_tampered(
+    tmp_path,
+):
+    pack, path = _write_valid_pack(tmp_path)
+
+    # 1. --record without --online (--json): hash never checked -> hash_match is None.
+    r_no_online = runner.invoke(
+        app, ["proof", "verify", str(path), "--record", "--json"],
+    )
+    assert r_no_online.exit_code == 1
+    doc_no_online = json.loads(r_no_online.stdout)
+    assert doc_no_online["code"] == "RECORD_REQUIRES_ONLINE"
+    assert doc_no_online["hash_match"] is None
+
+    # 2. Folder + --record (--json): hash never checked -> hash_match is None.
+    r_folder = runner.invoke(
+        app, ["proof", "verify", str(tmp_path), "--online", "--record", "--json"],
+    )
+    assert r_folder.exit_code == 1
+    doc_folder = json.loads(r_folder.stdout)
+    assert doc_folder["code"] == "RECORD_FOLDER_UNSUPPORTED"
+    assert doc_folder["hash_match"] is None
+
+    # 3. --dry-run + --record (--json): hash never checked -> hash_match is None.
+    r_dry = runner.invoke(
+        app,
+        ["--dry-run", "proof", "verify", str(path), "--online", "--record", "--json"],
+    )
+    assert r_dry.exit_code == 1
+    doc_dry = json.loads(r_dry.stdout)
+    assert doc_dry["code"] == "RECORD_DRY_RUN"
+    assert doc_dry["hash_match"] is None
+
+    # 4. FILE_NOT_FOUND (--json): hash never checked -> hash_match is None.
+    missing = tmp_path / "does-not-exist.json"
+    r_missing = runner.invoke(
+        app, ["proof", "verify", str(missing), "--json"],
+    )
+    assert r_missing.exit_code == 1
+    doc_missing = json.loads(r_missing.stdout)
+    assert doc_missing["code"] == "FILE_NOT_FOUND"
+    assert doc_missing["hash_match"] is None
+
+    # 5. Tampered pack (--json): hash WAS checked and failed -> hash_match is False.
+    pack["address"] = "rTamperedAddress"
+    path.write_text(json.dumps(pack, indent=2), encoding="utf-8")
+    r_tampered = runner.invoke(
+        app, ["proof", "verify", str(path), "--json"],
+    )
+    assert r_tampered.exit_code == 1
+    doc_tampered = json.loads(r_tampered.stdout)
+    assert doc_tampered["valid"] is False
+    assert doc_tampered["hash_match"] is False
+

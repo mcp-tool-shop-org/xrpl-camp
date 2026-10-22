@@ -2659,7 +2659,7 @@ def _reserve_move_table(
     )
     r_delta = int(move.reserve_delta)
     if r_delta > 0:
-        r_cell = f"+{_drops_line(r_delta)} locked"
+        r_cell = f"{_signed_drops_line(r_delta)} locked"
     elif r_delta < 0:
         r_cell = f"{_signed_drops_line(r_delta)} released"
     else:
@@ -2751,13 +2751,16 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
 
     if dry_run:
         _dry_run_banner()
+        inc_drops = int(transport.DEFAULT_RESERVE_INC_DROPS)
+        inc_xrp = f"{inc_drops / 1_000_000:g}"
+        fee_drops = int(LEDGER_COST_DROPS)
         console.print(Panel(
             "[bold]Watching the owner reserve lock and return (simulated)[/bold]\n\n"
             "Every object your account owns on the ledger locks an owner\n"
             "reserve increment. When the object is removed, that XRP comes\n"
             "straight back to your spendable balance.\n\n"
-            "[dim]Simulated numbers: DEFAULT_RESERVE_INC_DROPS (200,000 drops)\n"
-            "and a 10-drop fee per transaction. Nothing is signed or sent.[/dim]",
+            f"[dim]Simulated numbers: an owner reserve of {inc_drops:,} drops ({inc_xrp} XRP)\n"
+            f"and a {fee_drops}-drop fee per transaction. Nothing is signed or sent.[/dim]",
             title="XRPL Camp — reserve (simulated)",
             border_style="yellow",
         ))
