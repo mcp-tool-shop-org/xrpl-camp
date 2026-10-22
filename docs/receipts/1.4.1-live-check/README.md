@@ -63,7 +63,7 @@ payment (D5). See [Defects](#defects).
 
 ## Item 3: resume, auto-resume and Ctrl-C
 
-**Method for Ctrl-C:** `harness/interrupt_cli.py` runs the CLI in-process and calls `_thread.interrupt_main()`, which
+**Method for Ctrl-C:** `harness/interrupt_cli.py.txt` runs the CLI in-process and calls `_thread.interrupt_main()`, which
 is what a console Ctrl-C does at the Python level: a `KeyboardInterrupt` in the main thread. The trigger is either a
 line of output or the moment xrpl-py's `submit` RPC returns. Runs `f1`, `s1` and `i1` used an earlier version that
 tee'd stdout. Its own flush failed at exit, so the process exit is 120, while the CLI's own exit, recorded in the
@@ -79,7 +79,7 @@ tee'd stdout. Its own flush failed at exit, so the process exit is 120, while th
 
 ## Item 4: offline dry run
 
-`harness/trace_camp.py` installs Python audit hooks and logs every DNS lookup, every connect, every write-mode `open`
+`harness/trace_camp.py.txt` installs Python audit hooks and logs every DNS lookup, every connect, every write-mode `open`
 and every mkdir, rename, remove and chmod. File listings are taken before and after each run.
 
 | Run | Exit | Lessons | Lookups | Filesystem changes (not `__pycache__`) | New files |
@@ -149,4 +149,5 @@ All six were looked up with `tx` after the runs (`hashes.txt`). Each is a valida
 - `dry-run/`: item 4. Per run `.cmd`, `.out`, `.err`, `.trace`, and `.before` / `.after` file listings.
 - `channels/`: item 5.
 - `hashes.txt` and `account_checks.txt`: the ledger lookups.
-- `harness/`: `camp_run.sh`, `interrupt_cli.py` and `trace_camp.py`, as used.
+- `harness/`: `camp_run.sh`, `interrupt_cli.py.txt` and `trace_camp.py.txt`, as used. The Python scripts carry
+  `.txt` so the repo's `ruff check` does not lint receipts; drop the suffix to run them.
