@@ -8,6 +8,7 @@ happen. A run that only got as far as lesson 3 says exactly that.
 
 from __future__ import annotations
 
+import functools
 import os
 import re
 import sys
@@ -73,8 +74,12 @@ from xrpl_camp.models import (
     DryRunSession,
     ExecutionMode,
     Session,
+    clear_in_flight,
     get_execution_mode,
+    in_flight_file,
     is_dry_run,
+    load_in_flight,
+    save_in_flight,
     set_execution_mode,
 )
 from xrpl_camp.proof_pack import (
@@ -822,16 +827,6 @@ def is_tx_hash(value: str) -> bool:
     return bool(TX_HASH_PATTERN.match(str(value).strip()))
 
 
-def _ledger_index_now() -> int:
-    """The validated ledger index the network is on right now. 0 if unknown.
-
-    Never raises and never blocks a send: a missing index only means the
-    "N ledgers closed while you waited" line is not printed.
-    """
-    reading = _validated_ledger()
-    return reading[0] if reading else 0
-
-
 # ---------------------------------------------------------------------------
 # Memo handling
 # ---------------------------------------------------------------------------
@@ -1050,6 +1045,33 @@ def lesson_1_mental_model(session: Session, *, dry_run: bool = False) -> LessonR
     return LessonResult(lesson=1, ok=True)
 
 
+def _honours_dry_run(fn):
+    """Make a lesson's own ``dry_run=True`` mean dry-run all the way down.
+
+    1.4.2: the wallet layer reads only the process-wide execution mode, so
+    calling ``run_guided_flow(dry_run=True)`` (or lesson 2 or 4) in-process,
+    without the CLI having set that mode first, still wrote a seed to disk.
+    This enters DRY_RUN for the call and restores the earlier mode after it;
+    leaving dry-run also drops the in-memory dry-run wallet, so nothing from
+    the simulated run leaks into a later real one.
+    """
+
+    @functools.wraps(fn)
+    def wrapper(*args, dry_run: bool = False, **kwargs):
+        previous = get_execution_mode()
+        if not dry_run or previous == ExecutionMode.DRY_RUN:
+            return fn(*args, dry_run=dry_run, **kwargs)
+        set_execution_mode(ExecutionMode.DRY_RUN)
+        try:
+            return fn(*args, dry_run=dry_run, **kwargs)
+        finally:
+            set_execution_mode(previous)
+            wallet.reset_dry_run_cache()
+
+    return wrapper
+
+
+@_honours_dry_run
 def lesson_2_create_wallet(session: Session, *, dry_run: bool = False) -> LessonResult:
     """Lesson 2: Create a Testnet wallet."""
     ts, t0 = _start_timer()
@@ -1090,20 +1112,22 @@ def lesson_2_create_wallet(session: Session, *, dry_run: bool = False) -> Lesson
         wallet.save_wallet(address, seed)
     except OSError as exc:
         console.print()
-        return _fail(2, write_error(".xrpl-camp/wallet.json", f"{type(exc).__name__}: {exc}"))
+        return _fail(2, write_error(wallet.WALLET_FILE.as_posix(), f"{type(exc).__name__}: {exc}"))
     except Exception as exc:
         console.print()
         return _fail(2, _classify(exc, unexpected_error))
     console.print(" [green]done.[/green]")
 
     console.print(f"\n  [bold]Address:[/bold] {escape(address)}")
+    # 1.4.2: the real path. With XRPL_CAMP_HOME set it isn't ./.xrpl-camp.
+    where = escape(wallet.WALLET_FILE.as_posix())
     if dry_run:
         console.print(
-            "  [dim]Seed would be saved to .xrpl-camp/wallet.json "
+            f"  [dim]Seed would be saved to {where} "
             "(nothing written — dry run)[/dim]",
         )
     else:
-        console.print("  [dim]Seed saved to .xrpl-camp/wallet.json[/dim]")
+        console.print(f"  [dim]Seed saved to {where}[/dim]")
     console.print(
         "\n  [yellow]This is a Testnet wallet. "
         "Never use Testnet seeds on Mainnet.[/yellow]",
@@ -1153,18 +1177,27 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> LessonRe
     ))
     console.print()
 
-    # Funding is idempotent - asking the faucet twice tops the same account up
-    # again - so a busy faucet is worth waiting out rather than handing back to
-    # thirty people to re-run one at a time.
-    _, err = try_network(
-        "Requesting funds from the Testnet faucet...",
-        lambda: transport.fund_wallet(w["seed"], dry_run=dry_run),
+    # A busy faucet is worth waiting out rather than handing back to thirty
+    # people to re-run one at a time. An account that already holds test XRP
+    # is not funded again (fund_wallet_detail): the grant is shared, and a
+    # second one takes it from somebody else in the room. 1.4.2: say so,
+    # instead of "Requesting funds... funded." for a request never made.
+    funded, err = try_network(
+        # Worded for both outcomes: the balance is read first, and the faucet
+        # is asked only when it is empty (Book Keeper, 1.4.2 live check).
+        "Checking your balance, and asking the Testnet faucet if it's empty...",
+        lambda: transport.fund_wallet_detail(w["seed"], dry_run=dry_run),
         faucet_error,
         waiting="(usually about ten seconds)",
-        done="funded.",
+        done="done.",
     )
     if err is not None:
         return _fail(3, err)
+    if funded is not None and funded.already_funded:
+        console.print(
+            "  [dim]Your wallet already holds test XRP, so the faucet was not "
+            "asked again: its grants are shared with everyone using it.[/dim]",
+        )
 
     if dry_run:
         console.print("\n  [bold]Balance:[/bold] (skipped — dry run)")
@@ -1190,13 +1223,171 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> LessonRe
         session.mark_complete(3, LESSON_NAMES[3], started_at=ts, duration_seconds=_elapsed(t0))
         session.save()
 
+    # 1.4.2: under a DRY RUN banner, nothing was funded; don't say it was.
     console.print(
+        "\n  [green]✓ Simulated.[/green] Nothing was funded — dry run."
+        if dry_run else
         "\n  [green]✓ Account funded.[/green] "
         "The network knows you exist now.",
     )
     return LessonResult(lesson=3, ok=True)
 
 
+def _settle_in_flight(session: Session):
+    """Find out what happened to a payment a cut-off run sent (1.4.2).
+
+    Book Keeper's live check: a Ctrl-C half a second after the submit lost a
+    payment that then validated, and the next `start` wrote the same memo to
+    the ledger a second time. Returns ``(result, memo, None)`` when the
+    earlier payment landed, ``(None, "", None)`` when it is safe to send, and
+    ``(None, "", error)`` while it could still land or can't be checked.
+    """
+    record = load_in_flight()
+    if record is None:
+        return None, "", None
+    txid = str(record.get("txid", "") or "")
+    if not txid:
+        # Fails closed: a payment may be in flight and its record is damaged.
+        return None, "", CampError(
+            code="SEND_IN_FLIGHT_UNREADABLE",
+            message=(
+                "Your last run may have sent a payment, and its record can't "
+                "be read, so nothing new was sent."
+            ),
+            hint=(
+                f"Check your recent transactions in the explorer, then delete "
+                f"{in_flight_file().as_posix()} and run this again."
+            ),
+            detail=str(record.get("unreadable", "")),
+            exit_code=EXIT_USER,
+        )
+    recorded = {p.txid for p in session.progress if p.lesson == 4}
+    recorded |= {e.txid for e in session.entries}
+    if txid in recorded:
+        # Recorded already; only the clear was cut off. Not a reason to stop
+        # a deliberate new send.
+        clear_in_flight()
+        return None, "", None
+    console.print(
+        f"\n  [dim]Your last run sent a payment and stopped before it was "
+        f"recorded. Checking the ledger for it first: {escape(txid)}[/dim]",
+    )
+    try:
+        result = transport.resolve_in_flight(
+            txid,
+            int(record.get("last_ledger") or 0),
+            str(record.get("destination", "")),
+            int(record.get("amount_drops") or 0),
+        )
+    except transport.XRPLSubmissionUnresolved as exc:
+        return None, "", _classify(exc, send_error)
+    except (transport.XRPLTransactionFailed, transport.XRPLUnfundedAccount):
+        # It reached the ledger and failed there (a tec claims the fee and
+        # delivers nothing): no memo was written, so a new send is right.
+        console.print(
+            "  [dim]It did not succeed on the ledger, so it is safe to send "
+            "again.[/dim]",
+        )
+        clear_in_flight()
+        return None, "", None
+    except Exception as exc:
+        return None, "", _classify(exc, send_error)
+    if result is None:
+        console.print(
+            "  [dim]It never made it onto the ledger, so it is safe to send "
+            "again.[/dim]",
+        )
+        clear_in_flight()
+        return None, "", None
+    console.print("  [green]It landed.[/green] Recording it instead of sending again.")
+    return result, str(record.get("memo", "")), None
+
+
+def _report_send(
+    session: Session, result, *, memo: str, to_address: str, mailbox,
+    ts: str, t0: float, dry_run: bool,
+) -> LessonResult:
+    """Show a sent payment and record it. Shared by a fresh send and by a
+    payment an earlier, cut-off run sent (1.4.2)."""
+    txid = result.txid
+    landed = int(getattr(result, "ledger_index", 0) or 0)
+    # Which page the notebook was on a moment before this went in: soft (0
+    # means the line is simply not printed), and it turns "waiting for
+    # validators to agree" from a spinner into a number the learner can watch
+    # move. 1.4.2: send_memo_payment measures it at submission, so the extra
+    # server_state read this used to make is gone.
+    before_ledger = int(getattr(result, "submitted_at_ledger_index", 0) or 0)
+    # 1.4.2: the link follows the endpoint in use ("" off Testnet/Devnet).
+    explorer = transport.explorer_url_for(txid)
+    console.print(f"\n  [bold]Transaction:[/bold] {escape(txid)}")
+    console.print(f"  [bold]Delivered:[/bold]   {_drops_line(int(result.amount_drops))}")
+    console.print(f"  [bold]Fee paid:[/bold]    {int(result.fee_drops):,} drops")
+    if landed:
+        console.print(f"  [bold]Ledger:[/bold]      {landed:,}")
+        # Both indices were already in hand: the destination probe read one,
+        # the validated result carries the other. No extra network call, and
+        # it is the only place the learner gets to SEE consensus happening.
+        closed = landed - before_ledger if before_ledger else 0
+        if 0 < closed < 1000:
+            console.print(
+                f"  [dim]{closed} ledger{'' if closed == 1 else 's'} closed while you "
+                "waited. The network does that every few seconds, "
+                "with or without you.[/dim]",
+            )
+    if explorer:
+        console.print("  [dim]Explorer:[/dim]")
+        _copyable(explorer, style="dim")
+
+    if result.created_account:
+        keys_note = (
+            "into being, and you hold its keys — they are in\n"
+            f"{escape(wallet.MAILBOX_FILE.as_posix())}, next to your own."
+            if mailbox else
+            "into being. You do not hold its keys; whoever gave you that\n"
+            "address does."
+        )
+        console.print(Panel(
+            "[bold]You just created an account on a public ledger.[/bold]\n\n"
+            f"{escape(result.destination)}\n\n"
+            f"That address did not exist a moment ago. Your payment brought it\n"
+            f"{keys_note}\n\n"
+            "Nobody approved this. Nobody could have stopped it.",
+            title="Account created",
+            border_style="green",
+        ))
+
+    if not dry_run:
+        # Everything the send produced, into the permanent record. Every one of
+        # these values was in scope here and none of them was passed, so a
+        # real, validated run sealed a certificate with no memo on it and a
+        # proof pack carrying ledger_index=0 and close_time_iso="" - which is
+        # also what makes a Testnet reset indistinguishable from a forgery.
+        # `memo` is already length-capped and seed-screened by validate_memo.
+        session.mark_complete(
+            4, LESSON_NAMES[4], txid=txid,
+            started_at=ts, duration_seconds=_elapsed(t0),
+            memo=memo,
+            destination=str(result.destination or to_address),
+            amount_drops=int(result.amount_drops or 0),
+            fee_drops=int(result.fee_drops or 0),
+            created_account=bool(result.created_account),
+            ledger_index=landed,
+            close_time_iso=str(getattr(result, "close_time_iso", "") or ""),
+        )
+        session.save()
+        # Recorded, and saved first: nothing is in flight any more.
+        clear_in_flight()
+
+    console.print(
+        "\n  [green]✓ Simulated.[/green] Nothing was written to the ledger — dry run."
+        if dry_run else
+        "\n  [green]✓ Written to the ledger.[/green] "
+        "Your memo is permanent and public — no one can erase it.",
+    )
+    return LessonResult(lesson=4, ok=True, txid=txid, memo=memo)
+
+
+@_honours_dry_run
 def lesson_4_send_payment(
     session: Session,
     memo: str = "",
@@ -1259,6 +1450,16 @@ def lesson_4_send_payment(
             return _fail(4, err)
         to_address = mailbox["address"]
         secrets = [w.get("seed", ""), mailbox.get("seed", "")]
+
+    if not dry_run:
+        earlier, earlier_memo, problem = _settle_in_flight(session)
+        if problem is not None:
+            return _fail(4, problem)
+        if earlier is not None:
+            return _report_send(
+                session, earlier, memo=earlier_memo, to_address=to_address,
+                mailbox=mailbox, ts=ts, t0=t0, dry_run=dry_run,
+            )
 
     if interactive:
         console.print(Panel(
@@ -1361,16 +1562,16 @@ def lesson_4_send_payment(
 
     console.print()
 
-    # Which page the notebook was on a moment before this went in. Cheap
-    # (one server_state read), soft (0 means the line is simply not printed),
-    # and it turns "waiting for validators to agree" from a spinner into a
-    # number the learner can watch move.
-    before_ledger = 0 if dry_run else _ledger_index_now()
-
     # NOT retried, deliberately. A submission that timed out may already be on
     # the ledger; sending it again would write the learner's one permanent
     # message twice. Everything else in this file that touches the network is
     # a read or the faucet, and those go through try_network.
+    def _remember(txid: str, last_ledger: int) -> None:
+        save_in_flight({
+            "txid": txid, "last_ledger": last_ledger, "memo": memo,
+            "destination": to_address, "amount_drops": amount_drops,
+        })
+
     try:
         with _working(
             "Submitting transaction...",
@@ -1383,74 +1584,18 @@ def lesson_4_send_payment(
                 to_address,
                 amount_drops=amount_drops,
                 dry_run=dry_run,
+                on_signed=_remember,
             )
     except Exception as exc:
+        if isinstance(exc, (transport.XRPLTransactionFailed, transport.XRPLUnfundedAccount)):
+            # Settled on the ledger as a failure: nothing is in flight.
+            clear_in_flight()
         return _fail(4, _classify(exc, send_error, account=w["address"]))
 
-    txid = result.txid
-    landed = int(getattr(result, "ledger_index", 0) or 0)
-    explorer = f"{transport.EXPLORER_URL}{txid}"
-    console.print(f"\n  [bold]Transaction:[/bold] {escape(txid)}")
-    console.print(f"  [bold]Delivered:[/bold]   {_drops_line(int(result.amount_drops))}")
-    console.print(f"  [bold]Fee paid:[/bold]    {int(result.fee_drops):,} drops")
-    if landed:
-        console.print(f"  [bold]Ledger:[/bold]      {landed:,}")
-        # Both indices were already in hand: the destination probe read one,
-        # the validated result carries the other. No extra network call, and
-        # it is the only place the learner gets to SEE consensus happening.
-        closed = landed - before_ledger if before_ledger else 0
-        if 0 < closed < 1000:
-            console.print(
-                f"  [dim]{closed} ledger{'' if closed == 1 else 's'} closed while you "
-                "waited. The network does that every few seconds, "
-                "with or without you.[/dim]",
-            )
-    console.print("  [dim]Explorer:[/dim]")
-    _copyable(explorer, style="dim")
-
-    if result.created_account:
-        keys_note = (
-            "into being, and you hold its keys — they are in\n"
-            ".xrpl-camp/mailbox.json, next to your own."
-            if mailbox else
-            "into being. You do not hold its keys; whoever gave you that\n"
-            "address does."
-        )
-        console.print(Panel(
-            "[bold]You just created an account on a public ledger.[/bold]\n\n"
-            f"{escape(result.destination)}\n\n"
-            f"That address did not exist a moment ago. Your payment brought it\n"
-            f"{keys_note}\n\n"
-            "Nobody approved this. Nobody could have stopped it.",
-            title="Account created",
-            border_style="green",
-        ))
-
-    if not dry_run:
-        # Everything the send produced, into the permanent record. Every one of
-        # these values was in scope here and none of them was passed, so a
-        # real, validated run sealed a certificate with no memo on it and a
-        # proof pack carrying ledger_index=0 and close_time_iso="" - which is
-        # also what makes a Testnet reset indistinguishable from a forgery.
-        # `memo` is already length-capped and seed-screened by validate_memo.
-        session.mark_complete(
-            4, LESSON_NAMES[4], txid=txid,
-            started_at=ts, duration_seconds=_elapsed(t0),
-            memo=memo,
-            destination=str(result.destination or to_address),
-            amount_drops=int(result.amount_drops or 0),
-            fee_drops=int(result.fee_drops or 0),
-            created_account=bool(result.created_account),
-            ledger_index=landed,
-            close_time_iso=str(getattr(result, "close_time_iso", "") or ""),
-        )
-        session.save()
-
-    console.print(
-        "\n  [green]✓ Written to the ledger.[/green] "
-        "Your memo is permanent and public — no one can erase it.",
+    return _report_send(
+        session, result, memo=memo, to_address=to_address, mailbox=mailbox,
+        ts=ts, t0=t0, dry_run=dry_run,
     )
-    return LessonResult(lesson=4, ok=True, txid=txid, memo=memo)
 
 
 def lesson_5_verify_tx(
@@ -1549,7 +1694,9 @@ def lesson_5_verify_tx(
                 "\n  [dim]It is still a real entry on a public ledger, "
                 "readable by anyone:[/dim]",
             )
-            _copyable(f"{transport.EXPLORER_URL}{txid}", style="dim")
+            link = transport.explorer_url_for(txid)
+            if link:
+                _copyable(link, style="dim")
         console.print()
         return _fail(5, problem)
 
@@ -1564,15 +1711,16 @@ def lesson_5_verify_tx(
     # place in the product where the learner is asked to leave and check. Both
     # the hash and the URL are printed unbroken: a link that wraps mid-hash is
     # a link that 404s when you copy the line you can see.
-    explorer = f"{transport.EXPLORER_URL}{txid}"
+    explorer = transport.explorer_url_for(txid)
     console.print(
         "\n  [bold]You don't have to trust this tool.[/bold]"
         "\n  Verify it yourself — this is the full hash:",
     )
     console.print(f"  [bold]{escape(str(tx.get('hash', txid)))}[/bold]",
                   soft_wrap=True, highlight=False)
-    console.print("  [dim]and this is where to look it up:[/dim]")
-    _copyable(explorer)
+    if explorer:
+        console.print("  [dim]and this is where to look it up:[/dim]")
+        _copyable(explorer)
 
     if not dry_run:
         ledger_index = int(tx.get("ledger_index") or 0)
@@ -1780,7 +1928,7 @@ def lesson_6_certificate(
 
     # Completion bundle - one coherent handoff block
     txid = session.txids.get("lesson_4", "")
-    explorer = f"{transport.EXPLORER_URL}{txid}" if txid else ""
+    explorer = transport.explorer_url_for(txid)
 
     # Absolute paths. These were bare relative names, resolved against
     # whatever directory the terminal happened to open in - so a learner told
@@ -1929,8 +2077,10 @@ def read_transaction(txid: str) -> int:
 
     console.print()
     console.print(transaction_table(tx, txid))
-    console.print("\n  [dim]On the public ledger, where anyone can check it:[/dim]")
-    _copyable(f"{transport.EXPLORER_URL}{txid}", style="dim")
+    link = transport.explorer_url_for(txid)
+    if link:
+        console.print("\n  [dim]On the public ledger, where anyone can check it:[/dim]")
+        _copyable(link, style="dim")
     return EXIT_OK
 
 
@@ -2092,7 +2242,14 @@ def _try_past_sequence(address: str, destination: str) -> TryOutcome:
         lesson=(
             "Every transaction carries a sequence number and each one can be "
             "used once. Replay a signed transaction and the ledger has already "
-            "moved past it. This is why nobody can charge you twice."
+            "moved past it. This is why nobody can charge you twice. "
+            # 1.4.2: the preview's code isn't the one a real submission gets,
+            # and the lesson used to leave the learner to puzzle that out
+            # (Book Keeper, 1.4.1 live check).
+            "(This preview answers telCAN_NOT_QUEUE, because the server cannot "
+            "queue a transaction whose sequence has passed. Submitted for real, "
+            "the same transaction is refused with tefPAST_SEQ. Neither costs "
+            "anything.)"
         ),
     )
 
@@ -2348,6 +2505,7 @@ def _halt(result: LessonResult) -> int:
     return result.exit_code
 
 
+@_honours_dry_run
 def run_guided_flow(*, dry_run: bool = False, memo: str = "") -> int:
     """Walk through all 6 lessons in sequence, auto-skipping completed ones.
 

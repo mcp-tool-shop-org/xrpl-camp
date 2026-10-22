@@ -366,6 +366,11 @@ def _lock_file(target: Path | None = None) -> Path:
     return (target if target is not None else STATE_DIR) / LOCK_FILENAME
 
 
+def _write_lock_stamp(fd: int, stamp: str) -> None:
+    """Write who holds the lock into it. The caller closes `fd`."""
+    os.write(fd, stamp.encode("utf-8"))
+
+
 def _lock_is_stale(path: Path) -> bool:
     try:
         age = time.time() - path.stat().st_mtime
@@ -444,17 +449,20 @@ def state_lock(target: Path | None = None, *, required: bool = True):
         yield False
         return
 
-    stamp = f"pid={os.getpid()} at={datetime.now(UTC).isoformat()}"
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as fh:
-            fh.write(stamp)
-    except OSError:  # pragma: no cover - the lock exists either way
-        with contextlib.suppress(OSError):
-            os.close(fd)
-
     _lock_depth += 1
     _lock_path = path
+    # 1.4.2: the stamp is written inside the try, so anything raised while
+    # writing it (an interrupt included) still removes the lock file. The fd
+    # is closed first whatever happens: Windows cannot delete an open file.
     try:
+        stamp = f"pid={os.getpid()} at={datetime.now(UTC).isoformat()}"
+        try:
+            _write_lock_stamp(fd, stamp)
+        except OSError:  # pragma: no cover - the lock exists either way
+            pass
+        finally:
+            with contextlib.suppress(OSError):
+                os.close(fd)
         yield True
     finally:
         _lock_depth -= 1
@@ -476,6 +484,53 @@ class ExecutionMode(Enum):
 
 
 _execution_mode = ExecutionMode.REAL
+
+
+# ---------------------------------------------------------------------------
+# Lesson 4's payment in flight (1.4.2)
+# ---------------------------------------------------------------------------
+#
+# A payment lesson 4 has signed and is about to submit, kept until it is
+# recorded: {txid, last_ledger, memo, destination, amount_drops}. Its own file,
+# not a key in session.json: Session.save() merges the file on disk back in,
+# so a cleared key could be restored by another process's save, or a live one
+# overwritten (Argon F5). Here a clear is an unlink, and nothing merges.
+
+IN_FLIGHT_NAME = "in_flight.json"
+
+
+def in_flight_file() -> Path:
+    """Path of in_flight.json, resolved now."""
+    return state_dir() / IN_FLIGHT_NAME
+
+
+def load_in_flight() -> dict | None:
+    """The payment in flight, or None. An unreadable file counts as one.
+
+    Fails closed: a file that exists but can't be parsed is returned as a
+    record with no txid under ``unreadable``, so lesson 4 refuses to send
+    rather than risk writing the memo twice.
+    """
+    path = in_flight_file()
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except FileNotFoundError:
+        return None
+    except (OSError, ValueError) as exc:
+        return {"unreadable": f"{type(exc).__name__}: {exc}"}
+    return raw if isinstance(raw, dict) else {"unreadable": "not a JSON object"}
+
+
+def save_in_flight(record: dict) -> None:
+    """Write the payment in flight, under the state lock, atomically."""
+    with state_lock(required=False):
+        atomic_write_text(in_flight_file(), json.dumps(record, indent=2), mode=0o600)
+
+
+def clear_in_flight() -> None:
+    """Forget the payment in flight: it is recorded, or can never land."""
+    with state_lock(required=False):
+        in_flight_file().unlink(missing_ok=True)
 
 
 def set_execution_mode(mode: ExecutionMode) -> None:
@@ -805,7 +860,12 @@ class Session:
                 existing.amount_drops = amount_drops
             if fee_drops:
                 existing.fee_drops = fee_drops
-            if created_account:
+            # 1.4.2: describes the transaction now on record. A later 1-drop
+            # send to an existing mailbox used to inherit "created the
+            # account" from the first one, and the proof pack sealed it.
+            if txid:
+                existing.created_account = bool(created_account)
+            elif created_account:
                 existing.created_account = True
             if ledger_index:
                 existing.ledger_index = ledger_index
@@ -971,6 +1031,9 @@ class Session:
 
         if not self.started_at:
             self.started_at = other.started_at
+        # 1.4.2: a wallet another process created was overwritten with "".
+        if not self.wallet_address and other.wallet_address:
+            self.wallet_address = other.wallet_address
 
     def save(self) -> None:
         """Persist session to disk atomically, under the state-directory lock.

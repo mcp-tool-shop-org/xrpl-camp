@@ -1,0 +1,16 @@
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Welcome back to XRPL Camp                                                                                                               │
+│                                                                                                                                         │
+│ All 6 lessons are done. Nothing here needs doing again —                                                                                │
+│ but the network you joined has not stopped.                                                                                             │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  The ledger is still running, and you are on it.
+    xrpl-camp read                     your entries, read back off the ledger
+    xrpl-camp read <address>           what somebody else wrote — no key needed
+    xrpl-camp try                      make it fail on purpose. Costs nothing.
+
+  Check your proof pack any time: xrpl-camp proof verify xrpl_camp_proof_pack.json
+
+  xrpl-camp status for the checklist, xrpl-camp reset to wipe it and start over.
+

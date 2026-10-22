@@ -97,7 +97,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "tests",
-      "qualifyingSourceCommits": 6,
+      "qualifyingSourceCommits": 10,
       "rebaseline": null
     },
     {
@@ -110,12 +110,12 @@
           "tests"
         ]
       },
-      "cohesion": null,
+      "cohesion": 1,
       "cohesionDropped": false,
       "confidence": "low",
       "highWater": null,
       "name": "xrpl_camp",
-      "qualifyingSourceCommits": 8,
+      "qualifyingSourceCommits": 12,
       "rebaseline": null
     }
   ],
@@ -133,23 +133,23 @@
         "path": ".github/freshness-report.md"
       },
       {
-        "commits": 17,
-        "lines": 508,
+        "commits": 18,
+        "lines": 532,
         "path": ".github/workflows/ci.yml"
       },
       {
-        "commits": 4,
-        "lines": 266,
+        "commits": 5,
+        "lines": 268,
         "path": ".github/workflows/freshness-check.yml"
       },
       {
-        "commits": 3,
-        "lines": 46,
+        "commits": 4,
+        "lines": 52,
         "path": ".github/workflows/pages.yml"
       },
       {
-        "commits": 7,
-        "lines": 625,
+        "commits": 8,
+        "lines": 639,
         "path": ".github/workflows/publish.yml"
       },
       {
@@ -158,8 +158,8 @@
         "path": ".github/workflows/release-binaries.yml"
       },
       {
-        "commits": 2,
-        "lines": 286,
+        "commits": 3,
+        "lines": 290,
         "path": ".github/workflows/release.yml"
       },
       {
@@ -173,8 +173,8 @@
         "path": "BUILD.md"
       },
       {
-        "commits": 3,
-        "lines": 223,
+        "commits": 5,
+        "lines": 298,
         "path": "CHANGELOG.md"
       },
       {
@@ -238,8 +238,8 @@
         "path": "SHIP_GATE.md"
       },
       {
-        "commits": 8,
-        "lines": 372,
+        "commits": 9,
+        "lines": 401,
         "path": "atlas/README.md"
       },
       {
@@ -248,18 +248,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 8,
-        "lines": 1560,
+        "commits": 9,
+        "lines": 1651,
         "path": "atlas/page.json"
       },
       {
-        "commits": 8,
-        "lines": 1952,
+        "commits": 9,
+        "lines": 3337,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 8,
-        "lines": 20414,
+        "commits": 9,
+        "lines": 24112,
         "path": "atlas/structure.json"
       },
       {
@@ -283,899 +283,1009 @@
         "path": "docker-entrypoint.sh"
       },
       {
-        "commits": 3,
-        "lines": 163,
-        "path": "docs/receipts/1.4.1-live-check/README.md"
-      },
-      {
         "commits": 1,
-        "lines": 7,
-        "path": "docs/receipts/1.4.1-live-check/account_checks.txt"
-      },
-      {
-        "commits": 1,
-        "lines": 3,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-dryrun.err"
-      },
-      {
-        "commits": 1,
-        "lines": 177,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-dryrun.out"
+        "lines": 128,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/README.md"
       },
       {
         "commits": 1,
         "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-help.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-help.err"
-      },
-      {
-        "commits": 1,
-        "lines": 25,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-help.out"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-selfcheck.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-selfcheck.err"
-      },
-      {
-        "commits": 1,
-        "lines": 14,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-selfcheck.out"
-      },
-      {
-        "commits": 1,
-        "lines": 3,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-version.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-version.err"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/channels/npm-version.out"
-      },
-      {
-        "commits": 1,
-        "lines": 3,
-        "path": "docs/receipts/1.4.1-live-check/channels/pypi-dryrun.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/channels/pypi-dryrun.err"
-      },
-      {
-        "commits": 1,
-        "lines": 177,
-        "path": "docs/receipts/1.4.1-live-check/channels/pypi-dryrun.out"
-      },
-      {
-        "commits": 1,
-        "lines": 3,
-        "path": "docs/receipts/1.4.1-live-check/channels/pypi-version.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/channels/pypi-version.err"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/channels/pypi-version.out"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-read-address.after"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-read-address.before"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/code.txt"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-read-address.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/01-start.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-read-address.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/01-start.err"
       },
       {
         "commits": 1,
-        "lines": 11,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-read-address.out"
+        "lines": 229,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/01-start.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-read-address.trace"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-self-check-offline.after"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-self-check-offline.before"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-self-check-offline.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/02-certificate.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-self-check-offline.err"
-      },
-      {
-        "commits": 1,
-        "lines": 14,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-self-check-offline.out"
-      },
-      {
-        "commits": 1,
-        "lines": 7,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/control-self-check-offline.trace"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-global.after"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-global.before"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-global.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-global.err"
-      },
-      {
-        "commits": 1,
-        "lines": 177,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-global.out"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-global.trace"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-home.after"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-home.before"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-home.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-home.err"
-      },
-      {
-        "commits": 1,
-        "lines": 177,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-home.out"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-home.trace"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-nomemo.after"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-nomemo.before"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-nomemo.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-nomemo.err"
-      },
-      {
-        "commits": 1,
-        "lines": 180,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-nomemo.out"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start-nomemo.trace"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start.after"
-      },
-      {
-        "commits": 1,
-        "lines": 1,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start.before"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start.err"
-      },
-      {
-        "commits": 1,
-        "lines": 177,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start.out"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/dry-run/dry-start.trace"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/01-start.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/01-start.err"
-      },
-      {
-        "commits": 1,
-        "lines": 226,
-        "path": "docs/receipts/1.4.1-live-check/flow/01-start.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/02-certificate.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/02-certificate.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/02-certificate.err"
       },
       {
         "commits": 1,
         "lines": 39,
-        "path": "docs/receipts/1.4.1-live-check/flow/02-certificate.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/02-certificate.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/03-proof-verify-online.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/03-proof-verify-online.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/03-proof-verify-online.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/03-proof-verify-online.err"
       },
       {
         "commits": 1,
         "lines": 29,
-        "path": "docs/receipts/1.4.1-live-check/flow/03-proof-verify-online.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/03-proof-verify-online.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/10-status.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/10-status.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/10-status.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/10-status.err"
       },
       {
         "commits": 1,
         "lines": 11,
-        "path": "docs/receipts/1.4.1-live-check/flow/10-status.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/10-status.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/11-status-detail.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/11-status-detail.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/11-status-detail.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/11-status-detail.err"
       },
       {
         "commits": 1,
-        "lines": 30,
-        "path": "docs/receipts/1.4.1-live-check/flow/11-status-detail.out"
+        "lines": 31,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/11-status-detail.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/12-wallet-show.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/12-wallet-show.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/12-wallet-show.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/12-wallet-show.err"
       },
       {
         "commits": 1,
         "lines": 6,
-        "path": "docs/receipts/1.4.1-live-check/flow/12-wallet-show.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/12-wallet-show.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/13-fund.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/13-fund.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/13-fund.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/13-fund.err"
       },
       {
         "commits": 1,
-        "lines": 19,
-        "path": "docs/receipts/1.4.1-live-check/flow/13-fund.out"
+        "lines": 20,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/13-fund.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/14-send.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/14-send.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/14-send.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/14-send.err"
       },
       {
         "commits": 1,
         "lines": 35,
-        "path": "docs/receipts/1.4.1-live-check/flow/14-send.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/14-send.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/15-read.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/15-read.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/15-read.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/15-read.err"
       },
       {
         "commits": 1,
         "lines": 11,
-        "path": "docs/receipts/1.4.1-live-check/flow/15-read.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/15-read.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/16-read-address.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/16-read-address.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/16-read-address.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/16-read-address.err"
       },
       {
         "commits": 1,
         "lines": 11,
-        "path": "docs/receipts/1.4.1-live-check/flow/16-read-address.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/16-read-address.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/17-read-hash.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/17-read-hash.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/17-read-hash.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/17-read-hash.err"
       },
       {
         "commits": 1,
         "lines": 21,
-        "path": "docs/receipts/1.4.1-live-check/flow/17-read-hash.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/17-read-hash.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/18-verify-tx.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/18-verify-tx.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/18-verify-tx.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/18-verify-tx.err"
       },
       {
         "commits": 1,
         "lines": 38,
-        "path": "docs/receipts/1.4.1-live-check/flow/18-verify-tx.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/18-verify-tx.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/19-try.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/19-try.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/19-try.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/19-try.err"
       },
       {
         "commits": 1,
-        "lines": 60,
-        "path": "docs/receipts/1.4.1-live-check/flow/19-try.out"
+        "lines": 61,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/19-try.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/20-self-check.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/20-self-check.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/20-self-check.err"
-      },
-      {
-        "commits": 1,
-        "lines": 15,
-        "path": "docs/receipts/1.4.1-live-check/flow/20-self-check.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/21-support-bundle.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/21-support-bundle.err"
-      },
-      {
-        "commits": 1,
-        "lines": 24,
-        "path": "docs/receipts/1.4.1-live-check/flow/21-support-bundle.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/22-proof-verify-folder.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/22-proof-verify-folder.err"
-      },
-      {
-        "commits": 1,
-        "lines": 5,
-        "path": "docs/receipts/1.4.1-live-check/flow/22-proof-verify-folder.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/23-try-replay-verbose.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/23-try-replay-verbose.err"
-      },
-      {
-        "commits": 1,
-        "lines": 24,
-        "path": "docs/receipts/1.4.1-live-check/flow/23-try-replay-verbose.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/flow/30-start-again.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/flow/30-start-again.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/20-self-check.err"
       },
       {
         "commits": 1,
         "lines": 16,
-        "path": "docs/receipts/1.4.1-live-check/flow/30-start-again.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/20-self-check.out"
       },
       {
         "commits": 1,
-        "lines": 3,
-        "path": "docs/receipts/1.4.1-live-check/flow/preflight.txt"
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/21-support-bundle.cmd"
       },
       {
         "commits": 1,
-        "lines": 164,
-        "path": "docs/receipts/1.4.1-live-check/flow/session.json"
-      },
-      {
-        "commits": 1,
-        "lines": 18,
-        "path": "docs/receipts/1.4.1-live-check/flow/support-bundle/environment.json"
-      },
-      {
-        "commits": 1,
-        "lines": 12,
-        "path": "docs/receipts/1.4.1-live-check/flow/support-bundle/self-check.txt"
-      },
-      {
-        "commits": 1,
-        "lines": 164,
-        "path": "docs/receipts/1.4.1-live-check/flow/support-bundle/session.json"
-      },
-      {
-        "commits": 1,
-        "lines": 3,
-        "path": "docs/receipts/1.4.1-live-check/flow/support-bundle/state-listing.txt"
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/21-support-bundle.err"
       },
       {
         "commits": 1,
         "lines": 25,
-        "path": "docs/receipts/1.4.1-live-check/harness/camp_run.sh"
-      },
-      {
-        "commits": 1,
-        "lines": 75,
-        "path": "docs/receipts/1.4.1-live-check/harness/interrupt_cli.py"
-      },
-      {
-        "commits": 1,
-        "lines": 43,
-        "path": "docs/receipts/1.4.1-live-check/harness/trace_camp.py"
-      },
-      {
-        "commits": 1,
-        "lines": 6,
-        "path": "docs/receipts/1.4.1-live-check/hashes.txt"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/21-support-bundle.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/f1-start-interrupted.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 10,
-        "path": "docs/receipts/1.4.1-live-check/resume/f1-start-interrupted.err"
-      },
-      {
-        "commits": 1,
-        "lines": 64,
-        "path": "docs/receipts/1.4.1-live-check/resume/f1-start-interrupted.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/f2-status.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/22-proof-verify-folder.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/f2-status.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/22-proof-verify-folder.err"
       },
       {
         "commits": 1,
-        "lines": 10,
-        "path": "docs/receipts/1.4.1-live-check/resume/f2-status.out"
+        "lines": 5,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/22-proof-verify-folder.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/f3-start-resume.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/23-try-replay-verbose.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/f3-start-resume.err"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/23-try-replay-verbose.err"
       },
       {
         "commits": 1,
-        "lines": 187,
-        "path": "docs/receipts/1.4.1-live-check/resume/f3-start-resume.out"
+        "lines": 25,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/23-try-replay-verbose.out"
       },
       {
         "commits": 1,
         "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/f4-support-bundle-default.cmd"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/30-start-again.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/f4-support-bundle-default.err"
-      },
-      {
-        "commits": 1,
-        "lines": 23,
-        "path": "docs/receipts/1.4.1-live-check/resume/f4-support-bundle-default.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/i1-start-interrupted.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 10,
-        "path": "docs/receipts/1.4.1-live-check/resume/i1-start-interrupted.err"
-      },
-      {
-        "commits": 1,
-        "lines": 112,
-        "path": "docs/receipts/1.4.1-live-check/resume/i1-start-interrupted.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/i2-status.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/i2-status.err"
-      },
-      {
-        "commits": 1,
-        "lines": 10,
-        "path": "docs/receipts/1.4.1-live-check/resume/i2-status.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/i3-read-before-resume.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/i3-read-before-resume.err"
-      },
-      {
-        "commits": 1,
-        "lines": 7,
-        "path": "docs/receipts/1.4.1-live-check/resume/i3-read-before-resume.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/i4-start-resume.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/i4-start-resume.err"
-      },
-      {
-        "commits": 1,
-        "lines": 169,
-        "path": "docs/receipts/1.4.1-live-check/resume/i4-start-resume.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/i5-read-after.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/i5-read-after.err"
-      },
-      {
-        "commits": 1,
-        "lines": 9,
-        "path": "docs/receipts/1.4.1-live-check/resume/i5-read-after.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/j1-start-interrupted.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 3,
-        "path": "docs/receipts/1.4.1-live-check/resume/j1-start-interrupted.err"
-      },
-      {
-        "commits": 1,
-        "lines": 108,
-        "path": "docs/receipts/1.4.1-live-check/resume/j1-start-interrupted.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/j2-status.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/j2-status.err"
-      },
-      {
-        "commits": 1,
-        "lines": 10,
-        "path": "docs/receipts/1.4.1-live-check/resume/j2-status.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/j3-read-before-resume.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/j3-read-before-resume.err"
-      },
-      {
-        "commits": 1,
-        "lines": 9,
-        "path": "docs/receipts/1.4.1-live-check/resume/j3-read-before-resume.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/j4-start-resume.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/j4-start-resume.err"
-      },
-      {
-        "commits": 1,
-        "lines": 154,
-        "path": "docs/receipts/1.4.1-live-check/resume/j4-start-resume.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/j5-read-after.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/j5-read-after.err"
-      },
-      {
-        "commits": 1,
-        "lines": 11,
-        "path": "docs/receipts/1.4.1-live-check/resume/j5-read-after.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/s1-start-interrupted.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 10,
-        "path": "docs/receipts/1.4.1-live-check/resume/s1-start-interrupted.err"
-      },
-      {
-        "commits": 1,
-        "lines": 112,
-        "path": "docs/receipts/1.4.1-live-check/resume/s1-start-interrupted.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/s2-status.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/s2-status.err"
-      },
-      {
-        "commits": 1,
-        "lines": 10,
-        "path": "docs/receipts/1.4.1-live-check/resume/s2-status.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/s3-start-resume.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/s3-start-resume.err"
-      },
-      {
-        "commits": 1,
-        "lines": 169,
-        "path": "docs/receipts/1.4.1-live-check/resume/s3-start-resume.out"
-      },
-      {
-        "commits": 1,
-        "lines": 2,
-        "path": "docs/receipts/1.4.1-live-check/resume/s4-read.cmd"
-      },
-      {
-        "commits": 1,
-        "lines": 0,
-        "path": "docs/receipts/1.4.1-live-check/resume/s4-read.err"
-      },
-      {
-        "commits": 1,
-        "lines": 9,
-        "path": "docs/receipts/1.4.1-live-check/resume/s4-read.out"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/30-start-again.err"
       },
       {
         "commits": 1,
         "lines": 16,
-        "path": "docs/receipts/1.4.1-live-check/resume/support-bundle-default/environment.json"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/30-start-again.out"
       },
       {
         "commits": 1,
-        "lines": 10,
-        "path": "docs/receipts/1.4.1-live-check/resume/support-bundle-default/self-check.txt"
+        "lines": 8,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/d4_grep.txt"
       },
       {
         "commits": 1,
-        "lines": 149,
-        "path": "docs/receipts/1.4.1-live-check/resume/support-bundle-default/session.json"
+        "lines": 1,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/ids.txt"
       },
       {
         "commits": 1,
         "lines": 3,
-        "path": "docs/receipts/1.4.1-live-check/resume/support-bundle-default/state-listing.txt"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/preflight.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 18,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/support-bundle/environment.json"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/support-bundle/self-check.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 165,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/support-bundle/session.json"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/flow/support-bundle/state-listing.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/1-forged-offline.cmd"
       },
       {
         "commits": 1,
         "lines": 0,
-        "path": "interrupt_cli.py.txt}"
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/1-forged-offline.err"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/1-forged-offline.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/2-folder-online.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/2-folder-online.err"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/2-folder-online.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/3-folder-offline.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/3-folder-offline.err"
+      },
+      {
+        "commits": 1,
+        "lines": 6,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/3-folder-offline.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/4-folder-nonexistent-online.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/4-folder-nonexistent-online.err"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/4-folder-nonexistent-online.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/forge.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/packs-nonexistent/forged-nonexistent.json"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/packs-nonexistent/honest.json"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/packs/forged.json"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/forgery/packs/honest.json"
+      },
+      {
+        "commits": 1,
+        "lines": 27,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/harness/forge_pack.py.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 75,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/harness/interrupt_cli.py.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 63,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/harness/recheck_items23.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 16,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/hashes.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/README-f-vs-g.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f1-start-interrupted.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f1-start-interrupted.err"
+      },
+      {
+        "commits": 1,
+        "lines": 226,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f1-start-interrupted.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f2-status.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f2-status.err"
+      },
+      {
+        "commits": 1,
+        "lines": 11,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f2-status.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f4-start-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f4-start-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 16,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f4-start-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f5-read-after.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f5-read-after.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/f5-read-after.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g1-start-interrupted.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g1-start-interrupted.err"
+      },
+      {
+        "commits": 1,
+        "lines": 69,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g1-start-interrupted.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g2-status.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g2-status.err"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g2-status.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g4-start-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g4-start-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 187,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g4-start-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g5-read-after.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g5-read-after.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/g5-read-after.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i1-start-interrupted.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i1-start-interrupted.err"
+      },
+      {
+        "commits": 1,
+        "lines": 117,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i1-start-interrupted.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i2-status.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i2-status.err"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i2-status.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i4-start-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i4-start-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 169,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i4-start-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i5-read-after.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i5-read-after.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/i5-read-after.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j1-start-interrupted.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j1-start-interrupted.err"
+      },
+      {
+        "commits": 1,
+        "lines": 117,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j1-start-interrupted.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j2-status.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j2-status.err"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j2-status.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j3-read-before-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j3-read-before-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j3-read-before-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j4-start-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j4-start-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 131,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j4-start-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j5-read-after.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j5-read-after.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/j5-read-after.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s1-start-interrupted.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s1-start-interrupted.err"
+      },
+      {
+        "commits": 1,
+        "lines": 117,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s1-start-interrupted.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s2-status.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s2-status.err"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s2-status.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s4-start-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s4-start-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 169,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s4-start-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s5-read-after.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s5-read-after.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-1abab5a/resume/s5-read-after.out"
+      },
+      {
+        "commits": 1,
+        "lines": 76,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/README.md"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/code.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j1-start-interrupted.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j1-start-interrupted.err"
+      },
+      {
+        "commits": 1,
+        "lines": 117,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j1-start-interrupted.out"
+      },
+      {
+        "commits": 1,
+        "lines": 6,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j1-state-after-interrupt.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j2-status.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j2-status.err"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j2-status.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j3-read-before-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j3-read-before-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j3-read-before-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j4-start-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j4-start-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 131,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j4-start-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j4-state-after-resume.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j5-read-after.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j5-read-after.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j5-read-after.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j6-fund-funded.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j6-fund-funded.err"
+      },
+      {
+        "commits": 1,
+        "lines": 20,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/j6-fund-funded.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s1-start-interrupted.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s1-start-interrupted.err"
+      },
+      {
+        "commits": 1,
+        "lines": 117,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s1-start-interrupted.out"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s1-state-after-interrupt.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s2-status.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s2-status.err"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s2-status.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s3-read-before-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s3-read-before-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 7,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s3-read-before-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s4-start-resume.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s4-start-resume.err"
+      },
+      {
+        "commits": 1,
+        "lines": 169,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s4-start-resume.out"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s4-state-after-resume.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s5-read-after.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s5-read-after.err"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s5-read-after.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s6-fund-funded.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s6-fund-funded.err"
+      },
+      {
+        "commits": 1,
+        "lines": 20,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/ctrlc/s6-fund-funded.out"
+      },
+      {
+        "commits": 1,
+        "lines": 33,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/harness/recheck_ctrlc.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 6,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/hashes.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/1-folder-online-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/1-folder-online-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 64,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/1-folder-online-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 6,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/1-parse-check.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/2-folder-online-human.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/2-folder-online-human.err"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/2-folder-online-human.out"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/packs/forged.json"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "docs/receipts/1.4.2-live-check-def33a2/json-verify/packs/honest.json"
       },
       {
         "commits": 2,
@@ -1318,13 +1428,13 @@
         "path": "package-lock.json"
       },
       {
-        "commits": 5,
-        "lines": 38,
+        "commits": 6,
+        "lines": 40,
         "path": "package.json"
       },
       {
-        "commits": 8,
-        "lines": 72,
+        "commits": 9,
+        "lines": 74,
         "path": "pyproject.toml"
       },
       {
@@ -1343,8 +1453,8 @@
         "path": "scripts/verify-pypi-publish.sh"
       },
       {
-        "commits": 4,
-        "lines": 64,
+        "commits": 6,
+        "lines": 77,
         "path": "scripts/verify.sh"
       },
       {
@@ -1453,8 +1563,8 @@
         "path": "tests/test_cli_behaviour.py"
       },
       {
-        "commits": 3,
-        "lines": 662,
+        "commits": 4,
+        "lines": 679,
         "path": "tests/test_failure_gate.py"
       },
       {
@@ -1463,8 +1573,8 @@
         "path": "tests/test_features.py"
       },
       {
-        "commits": 3,
-        "lines": 1322,
+        "commits": 4,
+        "lines": 1328,
         "path": "tests/test_lessons.py"
       },
       {
@@ -1498,9 +1608,19 @@
         "path": "tests/test_transport.py"
       },
       {
-        "commits": 2,
-        "lines": 1150,
+        "commits": 3,
+        "lines": 1175,
         "path": "tests/test_transport_contract.py"
+      },
+      {
+        "commits": 3,
+        "lines": 494,
+        "path": "tests/test_v142_audit_fixes.py"
+      },
+      {
+        "commits": 3,
+        "lines": 478,
+        "path": "tests/test_v142_live_check_fixes.py"
       },
       {
         "commits": 3,
@@ -1518,13 +1638,8 @@
         "path": "tests/test_xrpl_models.py"
       },
       {
-        "commits": 1,
-        "lines": 0,
-        "path": "trace_camp.py.txt}"
-      },
-      {
-        "commits": 5,
-        "lines": 182,
+        "commits": 6,
+        "lines": 184,
         "path": "xrpl_camp/__init__.py"
       },
       {
@@ -1533,13 +1648,13 @@
         "path": "xrpl_camp/__main__.py"
       },
       {
-        "commits": 4,
-        "lines": 1116,
+        "commits": 5,
+        "lines": 1138,
         "path": "xrpl_camp/certificate.py"
       },
       {
-        "commits": 5,
-        "lines": 2764,
+        "commits": 9,
+        "lines": 3190,
         "path": "xrpl_camp/cli.py"
       },
       {
@@ -1548,41 +1663,105 @@
         "path": "xrpl_camp/errors.py"
       },
       {
-        "commits": 5,
-        "lines": 5214,
+        "commits": 9,
+        "lines": 5632,
         "path": "xrpl_camp/lessons.py"
       },
       {
-        "commits": 5,
-        "lines": 2114,
+        "commits": 7,
+        "lines": 2195,
         "path": "xrpl_camp/models.py"
       },
       {
-        "commits": 4,
-        "lines": 2198,
+        "commits": 5,
+        "lines": 2207,
         "path": "xrpl_camp/proof_pack.py"
       },
       {
-        "commits": 4,
-        "lines": 6090,
+        "commits": 7,
+        "lines": 6446,
         "path": "xrpl_camp/transport.py"
       },
       {
-        "commits": 4,
-        "lines": 608,
+        "commits": 5,
+        "lines": 621,
         "path": "xrpl_camp/wallet.py"
       }
     ]
   },
   "confidence": {
     "level": "low",
-    "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
+    "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-10-22T07:04:23.116Z",
+  "generatedAt": "2026-10-22T08:04:13.179Z",
   "generatedFrom": {
-    "commit": "d8d4e84b6174d78ad40385aff554144ce29c1b02"
+    "commit": "61f45e131dc70e877c29f1efa066fe35fa35270e"
   },
-  "pairs": [],
+  "pairs": [
+    {
+      "a": "package.json",
+      "b": "pyproject.toml",
+      "either": 7,
+      "shared": 5,
+      "strength": 0.714286
+    },
+    {
+      "a": "package.json",
+      "b": "xrpl_camp/__init__.py",
+      "either": 6,
+      "shared": 4,
+      "strength": 0.666667
+    },
+    {
+      "a": "pyproject.toml",
+      "b": "xrpl_camp/__init__.py",
+      "either": 7,
+      "shared": 5,
+      "strength": 0.714286
+    },
+    {
+      "a": "xrpl_camp/cli.py",
+      "b": "xrpl_camp/lessons.py",
+      "either": 9,
+      "shared": 7,
+      "strength": 0.777778
+    },
+    {
+      "a": "xrpl_camp/cli.py",
+      "b": "xrpl_camp/models.py",
+      "either": 9,
+      "shared": 5,
+      "strength": 0.555556
+    },
+    {
+      "a": "xrpl_camp/cli.py",
+      "b": "xrpl_camp/transport.py",
+      "either": 8,
+      "shared": 6,
+      "strength": 0.75
+    },
+    {
+      "a": "xrpl_camp/lessons.py",
+      "b": "xrpl_camp/models.py",
+      "either": 9,
+      "shared": 5,
+      "strength": 0.555556
+    },
+    {
+      "a": "xrpl_camp/lessons.py",
+      "b": "xrpl_camp/transport.py",
+      "either": 8,
+      "shared": 6,
+      "strength": 0.75
+    },
+    {
+      "a": "xrpl_camp/models.py",
+      "b": "xrpl_camp/transport.py",
+      "either": 7,
+      "shared": 5,
+      "strength": 0.714286
+    }
+  ],
   "parameters": {
     "appliedChangesetLimit": 50,
     "changeset": 50,
@@ -1592,17 +1771,17 @@
     "fallenShared": 3,
     "floor": "fallen",
     "floorHeld": false,
-    "floorTrigger": "both",
-    "headDate": "2026-10-22T02:10:19-04:00",
-    "inScopeFiles": 269,
+    "floorTrigger": "revision-depth",
+    "headDate": "2026-10-22T04:03:37-04:00",
+    "inScopeFiles": 480,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 27,
+    "qualifyingCommits": 31,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-25T06:10:19.000Z",
+    "since": "2026-04-25T08:03:37.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

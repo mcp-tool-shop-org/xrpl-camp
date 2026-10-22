@@ -43,7 +43,6 @@ import os
 import random
 import re
 import time
-from collections.abc import Callable
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
@@ -534,6 +533,18 @@ def explorer_url_for(txid: str, url: str | None = None) -> str:
     if not txid:
         return ""
     base = _EXPLORER_BASES.get(network_label_for_url(url), "")
+    return f"{base}{txid}" if base else ""
+
+
+def explorer_url_for_network(txid: str, network: str) -> str:
+    """Explorer link for `txid` on a network LABEL, or "".
+
+    For a record that names its network (a certificate) rather than the
+    endpoint it ran against; same empty-string contract as above.
+    """
+    if not txid:
+        return ""
+    base = _EXPLORER_BASES.get(network, "")
     return f"{base}{txid}" if base else ""
 
 
@@ -1549,6 +1560,73 @@ def _resolve_after_lapse(
     )
 
 
+def resolve_in_flight(
+    txid: str,
+    last_ledger: int,
+    destination: str,
+    amount_drops: int,
+    url: str | None = None,
+) -> SendResult | None:
+    """Settle a payment a cut-off run signed and submitted (1.4.2).
+
+    Returns its :class:`SendResult` if it landed. Returns None if it is not on
+    the ledger and its ``LastLedgerSequence`` has passed, so it can never land
+    and sending again is safe. Raises :class:`XRPLSubmissionUnresolved` while
+    it could still land, or when the ledger can't be read: sending again then
+    could write the learner's memo twice. A ``tec`` it landed with raises as
+    :func:`_engine_failure` does.
+    """
+    url = url or get_rpc_url()
+    # server_state is read BEFORE the lookup (Argon F2). If the validated
+    # ledger is already past LastLedgerSequence here, every ledger the payment
+    # could have landed in was final when the lookup ran, so a miss is
+    # conclusive. Read after, a payment validated between the two calls would
+    # look absent, and lesson 4 would send the memo twice.
+    state = _server_state(url) or {}
+    seq = _int_or_none((state.get("validated_ledger") or {}).get("seq")) or 0
+    try:
+        return _resolve_after_lapse(txid, last_ledger, destination, amount_drops, url)
+    except XRPLSubmissionUnresolved as exc:
+        lookup_worked = "lookup=" not in (exc.error.detail or "")
+        if (
+            last_ledger and seq > last_ledger and lookup_worked
+            and _holds_window(state, last_ledger)
+        ):
+            return None
+        raise XRPLSubmissionUnresolved(
+            "Your last payment was signed and sent, and it may still land: "
+            "its window has not closed yet, or the ledger could not be read. "
+            "Nothing new was sent. Wait a few seconds and run this again. "
+            f"Hash: {txid}",
+            txid=txid,
+            last_ledger=last_ledger,
+            detail=f"validated_seq={seq} last_ledger={last_ledger}",
+        ) from exc
+
+
+#: xrpl-py's autofill sets LastLedgerSequence this many ledgers past the one
+#: it read, so a payment can only have landed in this many ledgers up to it.
+_LAST_LEDGER_OFFSET = 20
+
+
+def _holds_window(state: dict, last_ledger: int) -> bool:
+    """Whether the server still holds every ledger the payment could be in.
+
+    A miss only proves absence if the server has those ledgers. After online
+    deletion or a Testnet reset it may not, and "not found" then means
+    "not known" (Argon F2). ``complete_ledgers`` is "a-b,c-d"; one span must
+    cover the whole window.
+    """
+    first = max(1, last_ledger - _LAST_LEDGER_OFFSET)
+    raw = str(state.get("complete_ledgers", "") or "").strip()
+    for span in raw.split(","):
+        lo, _, hi = span.strip().partition("-")
+        low, high = _int_or_none(lo.strip()), _int_or_none((hi or lo).strip())
+        if low is not None and high is not None and low <= first and last_ledger <= high:
+            return True
+    return False
+
+
 def _submission_failure(
     exc: Exception, url: str, txid: str, last_ledger: int, memo_bytes: int,
 ) -> Exception:
@@ -1609,8 +1687,15 @@ def send_memo_payment(
     dry_run: bool = False,
     memo_type: str = DEFAULT_MEMO_TYPE,
     destination_tag: int | None = None,
+    on_signed=None,
 ) -> SendResult:
     """Send a real payment carrying a memo. Returns a :class:`SendResult`.
+
+    `on_signed(txid, last_ledger)`, if given, is called after the payment is
+    signed and BEFORE it is submitted (1.4.2). The caller records the hash
+    there, so an interrupt during the wait can't lose a payment that then
+    lands: the next run looks it up (:func:`resolve_in_flight`) instead of
+    sending it again. If the callback raises, nothing is submitted.
 
     `destination` is REQUIRED and must not be the sender. The old code built
     ``Payment(account=X, destination=X)``, which xrpl-py refuses to CONSTRUCT
@@ -1743,11 +1828,12 @@ def send_memo_payment(
 
     # Autofill + sign BEFORE submitting, so the hash exists on this side of
     # the wire. Autofill and signing are entirely pre-submission — nothing has
-    # been sent when they fail — so this stays best effort: if it cannot be
-    # done, submit the unsigned payment exactly as before and carry no hash.
-    # A tool that could not pre-sign must still be able to send; what it must
-    # NOT do is call an unresolved submission retryable, and that holds either
-    # way (see `_submission_failure`).
+    # been sent when they fail. Without `on_signed` this stays best effort: if
+    # it cannot be done, submit the unsigned payment exactly as before and
+    # carry no hash; what it must NOT do is call an unresolved submission
+    # retryable, and that holds either way (see `_submission_failure`).
+    # With `on_signed`, the caller has asked that nothing be sent whose hash it
+    # hasn't saved, so a failed pre-sign stops here (1.4.2, Argon F3).
     to_submit = payment
     txid = ""
     last_ledger = 0
@@ -1756,8 +1842,18 @@ def send_memo_payment(
         txid = str(signed.get_hash())
         last_ledger = _int_or_none(signed.last_ledger_sequence) or 0
         to_submit = signed
-    except Exception:
+    except Exception as e:
+        if on_signed is not None:
+            raise XRPLConnectionError(
+                "Could not prepare the payment: reading the fee, sequence or "
+                "ledger from the network failed. Nothing was sent.",
+                code="NET_PRESIGN",
+                detail=f"{type(e).__name__}: {e}",
+            ) from e
         logger.debug("could not pre-sign; submitting unsigned", exc_info=True)
+
+    if txid and on_signed is not None:
+        on_signed(txid, last_ledger)
 
     started = time.monotonic()
     try:
@@ -2311,239 +2407,6 @@ def account_transactions(
 
 
 # ---------------------------------------------------------------------------
-# The instructive failures, as ONE table
-# ---------------------------------------------------------------------------
-#
-# Every row below was reproduced live on XRPL Testnet. The table exists so the
-# preview and the copy cannot drift: whatever renders the lesson and whatever
-# builds the transaction read the SAME row. A prose description of a result
-# code, kept in a different file from the code that produces it, is a claim
-# nobody re-checks.
-#
-# The rows are ordered CHEAPEST LAYER FIRST, because that ordering is the
-# lesson. A mistake caught by your library costs nothing; one caught by the
-# binary codec costs nothing; one the network rejects before inclusion costs
-# nothing; and only the last kind — a `tec` — is written to a ledger and burns
-# the fee. Measured: 9 doomed attempts from one funded account left exactly
-# THREE rows on the ledger and cost exactly 30 drops. The other six are not on
-# the ledger at all.
-#
-# Deliberately NOT in this table:
-#
-# * a self-payment demonstrating `temREDUNDANT`. It cannot be demonstrated
-#   through xrpl-py: the model layer refuses to CONSTRUCT the Payment, so the
-#   code is never reached. The `self_payment` row below teaches the real
-#   lesson — your library caught it first — and claims no engine code.
-# * an oversized memo. A real submission fails the SERVER'S local check
-#   ("fails local checks: The memo exceeds the maximum allowed size"), but
-#   MEASURED: `simulate` accepts an 1100-byte memo and answers tesSUCCESS.
-#   Simulate is not a complete substitute for submission, and a row that lies
-#   under preview is worse than no row.
-
-#: What catches a mistake, cheapest first. ``ledger`` is the only layer that
-#: can cost money, and only for a ``tec``.
-TRY_LAYERS = ("library", "codec", "tool", "network", "ledger")
-
-
-@dataclass(frozen=True)
-class TryContext:
-    """Everything a :class:`TryLesson` needs to build its transaction."""
-
-    sender: str
-    #: An account that EXISTS — the learner's mailbox will do.
-    destination: str
-    #: The sender's balance in drops, so the overspend row can overspend.
-    balance_drops: int = 0
-    #: An address that does NOT exist, for the account-creation row.
-    ghost_address: str = ""
-
-
-@dataclass(frozen=True)
-class TryLesson:
-    """One instructive failure: how to build it, and what it costs to learn.
-
-    ``build(ctx)`` returns an UNSIGNED transaction for :func:`simulate_tx`, or
-    RAISES — and a row that raises is not a broken row, it is the lesson. Two
-    of them are caught before anything leaves the machine.
-    """
-
-    key: str
-    label: str
-    #: Engine result MEASURED through :func:`simulate_tx`, or "" when the
-    #: failure happens before the network ever sees the transaction.
-    expected_code: str
-    #: Three-letter class of ``expected_code``. This is the teachable half.
-    prefix: str
-    #: One of :data:`TRY_LAYERS`.
-    layer: str
-    #: True only when the attempt is written to a ledger and burns the fee.
-    costs_fee: bool
-    teaches: str
-    build: Callable[[TryContext], object]
-
-    @property
-    def cost_drops(self) -> int:
-        """What one attempt costs. 10 drops for a ``tec``, otherwise nothing."""
-        return 10 if self.costs_fee else 0
-
-
-def _try_self_payment(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(account=ctx.sender, destination=ctx.sender, amount="1")
-
-
-def _try_bad_address(ctx: TryContext):
-    from xrpl.models import Payment
-
-    bad = "rNotARealAddressAtAll"
-    if not is_valid_address(bad):
-        raise XRPLInvalidAddress(
-            f"{bad} is not a valid XRPL address. The checksum every address "
-            "carries fails, so this never has to be sent anywhere to be known "
-            "to be wrong.",
-            detail="try lesson: bad_address",
-        )
-    return Payment(account=ctx.sender, destination=bad, amount="1")
-
-
-def _try_bad_amount(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(account=ctx.sender, destination=ctx.destination, amount="0")
-
-
-def _try_low_fee(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(
-        account=ctx.sender, destination=ctx.destination, amount="1", fee="1",
-    )
-
-
-def _try_account_creation(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(
-        account=ctx.sender,
-        destination=ctx.ghost_address or ctx.destination,
-        amount="1",
-    )
-
-
-def _try_reserve(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(
-        account=ctx.sender,
-        destination=ctx.destination,
-        amount=str(max(1, ctx.balance_drops - 500_000)),
-    )
-
-
-#: The instructive failures, cheapest layer first. Drive the preview AND any
-#: single real submission from this one table.
-TRY_LESSONS: tuple[TryLesson, ...] = (
-    TryLesson(
-        key="self_payment",
-        label="Pay yourself",
-        expected_code="",
-        prefix="",
-        layer="library",
-        costs_fee=False,
-        teaches=(
-            "Your library refuses to even build it: 'An XRP payment "
-            "transaction cannot have the same sender and destination.' "
-            "Nothing was signed, nothing was sent, nothing was spent. The "
-            "protocol has a code for this (temREDUNDANT) that you will never "
-            "see, because the mistake never got that far."
-        ),
-        build=_try_self_payment,
-    ),
-    TryLesson(
-        key="bad_address",
-        label="Mistype the destination",
-        expected_code="",
-        prefix="",
-        layer="codec",
-        costs_fee=False,
-        teaches=(
-            "Every XRPL address carries a checksum, so a typo is detectable "
-            "offline. Signing raises 'Invalid value to construct an "
-            "AccountID' before a single byte reaches the network."
-        ),
-        build=_try_bad_address,
-    ),
-    TryLesson(
-        key="bad_amount",
-        label="Send zero XRP",
-        expected_code="temBAD_AMOUNT",
-        prefix="tem",
-        layer="ledger",
-        costs_fee=False,
-        teaches=(
-            "'Malformed: Bad amount.' A tem result means the transaction "
-            "makes no sense, so it is thrown out before it can be included in "
-            "any ledger — and something never included costs nothing."
-        ),
-        build=_try_bad_amount,
-    ),
-    TryLesson(
-        key="low_fee",
-        label="Offer a fee of 1 drop",
-        expected_code="telCAN_NOT_QUEUE",
-        prefix="tel",
-        layer="network",
-        costs_fee=False,
-        teaches=(
-            "A tel result is the server declining locally. Preview answers "
-            "telCAN_NOT_QUEUE; a real submission answers telINSUF_FEE_P, "
-            "'Fee insufficient.' Same class, same price: nothing. It never "
-            "reaches a ledger, so there is no fee to burn."
-        ),
-        build=_try_low_fee,
-    ),
-    TryLesson(
-        key="account_creation",
-        label="Send 1 drop to an address that does not exist",
-        expected_code="tecNO_DST_INSUF_XRP",
-        prefix="tec",
-        layer="ledger",
-        costs_fee=True,
-        teaches=(
-            "'Destination does not exist. Too little XRP sent to create it.' "
-            "Creating an account costs the base reserve, and this is the case "
-            "the tool quietly handles for you in lesson 4 by paying it. A tec "
-            "IS written to a ledger, so this one costs 10 drops."
-        ),
-        build=_try_account_creation,
-    ),
-    TryLesson(
-        key="reserve",
-        label="Send more than you can spend",
-        expected_code="tecUNFUNDED_PAYMENT",
-        prefix="tec",
-        layer="ledger",
-        costs_fee=True,
-        teaches=(
-            "'Insufficient XRP balance to send.' Note the ledger gives you no "
-            "number — the missing number is the reserve, which is why the "
-            "tool prints it. Written to a ledger: 10 drops."
-        ),
-        build=_try_reserve,
-    ),
-)
-
-
-def try_lesson(key: str) -> TryLesson | None:
-    """The :class:`TryLesson` called `key`, or None."""
-    for lesson in TRY_LESSONS:
-        if lesson.key == key:
-            return lesson
-    return None
-
-
-# ---------------------------------------------------------------------------
 # The reserve, made physical: mint an object, watch the money lock
 # ---------------------------------------------------------------------------
 #
@@ -2814,8 +2677,6 @@ __all__ = [
     "REASON_UNVALIDATED",
     "TESTNET_NETWORK_IDS",
     "TESTNET_URL",
-    "TRY_LAYERS",
-    "TRY_LESSONS",
     "XRPL_API_VERSION",
     "AccountSummary",
     "FundResult",
@@ -2823,8 +2684,6 @@ __all__ = [
     "ReserveMove",
     "SendResult",
     "SimulatedOutcome",
-    "TryContext",
-    "TryLesson",
     "XRPLAccountNotFound",
     "XRPLConnectionError",
     "XRPLFaucetBusy",
@@ -2847,6 +2706,7 @@ __all__ = [
     "earliest_complete_ledger",
     "explorer_account_url_for",
     "explorer_url_for",
+    "explorer_url_for_network",
     "faucet_label",
     "fund_wallet",
     "fund_wallet_detail",
@@ -2866,6 +2726,6 @@ __all__ = [
     "network_label_for_url",
     "reserve_breakdown",
     "send_memo_payment",
+    "resolve_in_flight",
     "simulate_tx",
-    "try_lesson",
 ]

@@ -10,7 +10,11 @@ from pathlib import Path
 
 from xrpl_camp.errors import EXIT_RUNTIME, CampError, CampFailure
 from xrpl_camp.models import Session
-from xrpl_camp.transport import EXPLORER_URL, TESTNET_URL, get_rpc_url
+from xrpl_camp.transport import (
+    explorer_url_for_network,
+    get_rpc_url,
+    network_label_for_url,
+)
 
 CERTIFICATE_FILE = "xrpl_camp_certificate.json"
 
@@ -186,8 +190,10 @@ def _attested_network() -> tuple[str, str]:
     actually ran against instead of a hardcoded literal.
     """
     url = get_rpc_url()
-    label = "testnet" if url == TESTNET_URL else "custom"
-    return label, url
+    # 1.4.2: the same host rules wallet.json uses. An exact-string compare
+    # called Testnet without its trailing slash, Clio Testnet and Devnet
+    # "custom", so the certificate and the wallet named different networks.
+    return network_label_for_url(url), url
 
 
 # ---------------------------------------------------------------------------
@@ -452,10 +458,12 @@ def share_text(cert: dict, *, pack_file: str = "xrpl_camp_proof_pack.json") -> s
     ]
 
     anchored = _first_anchored_entry(cert)
+    link = explorer_url_for_network(
+        anchored["txid"], str(cert.get("network", "")),
+    ) if anchored else ""
     if anchored:
         lines.append(
-            f"The transaction is on the public ledger: "
-            f"{EXPLORER_URL}{anchored['txid']}",
+            f"The transaction is on the public ledger: {link or anchored['txid']}",
         )
         lines.append(f"Check the record yourself: xrpl-camp proof verify {pack_file} --online")
     else:
@@ -518,7 +526,9 @@ def render_certificate_text(
             lines.append(f'     "{memo}"')
         txid = str(entry.get("txid", "") or "")
         if txid:
-            lines.append(f"     {EXPLORER_URL}{txid}")
+            lines.append(
+                f"     {explorer_url_for_network(txid, network) or txid}",
+            )
     lines.append("")
 
     spent = _format_duration(cert.get("duration_seconds", 0))

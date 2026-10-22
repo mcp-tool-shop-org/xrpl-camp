@@ -1,0 +1,18 @@
+{
+  "tool": "xrpl-camp",
+  "version": "1.4.2",
+  "platform": "Windows-11-10.0.26340-SP0",
+  "arch": "AMD64",
+  "python": "3.13.13 (main, May 10 2026, 19:31:06) [MSC v.1944 64 bit (AMD64)]",
+  "cwd_writable": true,
+  "state_dir": "<scratch>/camp\\recheck-142-1abab5a-20261022T0641Z\\flow\\home",
+  "state_dir_present": true,
+  "rpc_url": "https://s.altnet.rippletest.net:51234/",
+  "network_label": "testnet",
+  "endpoint_pinned": false,
+  "camp_environment": {
+    "XRPL_CAMP_HOME": "<scratch>/camp\\recheck-142-1abab5a-20261022T0641Z\\flow\\home"
+  },
+  "network_checks_run": true,
+  "timestamp": "20261022-024230"
+}

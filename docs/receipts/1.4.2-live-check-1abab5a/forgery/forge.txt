@@ -1,0 +1,2 @@
+forged <scratch>/recheck-142-1abab5a-20261022T0641Z\forgery\packs\forged.json: lesson_4 C298D52D6D61B957… -> 1416EDB0748C2002…, sha256:4089636140e90324fed17a5846fbfc2ac72873728bd70cb504a2870c0ec4577d
+forged <scratch>/recheck-142-1abab5a-20261022T0641Z\forgery\packs-nonexistent\forged-nonexistent.json: lesson_4 C298D52D6D61B957… -> 9117912C732B8469…, sha256:b42b96455ac52466761ac155e7bc6b4ce47007b899a5e0591104a3fd13bf56c2

@@ -38,6 +38,7 @@ from xrpl_camp.models import (
     StateFileError,
     atomic_write_text,
     is_dry_run,
+    state_lock,
 )
 
 # These three are bound BY VALUE at import, which is why `models.
@@ -218,8 +219,11 @@ def save_wallet(
     if is_dry_run():
         _dry_run_wallet = data
         return None
-    _refuse_clobber(WALLET_FILE, address, force=force)
-    return _save_record(WALLET_FILE, data)
+    # 1.4.2: the clobber check and the write happen under the same state
+    # lock Session.save() takes, so two processes can't both pass the check.
+    with state_lock(WALLET_FILE.parent, required=False):
+        _refuse_clobber(WALLET_FILE, address, force=force)
+        return _save_record(WALLET_FILE, data)
 
 
 def load_wallet() -> dict[str, str] | None:
@@ -270,8 +274,9 @@ def save_mailbox(
     if is_dry_run():
         _dry_run_mailbox = data
         return None
-    _refuse_clobber(MAILBOX_FILE, address, force=force)
-    return _save_record(MAILBOX_FILE, data)
+    with state_lock(MAILBOX_FILE.parent, required=False):
+        _refuse_clobber(MAILBOX_FILE, address, force=force)
+        return _save_record(MAILBOX_FILE, data)
 
 
 def load_mailbox() -> dict[str, str] | None:
