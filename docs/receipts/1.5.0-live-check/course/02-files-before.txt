@@ -1,0 +1,7 @@
+total 8
+drwxr-xr-x 1 <user> <group>    0 Oct 22 14:25 ./
+drwxr-xr-x 1 <user> <group>    0 Oct 22 14:24 ../
+-rw-r--r-- 1 <user> <group> 1005 Oct 22 14:25 xrpl_camp_certificate.json
+-rw-r--r-- 1 <user> <group> 1513 Oct 22 14:25 xrpl_camp_proof_pack.json
+24d62427936ba414519ce857e4cc449fdffba4d4df5accb8f4cffc9f6fe287cd *xrpl_camp_certificate.json
+57da328feddb9649c5b2880bbcdfb33a27e2b2d96313a2c0cb4594415a793d1d *xrpl_camp_proof_pack.json

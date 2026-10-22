@@ -1,0 +1,3 @@
+{ "name": "wrapper-142-launcher-120", "version": "0.0.0", "private": true,
+  "dependencies": { "@mcptoolshop/xrpl-camp": "1.4.2" },
+  "overrides": { "@mcptoolshop/npm-launcher": "1.2.0" } }

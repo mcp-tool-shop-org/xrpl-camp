@@ -1,0 +1,171 @@
+{
+  "address": "rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY",
+  "issued_at": "2026-10-22T18:25:21.468375+00:00",
+  "lessons": [
+    {
+      "completed_at": "2026-10-22T18:24:46.296556+00:00",
+      "lesson": 1,
+      "name": "Mental Model"
+    },
+    {
+      "completed_at": "2026-10-22T18:24:46.320925+00:00",
+      "lesson": 2,
+      "name": "Create Wallet"
+    },
+    {
+      "completed_at": "2026-10-22T18:24:59.534991+00:00",
+      "lesson": 3,
+      "name": "Fund Wallet"
+    },
+    {
+      "close_time_iso": "2026-10-22T18:25:10Z",
+      "completed_at": "2026-10-22T18:25:10.200679+00:00",
+      "explorer_url": "https://testnet.xrpl.org/transactions/0953A221ACC32DD1DB752380FD6DC37D5474519AA42A5F2A8256A08AA5334454",
+      "ledger_index": 21740887,
+      "lesson": 4,
+      "memo": "book keeper v1.5.0 live check",
+      "name": "Send Payment",
+      "txid": "0953A221ACC32DD1DB752380FD6DC37D5474519AA42A5F2A8256A08AA5334454"
+    },
+    {
+      "completed_at": "2026-10-22T18:25:10.638041+00:00",
+      "lesson": 5,
+      "name": "Verify Transaction"
+    },
+    {
+      "completed_at": "2026-10-22T18:25:21.461783+00:00",
+      "lesson": 6,
+      "name": "Certificate"
+    }
+  ],
+  "network": "testnet",
+  "rpc_url": "https://s.altnet.rippletest.net:51234/",
+  "schema": "xrpl-camp-proof-pack-v1",
+  "sha256": "sha256:32b165a12ab2956c842e739d36b83c24a67b816055d43fe55b6518491fcd045e",
+  "tool_version": "1.5.0",
+  "txids": {
+    "lesson_4": "0953A221ACC32DD1DB752380FD6DC37D5474519AA42A5F2A8256A08AA5334454"
+  },
+  "verifications": [
+    {
+      "endpoint_used": "https://s.altnet.rippletest.net:51234/",
+      "lessons": [
+        {
+          "ledger_index_seen": 0,
+          "lesson": 1,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 2,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 3,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 21740887,
+          "lesson": 4,
+          "status": "ok"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 5,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 6,
+          "status": "not_checkable"
+        }
+      ],
+      "note": "Self-reported log line: someone's copy of a tool said this passed on this date. It sits outside the sha256 seal, nothing signs it, and it proves nothing on its own.",
+      "self_reported": true,
+      "status": "confirmed",
+      "tool_version": "1.5.0",
+      "verified_at": "2026-10-22T18:27:54.377362+00:00"
+    },
+    {
+      "endpoint_used": "https://s.altnet.rippletest.net:51234/",
+      "lessons": [
+        {
+          "ledger_index_seen": 0,
+          "lesson": 1,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 2,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 3,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 21740887,
+          "lesson": 4,
+          "status": "ok"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 5,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 6,
+          "status": "not_checkable"
+        }
+      ],
+      "note": "Self-reported log line: someone's copy of a tool said this passed on this date. It sits outside the sha256 seal, nothing signs it, and it proves nothing on its own.",
+      "self_reported": true,
+      "status": "confirmed",
+      "tool_version": "1.5.0",
+      "verified_at": "2026-10-22T18:27:56.317060+00:00"
+    },
+    {
+      "endpoint_used": "https://s.altnet.rippletest.net:51234/",
+      "lessons": [
+        {
+          "ledger_index_seen": 0,
+          "lesson": 1,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 2,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 3,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 21740887,
+          "lesson": 4,
+          "status": "ok"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 5,
+          "status": "not_checkable"
+        },
+        {
+          "ledger_index_seen": 0,
+          "lesson": 6,
+          "status": "not_checkable"
+        }
+      ],
+      "note": "Self-reported log line: someone's copy of a tool said this passed on this date. It sits outside the sha256 seal, nothing signs it, and it proves nothing on its own.",
+      "self_reported": true,
+      "status": "confirmed",
+      "tool_version": "1.5.0",
+      "verified_at": "2026-10-22T18:27:59.450574+00:00"
+    }
+  ]
+}

@@ -1,0 +1,2 @@
+  [RECORD_DRY_RUN] Cannot --record in dry-run mode: no online check is run and dry-run never writes to disk.
+  Remove --dry-run to check the ledger and record a receipt, or remove --record.

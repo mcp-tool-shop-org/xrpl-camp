@@ -1,0 +1,57 @@
+"""Read the ledger directly (not through xrpl-camp) to check what a command claims.
+
+Usage:
+  python -I ledger_probe.py account <address>        validated Balance, OwnerCount, reserves, spendable
+  python -I ledger_probe.py tx <txid> [<txid>...]    type, result, fee, ledger, and the sender's AccountRoot
+                                                     Balance / OwnerCount before and after, from the metadata
+Prints JSON. Public data only: no key is read.
+"""
+import json
+import sys
+
+from xrpl.clients import JsonRpcClient
+from xrpl.models.requests import AccountInfo, ServerState, Tx
+
+URL = "https://s.altnet.rippletest.net:51234/"
+client = JsonRpcClient(URL)
+
+
+def reserves():
+    st = client.request(ServerState()).result["state"]["validated_ledger"]
+    return int(st["reserve_base"]), int(st["reserve_inc"]), int(st["seq"])
+
+
+def account(addr):
+    base, inc, seq = reserves()
+    r = client.request(AccountInfo(account=addr, ledger_index="validated")).result
+    d = r["account_data"]
+    bal, oc = int(d["Balance"]), int(d["OwnerCount"])
+    return {"address": addr, "ledger_index": r.get("ledger_index"), "balance_drops": bal, "owner_count": oc,
+            "reserve_base_drops": base, "reserve_inc_drops": inc,
+            "spendable_drops": bal - base - oc * inc}
+
+
+def tx(txid):
+    r = client.request(Tx(transaction=txid)).result
+    tj = r.get("tx_json", r)
+    sender = tj.get("Account")
+    out = {"txid": txid, "type": tj.get("TransactionType"), "result": r.get("meta", {}).get("TransactionResult"),
+           "validated": r.get("validated"), "ledger_index": r.get("ledger_index"), "fee_drops": int(tj.get("Fee", 0)),
+           "account": sender}
+    for n in r.get("meta", {}).get("AffectedNodes", []):
+        node = n.get("ModifiedNode")
+        if node and node.get("LedgerEntryType") == "AccountRoot" and node["FinalFields"].get("Account") == sender:
+            prev, fin = node.get("PreviousFields", {}), node["FinalFields"]
+            out["balance_before"] = int(prev.get("Balance", fin["Balance"]))
+            out["balance_after"] = int(fin["Balance"])
+            out["owner_count_before"] = int(prev.get("OwnerCount", fin.get("OwnerCount", 0)))
+            out["owner_count_after"] = int(fin.get("OwnerCount", 0))
+    out["nft_nodes"] = [k + ":" + v.get("LedgerEntryType", "") for n in r.get("meta", {}).get("AffectedNodes", [])
+                        for k, v in n.items() if v.get("LedgerEntryType") == "NFTokenPage"]
+    if "nftoken_id" in r.get("meta", {}):
+        out["nftoken_id"] = r["meta"]["nftoken_id"]
+    return out
+
+
+mode, args = sys.argv[1], sys.argv[2:]
+print(json.dumps(account(args[0]) if mode == "account" else [tx(t) for t in args], indent=2))

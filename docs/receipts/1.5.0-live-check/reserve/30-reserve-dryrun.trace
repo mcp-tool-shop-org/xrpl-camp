@@ -1,0 +1,2 @@
+write pycache <worktree>/.venv\Lib\site-packages\xrpl_camp\__pycache__\cli.cpython-313.pyc.2563491974864
+os.rename pycache <worktree>/.venv\Lib\site-packages\xrpl_camp\__pycache__\cli.cpython-313.pyc.2563491974864 <worktree>/.venv\Lib\site-packages\xrpl_camp\__pycache__\cli.cpython-313.pyc

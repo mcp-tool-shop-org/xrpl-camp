@@ -1,0 +1,19 @@
+total 36
+drwxr-xr-x 1 <user> <group>    0 Oct 22 14:25 ./
+drwxr-xr-x 1 <user> <group>    0 Oct 22 14:24 ../
+-rw-r--r-- 1 <user> <group> 1005 Oct 22 14:25 xrpl_camp_certificate.json
+-rw-r--r-- 1 <user> <group> 1005 Oct 22 14:25 xrpl_camp_certificate.json.20261022T182519656374Z.bak
+-rw-r--r-- 1 <user> <group> 1005 Oct 22 14:25 xrpl_camp_certificate.json.20261022T182521462572Z.bak
+-rw-r--r-- 1 <user> <group> 1155 Oct 22 14:25 xrpl_camp_certificate.txt
+-rw-r--r-- 1 <user> <group> 1155 Oct 22 14:25 xrpl_camp_certificate.txt.20261022T182521470888Z.bak
+-rw-r--r-- 1 <user> <group> 1513 Oct 22 14:25 xrpl_camp_proof_pack.json
+-rw-r--r-- 1 <user> <group> 1513 Oct 22 14:25 xrpl_camp_proof_pack.json.20261022T182519664101Z.bak
+-rw-r--r-- 1 <user> <group> 1513 Oct 22 14:25 xrpl_camp_proof_pack.json.20261022T182521469041Z.bak
+5fd1370166f90e9c07af747a870dae5ea7a7c2912653b41d845906e6d4b2a1aa *xrpl_camp_certificate.json
+24d62427936ba414519ce857e4cc449fdffba4d4df5accb8f4cffc9f6fe287cd *xrpl_camp_certificate.json.20261022T182519656374Z.bak
+f605884046dd2e2eaff60703ce033b7ae0670726dc07bfabda013f95fb01b119 *xrpl_camp_certificate.json.20261022T182521462572Z.bak
+bbabea749139a1586b808d01694fa964ba48c76ca2bc765cc824c91d6cb540df *xrpl_camp_certificate.txt
+bbabea749139a1586b808d01694fa964ba48c76ca2bc765cc824c91d6cb540df *xrpl_camp_certificate.txt.20261022T182521470888Z.bak
+f3f4c59209f6287066ee74cb1c71cb968cd3a2165e0ebc3b660c0fc883580dca *xrpl_camp_proof_pack.json
+57da328feddb9649c5b2880bbcdfb33a27e2b2d96313a2c0cb4594415a793d1d *xrpl_camp_proof_pack.json.20261022T182519664101Z.bak
+bf330c292bdf9ede7e57231c1a725e424919451ba66969f997adff455efe5414 *xrpl_camp_proof_pack.json.20261022T182521469041Z.bak
