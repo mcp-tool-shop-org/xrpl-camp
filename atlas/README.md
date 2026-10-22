@@ -1,15 +1,18 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-01 from commit 1763b68 by Atlas 1.24.0.
+Mapped at 2026-10-22 from commit d8d4e84 by Atlas 1.24.0.
 
 ## What this is
 
-7 parts, mostly Python (31 files), shell (5), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (31 files), shell (6), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-01 (8796d1c)
+## What changed since 2026-10-01 (1763b68)
 
-- CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `bin/**`, `codecov.yml`, `package.json`, `pyproject.toml`, `scripts/**`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `tests/**` and `xrpl_camp/**`.
-- 3 files changed content, across 2 parts.
+- docs/receipts/1.4.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.4.1-live-check/account_checks.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
+- And 175 more new files that belong to no part.
+- 178 files added and 2 changed content, across 2 parts.
 
 ## What comes in
 
@@ -52,12 +55,7 @@ CI writes nothing this map can see.
 
 ## What tends to change together
 
-- **xrpl_camp/cli.py** and **xrpl_camp/lessons.py** changed together in 6 of 9 commits, inside the xrpl_camp part.
-- **xrpl_camp/__init__.py** and **xrpl_camp/lessons.py** changed together in 5 of 9 commits, inside the xrpl_camp part.
-- **xrpl_camp/__init__.py** and **xrpl_camp/cli.py** changed together in 5 of 10 commits, inside the xrpl_camp part.
-- **xrpl_camp/lessons.py** and **xrpl_camp/models.py** changed together in 4 of 8 commits, inside the xrpl_camp part.
-
-Confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.
+No two source files changed together often enough to name.
 
 Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits.
 
@@ -93,6 +91,7 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 - 6 reads use paths built at run time and are not named here.
 - 4 writes and 9 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
+- 178 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 175 more.
 - Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.
