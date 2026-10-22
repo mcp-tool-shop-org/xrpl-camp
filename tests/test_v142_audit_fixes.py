@@ -289,3 +289,104 @@ def test_dry_run_inside_dry_run_leaves_the_mode_alone(dry_run_mode):
     s = Session(started_at="2026-01-01T00:00:00Z")
     lessons.lesson_2_create_wallet(s, dry_run=True)
     assert get_execution_mode() == ExecutionMode.DRY_RUN
+
+
+# ── Coverage for the paths the fixes moved or added ───────────────────
+
+
+def _txid_pack(tmp_path):
+    s = Session(started_at="2026-01-01T00:00:00Z", wallet_address="rCamp")
+    s.mark_complete(4, "Send", txid="A" * 64, ledger_index=100)
+    pack = proof_pack.generate_proof_pack(s)
+    path = tmp_path / "xrpl_camp_proof_pack.json"
+    proof_pack.save_proof_pack(pack, str(path))
+    return pack, path
+
+
+def test_online_check_looks_up_each_checkable_lesson(tmp_path, monkeypatch):
+    pack, _ = _txid_pack(tmp_path)
+    asked = []
+
+    def lookup(txid, url=None, recorded_ledger_index=None, **k):
+        asked.append((txid, url, recorded_ledger_index))
+        return {"found": False, "reason": "not found"}
+
+    monkeypatch.setattr(transport, "lookup_tx", lookup)
+    results, summary = cli._online_check(pack, "https://example.invalid:51234/")
+    assert asked == [("A" * 64, "https://example.invalid:51234/", 100)]
+    assert len(results) == len(pack["lessons"]) and "status" in summary
+
+
+def test_a_single_file_online_check_uses_the_shared_lookup(tmp_path, monkeypatch):
+    _, path = _txid_pack(tmp_path)
+    monkeypatch.setattr(cli, "_online_check", lambda pack, endpoint: _summary("confirmed"))
+    result = runner.invoke(app, ["proof", "verify", str(path), "--online"])
+    assert result.exit_code == 0 and "Ledger check" in strip_ansi(result.output)
+
+
+def test_a_folder_reports_files_that_are_not_packs(tmp_path):
+    d = tmp_path / "mixed"
+    d.mkdir()
+    (d / "a.json").write_text("{broken", encoding="utf-8")
+    (d / "b.json").write_text("[1, 2]", encoding="utf-8")
+    (d / "c.json").write_text(json.dumps({"schema": "other"}), encoding="utf-8")
+    result = runner.invoke(app, ["proof", "verify", str(d)])
+    out = strip_ansi(result.output)
+    assert result.exit_code == 1
+    assert "unreadable" in out and "not a JSON object" in out
+    assert "not an xrpl-camp proof pack" in out
+
+
+def test_a_corrupt_wallet_is_a_clean_exit(tmp_path):
+    state = tmp_path / ".xrpl-camp"
+    state.mkdir()
+    (state / "wallet.json").write_text("{not json", encoding="utf-8")
+    result = runner.invoke(app, ["wallet", "show"])
+    assert result.exit_code != 0
+    assert not isinstance(result.exception, models.StateFileError)
+
+
+def test_send_with_a_corrupt_session_is_a_clean_exit(tmp_path):
+    state = tmp_path / ".xrpl-camp"
+    state.mkdir()
+    (state / "session.json").write_text("{not json", encoding="utf-8")
+    result = runner.invoke(app, ["send", "--memo", "hi"])
+    assert result.exit_code != 0
+    assert not isinstance(result.exception, models.StateFileError)
+
+
+def test_a_direct_keyboard_interrupt_shows_the_panel(monkeypatch, capsys):
+    def interrupt():
+        raise KeyboardInterrupt
+
+    monkeypatch.setattr(cli, "app", interrupt)
+    with pytest.raises(SystemExit) as exc:
+        cli.run()
+    assert exc.value.code == 130 and "Paused" in strip_ansi(capsys.readouterr().out)
+
+
+def test_a_wallet_write_failure_names_the_real_path(monkeypatch, capsys):
+    def no_disk(*a, **k):
+        raise OSError("read-only")
+
+    monkeypatch.setattr(wallet, "save_wallet", no_disk)
+    result = lessons.lesson_2_create_wallet(Session(started_at="2026-01-01T00:00:00Z"))
+    assert not result.ok
+    assert "wallet.json" in strip_ansi(capsys.readouterr().out)
+
+
+@pytest.mark.parametrize(("url", "shows_link"), [
+    ("", True), ("http://localhost:5005/", False),
+])
+def test_read_by_hash_links_only_to_a_known_explorer(monkeypatch, capsys, url, shows_link):
+    if url:
+        monkeypatch.setenv("XRPL_CAMP_RPC_URL", url)
+    monkeypatch.setattr(lessons, "check_endpoint", lambda: None, raising=False)
+    monkeypatch.setattr(transport, "lookup_tx", lambda *a, **k: {
+        "found": True, "hash": "A" * 64, "validated": True, "result": "tesSUCCESS",
+        "account": "rCamp", "destination": "rMail", "amount_drops": 1, "fee_drops": 10,
+        "ledger_index": 5, "memos": [], "tx_type": "Payment",
+    })
+    lessons.read_transaction("A" * 64)
+    out = strip_ansi(capsys.readouterr().out)
+    assert ("where anyone can check it" in out) is shows_link

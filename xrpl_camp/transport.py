@@ -1560,6 +1560,41 @@ def _resolve_after_lapse(
     )
 
 
+def resolve_in_flight(
+    txid: str,
+    last_ledger: int,
+    destination: str,
+    amount_drops: int,
+    url: str | None = None,
+) -> SendResult | None:
+    """Settle a payment a cut-off run signed and submitted (1.4.2).
+
+    Returns its :class:`SendResult` if it landed. Returns None if it is not on
+    the ledger and its ``LastLedgerSequence`` has passed, so it can never land
+    and sending again is safe. Raises :class:`XRPLSubmissionUnresolved` while
+    it could still land, or when the ledger can't be read: sending again then
+    could write the learner's memo twice. A ``tec`` it landed with raises as
+    :func:`_engine_failure` does.
+    """
+    url = url or get_rpc_url()
+    try:
+        return _resolve_after_lapse(txid, last_ledger, destination, amount_drops, url)
+    except XRPLSubmissionUnresolved as exc:
+        state = _server_state(url) or {}
+        seq = _int_or_none((state.get("validated_ledger") or {}).get("seq")) or 0
+        if last_ledger and seq > last_ledger and "lookup=" not in (exc.error.detail or ""):
+            return None
+        raise XRPLSubmissionUnresolved(
+            "Your last payment was signed and sent, and it may still land: "
+            "its window has not closed yet, or the ledger could not be read. "
+            "Nothing new was sent. Wait a few seconds and run this again. "
+            f"Hash: {txid}",
+            txid=txid,
+            last_ledger=last_ledger,
+            detail=f"validated_seq={seq} last_ledger={last_ledger}",
+        ) from exc
+
+
 def _submission_failure(
     exc: Exception, url: str, txid: str, last_ledger: int, memo_bytes: int,
 ) -> Exception:
@@ -1620,8 +1655,15 @@ def send_memo_payment(
     dry_run: bool = False,
     memo_type: str = DEFAULT_MEMO_TYPE,
     destination_tag: int | None = None,
+    on_signed=None,
 ) -> SendResult:
     """Send a real payment carrying a memo. Returns a :class:`SendResult`.
+
+    `on_signed(txid, last_ledger)`, if given, is called after the payment is
+    signed and BEFORE it is submitted (1.4.2). The caller records the hash
+    there, so an interrupt during the wait can't lose a payment that then
+    lands: the next run looks it up (:func:`resolve_in_flight`) instead of
+    sending it again. If the callback raises, nothing is submitted.
 
     `destination` is REQUIRED and must not be the sender. The old code built
     ``Payment(account=X, destination=X)``, which xrpl-py refuses to CONSTRUCT
@@ -1769,6 +1811,9 @@ def send_memo_payment(
         to_submit = signed
     except Exception:
         logger.debug("could not pre-sign; submitting unsigned", exc_info=True)
+
+    if txid and on_signed is not None:
+        on_signed(txid, last_ledger)
 
     started = time.monotonic()
     try:
@@ -2641,5 +2686,6 @@ __all__ = [
     "network_label_for_url",
     "reserve_breakdown",
     "send_memo_payment",
+    "resolve_in_flight",
     "simulate_tx",
 ]

@@ -32,6 +32,11 @@ ARTIFACTS = ("xrpl_camp_certificate.json", "xrpl_camp_proof_pack.json")
 CLAIMS = [claim for _, claim in lessons.COMPLETION_CLAIMS]
 
 
+def _funded(seed, url=None, **k):
+    """A faucet grant, as transport.fund_wallet_detail reports it (1.4.2)."""
+    return transport.FundResult("rFunded", 10_000_000, already_funded=False)
+
+
 def _run_captured(**kwargs) -> tuple[int, str]:
     with lessons.console.capture() as cap:
         code = lessons.run_guided_flow(**kwargs)
@@ -74,7 +79,7 @@ def working_network(monkeypatch):
         return make_response(fixture)
 
     monkeypatch.setattr(
-        transport, "fund_wallet", lambda seed, url=None, **k: "rFunded",
+        transport, "fund_wallet_detail", _funded,
     )
     monkeypatch.setattr(transport, "get_balance", lambda *a, **k: 100_000_000)
     monkeypatch.setattr(transport, "get_reserve_base", lambda *a, **k: 1_000_000)
@@ -98,7 +103,7 @@ def _break(monkeypatch, name: str, exc: Exception) -> None:
 @pytest.mark.parametrize(
     ("lesson", "attr", "exc"),
     [
-        (3, "fund_wallet", transport.XRPLConnectionError("faucet unreachable")),
+        (3, "fund_wallet_detail", transport.XRPLConnectionError("faucet unreachable")),
         (4, "send_memo_payment",
          transport.XRPLTransactionFailed("Transaction failed (temREDUNDANT)")),
         (5, "lookup_tx", transport.XRPLConnectionError("endpoint unreachable")),
@@ -124,7 +129,7 @@ def test_a_failed_lesson_halts_the_flow_and_certifies_nothing(
 @pytest.mark.parametrize(
     ("lesson", "attr", "exc"),
     [
-        (3, "fund_wallet", transport.XRPLConnectionError("faucet unreachable")),
+        (3, "fund_wallet_detail", transport.XRPLConnectionError("faucet unreachable")),
         (4, "send_memo_payment",
          transport.XRPLTransactionFailed("Transaction failed (temREDUNDANT)")),
         (5, "lookup_tx", transport.XRPLConnectionError("endpoint unreachable")),
@@ -145,7 +150,7 @@ def test_no_success_language_survives_a_failure(
 @pytest.mark.parametrize(
     ("lesson", "attr", "exc"),
     [
-        (3, "fund_wallet", transport.XRPLConnectionError("faucet unreachable")),
+        (3, "fund_wallet_detail", transport.XRPLConnectionError("faucet unreachable")),
         (4, "send_memo_payment",
          transport.XRPLTransactionFailed("Transaction failed (temREDUNDANT)")),
         (5, "lookup_tx", transport.XRPLConnectionError("endpoint unreachable")),
@@ -257,14 +262,14 @@ def test_the_flow_resumes_from_where_a_failure_stopped_it(
 ):
     """"Run start again and it picks up exactly where you stopped" — asserted."""
     _break(
-        monkeypatch, "fund_wallet",
+        monkeypatch, "fund_wallet_detail",
         transport.XRPLConnectionError("faucet unreachable"),
     )
     first_code, _ = _run_captured()
     assert first_code != 0
 
     monkeypatch.setattr(
-        transport, "fund_wallet", lambda seed, url=None, **k: "rFunded",
+        transport, "fund_wallet_detail", _funded,
     )
     second_code, output = _run_captured()
 

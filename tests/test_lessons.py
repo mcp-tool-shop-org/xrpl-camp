@@ -178,7 +178,7 @@ def test_lesson_3_faucet_failure_fails_the_lesson(
     def boom(*args, **kwargs):
         raise transport.XRPLConnectionError("Could not connect to the faucet")
 
-    monkeypatch.setattr(transport, "fund_wallet", boom)
+    monkeypatch.setattr(transport, "fund_wallet_detail", boom)
 
     with capture() as cap:
         result = lessons.lesson_3_fund_wallet(session)
@@ -193,9 +193,9 @@ def test_lesson_3_dry_run_makes_no_call_and_records_nothing(
     session, capture, real_wallet, monkeypatch,
 ):
     calls: list = []
-    real = transport.fund_wallet
+    real = transport.fund_wallet_detail
     monkeypatch.setattr(
-        transport, "fund_wallet",
+        transport, "fund_wallet_detail",
         lambda *a, **k: (calls.append((a, k)), real(*a, **k))[1],
     )
 

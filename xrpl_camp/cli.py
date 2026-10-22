@@ -560,7 +560,8 @@ def wallet_cmd(
             if w:
                 console.print(f"  Wallet already exists: {escape(str(w['address']))}")
                 console.print(
-                    "  [dim]Delete .xrpl-camp/wallet.json to create a new one.[/dim]",
+                    f"  [dim]Delete {escape(wallet.WALLET_FILE.as_posix())} "
+                    "to create a new one.[/dim]",
                 )
                 return
 
@@ -1601,7 +1602,7 @@ def support_bundle(
     console.print("  [bold]This bundle will contain:[/bold]")
     console.print("    self-check.txt      the diagnostics printed above")
     console.print("    session.json        your lesson progress (no seed)")
-    console.print("    state-listing.txt   the names of files in .xrpl-camp/ (no contents)")
+    console.print("    state-listing.txt   the names of files in the state folder (no contents)")
     console.print("    environment.json    tool version, OS, endpoint, XRPL_CAMP_* settings")
     if history:
         console.print("    errors.log          the last few errors this tool reported")
@@ -1619,7 +1620,11 @@ def support_bundle(
         "arch": platform.machine(),
         "python": _redact(sys.version),
         "cwd_writable": os.access(Path.cwd(), os.W_OK),
-        "state_dir": str(STATE_DIR),
+        # 1.4.2: redacted like every other path here. An absolute
+        # XRPL_CAMP_HOME put the home folder and account name into a file
+        # meant for a public issue tracker. Redacted before json.dumps,
+        # which doubles Windows backslashes so the home path no longer matches.
+        "state_dir": _redact(str(STATE_DIR)),
         "state_dir_present": STATE_DIR.exists(),
         "rpc_url": transport.get_rpc_url(),
         "network_label": transport.network_label_for_url(),
@@ -1703,13 +1708,26 @@ def run() -> None:
         console.print(format_error(exc.error))
         raise SystemExit(exc.exit_code) from None
     except KeyboardInterrupt:
-        console.print()
-        console.print(Panel(
-            "[bold]Stopped.[/bold]\n\n"
-            "Your progress is saved. Nothing was left half-written.\n\n"
-            "Run [bold]xrpl-camp start[/bold] to pick up where you left off, or\n"
-            "[bold]xrpl-camp status[/bold] to see where that is.",
-            title="XRPL Camp — Paused",
-            border_style="yellow",
-        ))
+        _paused()
         raise SystemExit(EXIT_INTERRUPTED) from None
+    except SystemExit as exc:
+        # 1.4.2: typer turns Ctrl-C into Exit(130) inside app(), which leaves
+        # here as SystemExit(130), so the handler above never ran and nobody
+        # was told their progress was saved (Book Keeper, 1.4.1 live check).
+        # Only an exit caused by a KeyboardInterrupt shows the panel.
+        cause = getattr(exc.__context__, "__cause__", None)
+        if exc.code == EXIT_INTERRUPTED and isinstance(cause, KeyboardInterrupt):
+            _paused()
+        raise
+
+
+def _paused() -> None:
+    console.print()
+    console.print(Panel(
+        "[bold]Stopped.[/bold]\n\n"
+        "Your progress is saved. Nothing was left half-written.\n\n"
+        "Run [bold]xrpl-camp start[/bold] to pick up where you left off, or\n"
+        "[bold]xrpl-camp status[/bold] to see where that is.",
+        title="XRPL Camp — Paused",
+        border_style="yellow",
+    ))
