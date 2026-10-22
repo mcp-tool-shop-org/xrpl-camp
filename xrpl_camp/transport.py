@@ -43,7 +43,6 @@ import os
 import random
 import re
 import time
-from collections.abc import Callable
 from dataclasses import dataclass
 from urllib.parse import urlsplit
 
@@ -534,6 +533,18 @@ def explorer_url_for(txid: str, url: str | None = None) -> str:
     if not txid:
         return ""
     base = _EXPLORER_BASES.get(network_label_for_url(url), "")
+    return f"{base}{txid}" if base else ""
+
+
+def explorer_url_for_network(txid: str, network: str) -> str:
+    """Explorer link for `txid` on a network LABEL, or "".
+
+    For a record that names its network (a certificate) rather than the
+    endpoint it ran against; same empty-string contract as above.
+    """
+    if not txid:
+        return ""
+    base = _EXPLORER_BASES.get(network, "")
     return f"{base}{txid}" if base else ""
 
 
@@ -2311,239 +2322,6 @@ def account_transactions(
 
 
 # ---------------------------------------------------------------------------
-# The instructive failures, as ONE table
-# ---------------------------------------------------------------------------
-#
-# Every row below was reproduced live on XRPL Testnet. The table exists so the
-# preview and the copy cannot drift: whatever renders the lesson and whatever
-# builds the transaction read the SAME row. A prose description of a result
-# code, kept in a different file from the code that produces it, is a claim
-# nobody re-checks.
-#
-# The rows are ordered CHEAPEST LAYER FIRST, because that ordering is the
-# lesson. A mistake caught by your library costs nothing; one caught by the
-# binary codec costs nothing; one the network rejects before inclusion costs
-# nothing; and only the last kind — a `tec` — is written to a ledger and burns
-# the fee. Measured: 9 doomed attempts from one funded account left exactly
-# THREE rows on the ledger and cost exactly 30 drops. The other six are not on
-# the ledger at all.
-#
-# Deliberately NOT in this table:
-#
-# * a self-payment demonstrating `temREDUNDANT`. It cannot be demonstrated
-#   through xrpl-py: the model layer refuses to CONSTRUCT the Payment, so the
-#   code is never reached. The `self_payment` row below teaches the real
-#   lesson — your library caught it first — and claims no engine code.
-# * an oversized memo. A real submission fails the SERVER'S local check
-#   ("fails local checks: The memo exceeds the maximum allowed size"), but
-#   MEASURED: `simulate` accepts an 1100-byte memo and answers tesSUCCESS.
-#   Simulate is not a complete substitute for submission, and a row that lies
-#   under preview is worse than no row.
-
-#: What catches a mistake, cheapest first. ``ledger`` is the only layer that
-#: can cost money, and only for a ``tec``.
-TRY_LAYERS = ("library", "codec", "tool", "network", "ledger")
-
-
-@dataclass(frozen=True)
-class TryContext:
-    """Everything a :class:`TryLesson` needs to build its transaction."""
-
-    sender: str
-    #: An account that EXISTS — the learner's mailbox will do.
-    destination: str
-    #: The sender's balance in drops, so the overspend row can overspend.
-    balance_drops: int = 0
-    #: An address that does NOT exist, for the account-creation row.
-    ghost_address: str = ""
-
-
-@dataclass(frozen=True)
-class TryLesson:
-    """One instructive failure: how to build it, and what it costs to learn.
-
-    ``build(ctx)`` returns an UNSIGNED transaction for :func:`simulate_tx`, or
-    RAISES — and a row that raises is not a broken row, it is the lesson. Two
-    of them are caught before anything leaves the machine.
-    """
-
-    key: str
-    label: str
-    #: Engine result MEASURED through :func:`simulate_tx`, or "" when the
-    #: failure happens before the network ever sees the transaction.
-    expected_code: str
-    #: Three-letter class of ``expected_code``. This is the teachable half.
-    prefix: str
-    #: One of :data:`TRY_LAYERS`.
-    layer: str
-    #: True only when the attempt is written to a ledger and burns the fee.
-    costs_fee: bool
-    teaches: str
-    build: Callable[[TryContext], object]
-
-    @property
-    def cost_drops(self) -> int:
-        """What one attempt costs. 10 drops for a ``tec``, otherwise nothing."""
-        return 10 if self.costs_fee else 0
-
-
-def _try_self_payment(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(account=ctx.sender, destination=ctx.sender, amount="1")
-
-
-def _try_bad_address(ctx: TryContext):
-    from xrpl.models import Payment
-
-    bad = "rNotARealAddressAtAll"
-    if not is_valid_address(bad):
-        raise XRPLInvalidAddress(
-            f"{bad} is not a valid XRPL address. The checksum every address "
-            "carries fails, so this never has to be sent anywhere to be known "
-            "to be wrong.",
-            detail="try lesson: bad_address",
-        )
-    return Payment(account=ctx.sender, destination=bad, amount="1")
-
-
-def _try_bad_amount(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(account=ctx.sender, destination=ctx.destination, amount="0")
-
-
-def _try_low_fee(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(
-        account=ctx.sender, destination=ctx.destination, amount="1", fee="1",
-    )
-
-
-def _try_account_creation(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(
-        account=ctx.sender,
-        destination=ctx.ghost_address or ctx.destination,
-        amount="1",
-    )
-
-
-def _try_reserve(ctx: TryContext):
-    from xrpl.models import Payment
-
-    return Payment(
-        account=ctx.sender,
-        destination=ctx.destination,
-        amount=str(max(1, ctx.balance_drops - 500_000)),
-    )
-
-
-#: The instructive failures, cheapest layer first. Drive the preview AND any
-#: single real submission from this one table.
-TRY_LESSONS: tuple[TryLesson, ...] = (
-    TryLesson(
-        key="self_payment",
-        label="Pay yourself",
-        expected_code="",
-        prefix="",
-        layer="library",
-        costs_fee=False,
-        teaches=(
-            "Your library refuses to even build it: 'An XRP payment "
-            "transaction cannot have the same sender and destination.' "
-            "Nothing was signed, nothing was sent, nothing was spent. The "
-            "protocol has a code for this (temREDUNDANT) that you will never "
-            "see, because the mistake never got that far."
-        ),
-        build=_try_self_payment,
-    ),
-    TryLesson(
-        key="bad_address",
-        label="Mistype the destination",
-        expected_code="",
-        prefix="",
-        layer="codec",
-        costs_fee=False,
-        teaches=(
-            "Every XRPL address carries a checksum, so a typo is detectable "
-            "offline. Signing raises 'Invalid value to construct an "
-            "AccountID' before a single byte reaches the network."
-        ),
-        build=_try_bad_address,
-    ),
-    TryLesson(
-        key="bad_amount",
-        label="Send zero XRP",
-        expected_code="temBAD_AMOUNT",
-        prefix="tem",
-        layer="ledger",
-        costs_fee=False,
-        teaches=(
-            "'Malformed: Bad amount.' A tem result means the transaction "
-            "makes no sense, so it is thrown out before it can be included in "
-            "any ledger — and something never included costs nothing."
-        ),
-        build=_try_bad_amount,
-    ),
-    TryLesson(
-        key="low_fee",
-        label="Offer a fee of 1 drop",
-        expected_code="telCAN_NOT_QUEUE",
-        prefix="tel",
-        layer="network",
-        costs_fee=False,
-        teaches=(
-            "A tel result is the server declining locally. Preview answers "
-            "telCAN_NOT_QUEUE; a real submission answers telINSUF_FEE_P, "
-            "'Fee insufficient.' Same class, same price: nothing. It never "
-            "reaches a ledger, so there is no fee to burn."
-        ),
-        build=_try_low_fee,
-    ),
-    TryLesson(
-        key="account_creation",
-        label="Send 1 drop to an address that does not exist",
-        expected_code="tecNO_DST_INSUF_XRP",
-        prefix="tec",
-        layer="ledger",
-        costs_fee=True,
-        teaches=(
-            "'Destination does not exist. Too little XRP sent to create it.' "
-            "Creating an account costs the base reserve, and this is the case "
-            "the tool quietly handles for you in lesson 4 by paying it. A tec "
-            "IS written to a ledger, so this one costs 10 drops."
-        ),
-        build=_try_account_creation,
-    ),
-    TryLesson(
-        key="reserve",
-        label="Send more than you can spend",
-        expected_code="tecUNFUNDED_PAYMENT",
-        prefix="tec",
-        layer="ledger",
-        costs_fee=True,
-        teaches=(
-            "'Insufficient XRP balance to send.' Note the ledger gives you no "
-            "number — the missing number is the reserve, which is why the "
-            "tool prints it. Written to a ledger: 10 drops."
-        ),
-        build=_try_reserve,
-    ),
-)
-
-
-def try_lesson(key: str) -> TryLesson | None:
-    """The :class:`TryLesson` called `key`, or None."""
-    for lesson in TRY_LESSONS:
-        if lesson.key == key:
-            return lesson
-    return None
-
-
-# ---------------------------------------------------------------------------
 # The reserve, made physical: mint an object, watch the money lock
 # ---------------------------------------------------------------------------
 #
@@ -2814,8 +2592,6 @@ __all__ = [
     "REASON_UNVALIDATED",
     "TESTNET_NETWORK_IDS",
     "TESTNET_URL",
-    "TRY_LAYERS",
-    "TRY_LESSONS",
     "XRPL_API_VERSION",
     "AccountSummary",
     "FundResult",
@@ -2823,8 +2599,6 @@ __all__ = [
     "ReserveMove",
     "SendResult",
     "SimulatedOutcome",
-    "TryContext",
-    "TryLesson",
     "XRPLAccountNotFound",
     "XRPLConnectionError",
     "XRPLFaucetBusy",
@@ -2847,6 +2621,7 @@ __all__ = [
     "earliest_complete_ledger",
     "explorer_account_url_for",
     "explorer_url_for",
+    "explorer_url_for_network",
     "faucet_label",
     "fund_wallet",
     "fund_wallet_detail",
@@ -2867,5 +2642,4 @@ __all__ = [
     "reserve_breakdown",
     "send_memo_payment",
     "simulate_tx",
-    "try_lesson",
 ]

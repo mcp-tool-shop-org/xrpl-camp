@@ -8,6 +8,7 @@ happen. A run that only got as far as lesson 3 says exactly that.
 
 from __future__ import annotations
 
+import functools
 import os
 import re
 import sys
@@ -822,16 +823,6 @@ def is_tx_hash(value: str) -> bool:
     return bool(TX_HASH_PATTERN.match(str(value).strip()))
 
 
-def _ledger_index_now() -> int:
-    """The validated ledger index the network is on right now. 0 if unknown.
-
-    Never raises and never blocks a send: a missing index only means the
-    "N ledgers closed while you waited" line is not printed.
-    """
-    reading = _validated_ledger()
-    return reading[0] if reading else 0
-
-
 # ---------------------------------------------------------------------------
 # Memo handling
 # ---------------------------------------------------------------------------
@@ -1050,6 +1041,33 @@ def lesson_1_mental_model(session: Session, *, dry_run: bool = False) -> LessonR
     return LessonResult(lesson=1, ok=True)
 
 
+def _honours_dry_run(fn):
+    """Make a lesson's own ``dry_run=True`` mean dry-run all the way down.
+
+    1.4.2: the wallet layer reads only the process-wide execution mode, so
+    calling ``run_guided_flow(dry_run=True)`` (or lesson 2 or 4) in-process,
+    without the CLI having set that mode first, still wrote a seed to disk.
+    This enters DRY_RUN for the call and restores the earlier mode after it;
+    leaving dry-run also drops the in-memory dry-run wallet, so nothing from
+    the simulated run leaks into a later real one.
+    """
+
+    @functools.wraps(fn)
+    def wrapper(*args, dry_run: bool = False, **kwargs):
+        previous = get_execution_mode()
+        if not dry_run or previous == ExecutionMode.DRY_RUN:
+            return fn(*args, dry_run=dry_run, **kwargs)
+        set_execution_mode(ExecutionMode.DRY_RUN)
+        try:
+            return fn(*args, dry_run=dry_run, **kwargs)
+        finally:
+            set_execution_mode(previous)
+            wallet.reset_dry_run_cache()
+
+    return wrapper
+
+
+@_honours_dry_run
 def lesson_2_create_wallet(session: Session, *, dry_run: bool = False) -> LessonResult:
     """Lesson 2: Create a Testnet wallet."""
     ts, t0 = _start_timer()
@@ -1197,6 +1215,7 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> LessonRe
     return LessonResult(lesson=3, ok=True)
 
 
+@_honours_dry_run
 def lesson_4_send_payment(
     session: Session,
     memo: str = "",
@@ -1361,12 +1380,6 @@ def lesson_4_send_payment(
 
     console.print()
 
-    # Which page the notebook was on a moment before this went in. Cheap
-    # (one server_state read), soft (0 means the line is simply not printed),
-    # and it turns "waiting for validators to agree" from a spinner into a
-    # number the learner can watch move.
-    before_ledger = 0 if dry_run else _ledger_index_now()
-
     # NOT retried, deliberately. A submission that timed out may already be on
     # the ledger; sending it again would write the learner's one permanent
     # message twice. Everything else in this file that touches the network is
@@ -1389,7 +1402,14 @@ def lesson_4_send_payment(
 
     txid = result.txid
     landed = int(getattr(result, "ledger_index", 0) or 0)
-    explorer = f"{transport.EXPLORER_URL}{txid}"
+    # Which page the notebook was on a moment before this went in: soft (0
+    # means the line is simply not printed), and it turns "waiting for
+    # validators to agree" from a spinner into a number the learner can watch
+    # move. 1.4.2: send_memo_payment measures it at submission, so the extra
+    # server_state read this used to make is gone.
+    before_ledger = int(getattr(result, "submitted_at_ledger_index", 0) or 0)
+    # 1.4.2: the link follows the endpoint in use ("" off Testnet/Devnet).
+    explorer = transport.explorer_url_for(txid)
     console.print(f"\n  [bold]Transaction:[/bold] {escape(txid)}")
     console.print(f"  [bold]Delivered:[/bold]   {_drops_line(int(result.amount_drops))}")
     console.print(f"  [bold]Fee paid:[/bold]    {int(result.fee_drops):,} drops")
@@ -1405,8 +1425,9 @@ def lesson_4_send_payment(
                 "waited. The network does that every few seconds, "
                 "with or without you.[/dim]",
             )
-    console.print("  [dim]Explorer:[/dim]")
-    _copyable(explorer, style="dim")
+    if explorer:
+        console.print("  [dim]Explorer:[/dim]")
+        _copyable(explorer, style="dim")
 
     if result.created_account:
         keys_note = (
@@ -1549,7 +1570,9 @@ def lesson_5_verify_tx(
                 "\n  [dim]It is still a real entry on a public ledger, "
                 "readable by anyone:[/dim]",
             )
-            _copyable(f"{transport.EXPLORER_URL}{txid}", style="dim")
+            link = transport.explorer_url_for(txid)
+            if link:
+                _copyable(link, style="dim")
         console.print()
         return _fail(5, problem)
 
@@ -1564,15 +1587,16 @@ def lesson_5_verify_tx(
     # place in the product where the learner is asked to leave and check. Both
     # the hash and the URL are printed unbroken: a link that wraps mid-hash is
     # a link that 404s when you copy the line you can see.
-    explorer = f"{transport.EXPLORER_URL}{txid}"
+    explorer = transport.explorer_url_for(txid)
     console.print(
         "\n  [bold]You don't have to trust this tool.[/bold]"
         "\n  Verify it yourself — this is the full hash:",
     )
     console.print(f"  [bold]{escape(str(tx.get('hash', txid)))}[/bold]",
                   soft_wrap=True, highlight=False)
-    console.print("  [dim]and this is where to look it up:[/dim]")
-    _copyable(explorer)
+    if explorer:
+        console.print("  [dim]and this is where to look it up:[/dim]")
+        _copyable(explorer)
 
     if not dry_run:
         ledger_index = int(tx.get("ledger_index") or 0)
@@ -1780,7 +1804,7 @@ def lesson_6_certificate(
 
     # Completion bundle - one coherent handoff block
     txid = session.txids.get("lesson_4", "")
-    explorer = f"{transport.EXPLORER_URL}{txid}" if txid else ""
+    explorer = transport.explorer_url_for(txid)
 
     # Absolute paths. These were bare relative names, resolved against
     # whatever directory the terminal happened to open in - so a learner told
@@ -1929,8 +1953,10 @@ def read_transaction(txid: str) -> int:
 
     console.print()
     console.print(transaction_table(tx, txid))
-    console.print("\n  [dim]On the public ledger, where anyone can check it:[/dim]")
-    _copyable(f"{transport.EXPLORER_URL}{txid}", style="dim")
+    link = transport.explorer_url_for(txid)
+    if link:
+        console.print("\n  [dim]On the public ledger, where anyone can check it:[/dim]")
+        _copyable(link, style="dim")
     return EXIT_OK
 
 
@@ -2348,6 +2374,7 @@ def _halt(result: LessonResult) -> int:
     return result.exit_code
 
 
+@_honours_dry_run
 def run_guided_flow(*, dry_run: bool = False, memo: str = "") -> int:
     """Walk through all 6 lessons in sequence, auto-skipping completed ones.
 

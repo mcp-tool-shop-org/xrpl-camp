@@ -28,6 +28,7 @@ import xrpl_camp
 from xrpl_camp import lessons, wallet
 from xrpl_camp.errors import (
     EXIT_OK,
+    EXIT_PARTIAL,
     EXIT_USER,
     CampError,
     CampFailure,
@@ -65,6 +66,14 @@ app = typer.Typer(
 console = Console()
 
 PROOF_PACK_SCHEMA = "xrpl-camp-proof-pack-v1"
+#: Any version of the pack format. proof_pack.verify_proof_pack() checks the
+#: hash of a pack written under a newer schema and says it doesn't know that
+#: schema, so the CLI must not turn it away before it gets there (1.4.2).
+PROOF_PACK_SCHEMA_PREFIX = "xrpl-camp-proof-pack-v"
+
+
+def _is_proof_pack_schema(schema: object) -> bool:
+    return isinstance(schema, str) and schema.startswith(PROOF_PACK_SCHEMA_PREFIX)
 
 
 # ---------------------------------------------------------------------------
@@ -90,6 +99,11 @@ def _read_session(*, dry_run: bool = False) -> Session | None:
     """Read existing session state. Creates nothing. None when there is none."""
     try:
         return DryRunSession.from_existing() if dry_run else Session.load()
+    # 1.4.2: Session.load() and load_wallet() already turn those into
+    # StateFileError, a CampFailure, which the clause below never caught; it
+    # escaped to run() unlogged, and to a CliRunner caller as a raw exception.
+    except CampFailure as exc:
+        raise _fail(exc.error) from None
     except (OSError, ValueError, TypeError, KeyError) as exc:
         raise _fail(state_corrupt_error(f"{type(exc).__name__}: {exc}")) from None
 
@@ -98,6 +112,8 @@ def _get_session(*, dry_run: bool = False) -> Session:
     """Get a session for a command that records progress."""
     try:
         return DryRunSession.from_existing() if dry_run else Session.get_or_create()
+    except CampFailure as exc:
+        raise _fail(exc.error) from None
     except (OSError, ValueError, TypeError, KeyError) as exc:
         raise _fail(state_corrupt_error(f"{type(exc).__name__}: {exc}")) from None
 
@@ -106,6 +122,8 @@ def _read_wallet() -> dict | None:
     """Load the wallet, turning an unreadable file into a clean error."""
     try:
         return wallet.load_wallet()
+    except CampFailure as exc:
+        raise _fail(exc.error) from None
     except (OSError, ValueError, TypeError, KeyError) as exc:
         raise _fail(wallet_corrupt_error(f"{type(exc).__name__}: {exc}")) from None
 
@@ -828,7 +846,12 @@ def proof_verify(
     # non-zero if ANY pack fails, stated up front so a room script cannot
     # silently pass a bad pack.
     if file.is_dir():
-        raise _verify_folder(file, json_output=json_output)
+        # 1.4.2: --online and --rpc-url used to be dropped here, so a folder
+        # was only ever hash-checked: a forged, re-hashed pack passed a
+        # facilitator's `proof verify <folder> --online` with exit 0.
+        raise _verify_folder(
+            file, json_output=json_output, online=online, rpc_url=rpc_url,
+        )
 
     def reject(err: CampError) -> typer.Exit:
         if json_output:
@@ -865,9 +888,9 @@ def proof_verify(
         ))
 
     schema = str(pack.get("schema", ""))
-    if schema != PROOF_PACK_SCHEMA:
+    if not _is_proof_pack_schema(schema):
         raise reject(pack_invalid_error(
-            f"schema is {schema or 'missing'}, expected {PROOF_PACK_SCHEMA}",
+            f"schema is {schema or 'missing'}, expected {PROOF_PACK_SCHEMA_PREFIX}*",
         ))
 
     valid, message = verify_proof_pack(pack)
@@ -889,6 +912,9 @@ def proof_verify(
     else:
         if valid:
             console.print("\n  [green]✅ PASS[/green] — Proof pack integrity verified.\n")
+            if schema != PROOF_PACK_SCHEMA:
+                # 1.4.2: a newer schema is hash-checked, and says what it is.
+                console.print(f"  [yellow]{escape(message)}[/yellow]\n")
         else:
             console.print(f"\n  [red]❌ FAIL[/red] — {escape(message)}\n")
 
@@ -907,7 +933,21 @@ def proof_verify(
         raise typer.Exit(1)
 
     if online:
+        if _simulating(False):
+            raise _online_skipped_for_dry_run(json_output)
         raise _verify_online(pack, file, rpc_url=rpc_url, json_output=json_output)
+
+
+def _online_skipped_for_dry_run(json_output: bool) -> typer.Exit:
+    """--online under --dry-run: dry-run promises no network calls (1.4.2)."""
+    import json as json_mod
+
+    note = "--online was skipped: --dry-run makes no network calls."
+    if json_output:
+        print(json_mod.dumps({"online": {"status": "skipped", "message": note}}))
+    else:
+        console.print(f"  [yellow]{note}[/yellow]\n")
+    return typer.Exit(EXIT_OK)
 
 
 def _verify_online(
@@ -921,15 +961,10 @@ def _verify_online(
     """
     import json as json_mod
 
-    from xrpl_camp import lessons, transport
-    from xrpl_camp.errors import lookup_error
     from xrpl_camp.proof_pack import (
-        classify_lesson_online,
         endpoint_claim,
         online_exit_code,
-        online_lookup_plan,
         resolve_verification_endpoint,
-        summarize_online,
     )
 
     # NEVER pack["rpc_url"]. A forged pack can name an endpoint its author
@@ -939,38 +974,7 @@ def _verify_online(
     # for a learner running lessons and wrong for auditing someone else's file.
     endpoint = resolve_verification_endpoint(rpc_url)
     claim = endpoint_claim(pack, endpoint)
-
-    by_lesson = {
-        e.get("lesson"): e for e in pack.get("lessons", []) if isinstance(e, dict)
-    }
-    address = str(pack.get("address", ""))
-    results = []
-
-    for item in online_lookup_plan(pack):
-        entry = by_lesson.get(item["lesson"], {})
-        if not item["checkable"]:
-            results.append(classify_lesson_online(entry, address, None))
-            continue
-        live, err = lessons.try_network(
-            f"Checking lesson {item['lesson']} against the ledger",
-            # recorded_ledger_index is MANDATORY. It is the only thing that
-            # lets a miss be reported as "the Testnet was reset" instead of as
-            # a forgery. Measured both ways: dropping it turns every
-            # post-reset pack into an accusation against an honest learner.
-            lambda i=item: transport.lookup_tx(
-                i["txid"],
-                url=endpoint,
-                recorded_ledger_index=i["recorded_ledger_index"],
-            ),
-            lookup_error,
-            done="checked.",
-        )
-        results.append(classify_lesson_online(
-            entry, address, live,
-            unreachable_reason=(err.message if err else ""),
-        ))
-
-    summary = summarize_online(results)
+    results, summary = _online_check(pack, endpoint)
     code = online_exit_code(summary)
 
     if json_output:
@@ -1012,6 +1016,53 @@ def _verify_online(
     return typer.Exit(code)
 
 
+def _online_check(pack: dict, endpoint: str) -> tuple[list, dict]:
+    """Look up each lesson's transaction on `endpoint`; classify and summarise.
+
+    Shared by a single file and a folder (1.4.2), so both ask the ledger the
+    same questions.
+    """
+    from xrpl_camp import lessons, transport
+    from xrpl_camp.errors import lookup_error
+    from xrpl_camp.proof_pack import (
+        classify_lesson_online,
+        online_lookup_plan,
+        summarize_online,
+    )
+
+    by_lesson = {
+        e.get("lesson"): e for e in pack.get("lessons", []) if isinstance(e, dict)
+    }
+    address = str(pack.get("address", ""))
+    results = []
+
+    for item in online_lookup_plan(pack):
+        entry = by_lesson.get(item["lesson"], {})
+        if not item["checkable"]:
+            results.append(classify_lesson_online(entry, address, None))
+            continue
+        live, err = lessons.try_network(
+            f"Checking lesson {item['lesson']} against the ledger",
+            # recorded_ledger_index is MANDATORY. It is the only thing that
+            # lets a miss be reported as "the Testnet was reset" instead of as
+            # a forgery. Measured both ways: dropping it turns every
+            # post-reset pack into an accusation against an honest learner.
+            lambda i=item: transport.lookup_tx(
+                i["txid"],
+                url=endpoint,
+                recorded_ledger_index=i["recorded_ledger_index"],
+            ),
+            lookup_error,
+            done="checked.",
+        )
+        results.append(classify_lesson_online(
+            entry, address, live,
+            unreachable_reason=(err.message if err else ""),
+        ))
+
+    return results, summarize_online(results)
+
+
 #: What a proof pack is called when the tool writes one. A folder scan looks
 #: for these first, then falls back to every .json in the folder.
 def _packs_in(folder: Path) -> list[Path]:
@@ -1024,11 +1075,26 @@ def _packs_in(folder: Path) -> list[Path]:
     return sorted(p for p in folder.glob("*.json") if p.is_file())
 
 
-def _verify_folder(folder: Path, *, json_output: bool) -> typer.Exit:
-    """Verify every pack in `folder`. Non-zero if any of them fails."""
+def _verify_folder(
+    folder: Path, *, json_output: bool, online: bool = False, rpc_url: str = "",
+) -> typer.Exit:
+    """Verify every pack in `folder`. Non-zero if any of them fails.
+
+    With `online`, each pack whose hash holds is also checked against the
+    ledger, exactly as a single file is (1.4.2). Exit code: 1 if any pack
+    fails its hash or the ledger contradicts it, 3 if none failed but some
+    couldn't be checked (an unreachable endpoint, a reset Testnet), else 0.
+    """
     import json as json_mod
 
-    from xrpl_camp.proof_pack import verify_proof_pack
+    from xrpl_camp.proof_pack import (
+        SUMMARY_CONTRADICTED,
+        SUMMARY_HISTORY_GONE,
+        SUMMARY_UNKNOWN,
+        batch_summary,
+        resolve_verification_endpoint,
+        verify_proof_pack,
+    )
 
     packs = _packs_in(folder)
     if not packs:
@@ -1039,30 +1105,54 @@ def _verify_folder(folder: Path, *, json_output: bool) -> typer.Exit:
             exit_code=EXIT_USER,
         ))
 
+    skip_online = online and _simulating(False)
+    check_online = online and not skip_online
+    endpoint = resolve_verification_endpoint(rpc_url) if check_online else ""
+
     results = []
     for path in packs:
         try:
             pack = json_mod.loads(path.read_text(encoding="utf-8"))
         except (json_mod.JSONDecodeError, ValueError, OSError) as exc:
-            results.append((path, False, f"unreadable: {type(exc).__name__}", {}))
+            results.append((path, False, f"unreadable: {type(exc).__name__}", {}, None))
             continue
         if not isinstance(pack, dict):
-            results.append((path, False, "not a JSON object", {}))
+            results.append((path, False, "not a JSON object", {}, None))
             continue
-        if str(pack.get("schema", "")) != PROOF_PACK_SCHEMA:
-            results.append((path, False, "not an xrpl-camp proof pack", pack))
+        if not _is_proof_pack_schema(pack.get("schema", "")):
+            results.append((path, False, "not an xrpl-camp proof pack", pack, None))
             continue
         valid, message = verify_proof_pack(pack)
-        results.append((path, valid, message, pack))
+        # A pack that fails its own hash is already answered; it is never
+        # sent to the ledger (as for a single file).
+        summary = _online_check(pack, endpoint)[1] if (check_online and valid) else None
+        results.append((path, valid, message, pack, summary))
 
-    failed = [r for r in results if not r[1]]
+    rollup = batch_summary([
+        {
+            "file": str(path),
+            "address": str(pack.get("address", "")),
+            "hash_ok": valid,
+            "online": summary,
+        }
+        for path, valid, _message, pack, summary in results
+    ])
+    statuses = [str(summary.get("status", "")) for *_rest, summary in results if summary]
+    hash_failed = [r for r in results if not r[1]]
+    if hash_failed or SUMMARY_CONTRADICTED in statuses:
+        code = 1
+    elif SUMMARY_UNKNOWN in statuses or SUMMARY_HISTORY_GONE in statuses:
+        code = EXIT_PARTIAL
+    else:
+        code = EXIT_OK
 
+    skip_note = "--online was skipped: --dry-run makes no network calls."
     if json_output:
-        print(json_mod.dumps({
+        out = {
             "folder": str(folder),
             "checked": len(results),
-            "passed": len(results) - len(failed),
-            "failed": len(failed),
+            "passed": len(results) - len(hash_failed),
+            "failed": len(hash_failed),
             "packs": [
                 {
                     "file": str(path),
@@ -1073,23 +1163,55 @@ def _verify_folder(folder: Path, *, json_output: bool) -> typer.Exit:
                     "lessons_completed": len(pack.get("lessons", [])),
                     "sha256": pack.get("sha256", ""),
                     "message": message,
+                    **({"online": summary} if check_online else {}),
                 }
-                for path, valid, message, pack in results
+                for path, valid, message, pack, summary in results
             ],
-        }, indent=2))
-    else:
-        console.print()
-        for path, valid, message, pack in results:
-            mark = "[green]PASS[/green]" if valid else "[red]FAIL[/red]"
-            who = str(pack.get("address", "")) or "unknown address"
-            tail = "" if valid else f" — {escape(message)}"
-            console.print(f"  {mark}  {escape(path.name)}  [dim]{escape(who)}[/dim]{tail}")
-        console.print(
-            f"\n  [bold]{len(results) - len(failed)} of {len(results)} packs "
-            f"verified.[/bold]\n",
-        )
+        }
+        if check_online:
+            out["endpoint"] = endpoint
+            out["summary"] = rollup
+        elif skip_online:
+            out["online"] = {"status": "skipped", "message": skip_note}
+        print(json_mod.dumps(out, indent=2, default=str))
+        return typer.Exit(code)
 
-    return typer.Exit(1 if failed else EXIT_OK)
+    online_marks = {
+        "confirmed": "[green]VERIFIED[/green]",
+        "nothing_to_check": "[dim]NOTHING TO CHECK[/dim]",
+        SUMMARY_CONTRADICTED: "[red]FAILED[/red]",
+        SUMMARY_UNKNOWN: "[yellow]UNVERIFIABLE[/yellow]",
+        SUMMARY_HISTORY_GONE: "[yellow]UNVERIFIABLE[/yellow]",
+    }
+    console.print()
+    if check_online:
+        console.print(f"  [bold]Ledger checked against:[/bold] {escape(endpoint)}\n")
+    for path, valid, message, pack, summary in results:
+        mark = "[green]PASS[/green]" if valid else "[red]FAIL[/red]"
+        who = str(pack.get("address", "")) or "unknown address"
+        tail = "" if valid else f" — {escape(message)}"
+        ledger = ""
+        if summary is not None:
+            status = str(summary.get("status", ""))
+            ledger = f"  ledger: {online_marks.get(status, escape(status))}"
+        console.print(
+            f"  {mark}  {escape(path.name)}  [dim]{escape(who)}[/dim]{ledger}{tail}",
+        )
+    console.print(
+        f"\n  [bold]{len(results) - len(hash_failed)} of {len(results)} packs "
+        f"pass the hash check.[/bold]",
+    )
+    if check_online:
+        console.print(f"  {escape(str(rollup['message']))}")
+        for item in rollup["needs_attention"]:
+            console.print(
+                f"    [yellow]•[/yellow] {escape(Path(item['file']).name)}: "
+                f"{escape(item['reason'])}",
+            )
+    elif skip_online:
+        console.print(f"  [yellow]{skip_note}[/yellow]")
+    console.print()
+    return typer.Exit(code)
 
 
 # ---------------------------------------------------------------------------
@@ -1131,9 +1253,15 @@ def reset(
         console.print("  [yellow][DRY RUN][/yellow] Nothing was deleted.")
         return
 
-    confirmation = console.input(
-        "  Type [bold red]RESET[/bold red] to confirm (anything else cancels): ",
-    )
+    # 1.4.2: closed stdin (a script, CI, a container without -it) raised a raw
+    # EOFError traceback here. No answer is not a yes: cancel, delete nothing.
+    try:
+        confirmation = console.input(
+            "  Type [bold red]RESET[/bold red] to confirm (anything else cancels): ",
+        )
+    except (EOFError, KeyboardInterrupt):
+        console.print("\n  [dim]Cancelled. Nothing was deleted.[/dim]")
+        return
     if confirmation.strip() != "RESET":
         console.print("  [dim]Cancelled. Nothing was deleted.[/dim]")
         return
@@ -1570,6 +1698,8 @@ def run() -> None:
     try:
         app()
     except CampFailure as exc:
+        # 1.4.2: logged like every other refusal, so support-bundle sees it.
+        record_error(exc.error, command=" ".join(sys.argv[1:3]))
         console.print(format_error(exc.error))
         raise SystemExit(exc.exit_code) from None
     except KeyboardInterrupt:

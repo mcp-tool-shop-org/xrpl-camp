@@ -24,10 +24,10 @@ from xrpl_camp.certificate import (
 from xrpl_camp.errors import EXIT_OK, EXIT_PARTIAL, EXIT_USER
 from xrpl_camp.models import Session
 from xrpl_camp.transport import (
-    EXPLORER_URL,
     REASON_HISTORY_GONE,
     REASON_UNVALIDATED,
     TESTNET_URL,
+    explorer_url_for,
 )
 
 __all__ = [
@@ -213,7 +213,12 @@ def generate_proof_pack(session: Session) -> dict:
         if p.txid:
             entry["txid"] = p.txid
             if _TXID_RE.match(p.txid):
-                entry["explorer_url"] = f"{EXPLORER_URL}{p.txid}"
+                # 1.4.2: the link follows the endpoint the session used; an
+                # endpoint with no known explorer gets no link rather than a
+                # Testnet one that would 404 (and be sealed into the pack).
+                link = explorer_url_for(p.txid, rpc_url)
+                if link:
+                    entry["explorer_url"] = link
             else:
                 # A txid this shape can never be a real XRPL transaction
                 # hash. Flagging it -- rather than silently dropping it (an

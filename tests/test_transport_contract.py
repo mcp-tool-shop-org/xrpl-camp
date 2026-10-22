@@ -167,8 +167,27 @@ def test_every_request_model_pins_the_version_explicitly():
     import ast
     import inspect
 
+    import xrpl.models.requests as requests_mod
+
     tree = ast.parse(inspect.getsource(transport))
-    models = {"Tx", "AccountInfo", "ServerState"}
+    # 1.4.2: every request model, found rather than listed. The old fixed set
+    # named 3 of the 6 the transport builds, so AccountTx, AccountNFTs and
+    # Simulate could have dropped the pin unnoticed. Only names the transport
+    # imports from xrpl count: its own LedgerEntry dataclass shares a name
+    # with an xrpl-py request.
+    imported = {
+        alias.asname or alias.name
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and (node.module or "").startswith("xrpl")
+        for alias in node.names
+    }
+    models = {
+        name for name in imported
+        if isinstance(getattr(requests_mod, name, None), type)
+        and issubclass(getattr(requests_mod, name), requests_mod.Request)
+        and name != "Request"
+    }
+    expected = {"Tx", "AccountInfo", "ServerState", "AccountTx", "AccountNFTs", "Simulate"}
     found: list[str] = []
 
     for node in ast.walk(tree):
@@ -189,9 +208,9 @@ def test_every_request_model_pins_the_version_explicitly():
             f"api_version=XRPL_API_VERSION"
         )
 
-    assert models.issubset(found), (
+    assert expected.issubset(found), (
         f"expected every request model to be constructed in transport.py; "
-        f"missing {sorted(models - set(found))}"
+        f"missing {sorted(expected - set(found))}"
     )
 
 
