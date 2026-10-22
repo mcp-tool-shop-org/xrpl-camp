@@ -1033,16 +1033,17 @@ def _verify_online(
 
 
 def _online_check(
-    pack: dict, endpoint: str, *, quiet: bool = False,
+    pack: dict, endpoint: str, *, quiet: bool = False, name: str = "",
 ) -> tuple[list, dict]:
     """Look up each lesson's transaction on `endpoint`; classify and summarise.
 
     Shared by a single file and a folder (1.4.2), so both ask the ledger the
     same questions. `quiet` (for --json) sends the progress lines to stderr,
-    so stdout carries nothing but the JSON document.
+    so stdout carries nothing but the JSON document. `name` (a folder's file
+    name) prefixes each progress line, so a batch says which pack it is on.
     """
     with _progress_to_stderr(quiet):
-        return _online_check_inner(pack, endpoint)
+        return _online_check_inner(pack, endpoint, name)
 
 
 @contextlib.contextmanager
@@ -1065,7 +1066,7 @@ def _progress_to_stderr(enabled: bool):
         lessons.console = previous
 
 
-def _online_check_inner(pack: dict, endpoint: str) -> tuple[list, dict]:
+def _online_check_inner(pack: dict, endpoint: str, name: str) -> tuple[list, dict]:
     from xrpl_camp import lessons, transport
     from xrpl_camp.errors import lookup_error
     from xrpl_camp.proof_pack import (
@@ -1086,7 +1087,8 @@ def _online_check_inner(pack: dict, endpoint: str) -> tuple[list, dict]:
             results.append(classify_lesson_online(entry, address, None))
             continue
         live, err = lessons.try_network(
-            f"Checking lesson {item['lesson']} against the ledger",
+            f"{name + ': ' if name else ''}Checking lesson {item['lesson']} "
+            "against the ledger...",
             # recorded_ledger_index is MANDATORY. It is the only thing that
             # lets a miss be reported as "the Testnet was reset" instead of as
             # a forgery. Measured both ways: dropping it turns every
@@ -1097,7 +1099,7 @@ def _online_check_inner(pack: dict, endpoint: str) -> tuple[list, dict]:
                 recorded_ledger_index=i["recorded_ledger_index"],
             ),
             lookup_error,
-            done="checked.",
+            done="done.",
         )
         results.append(classify_lesson_online(
             entry, address, live,
@@ -1170,7 +1172,7 @@ def _verify_folder(
         # A pack that fails its own hash is already answered; it is never
         # sent to the ledger (as for a single file).
         summary = (
-            _online_check(pack, endpoint, quiet=json_output)[1]
+            _online_check(pack, endpoint, quiet=json_output, name=path.name)[1]
             if (check_online and valid) else None
         )
         results.append((path, valid, message, pack, summary))

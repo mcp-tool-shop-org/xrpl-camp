@@ -420,3 +420,39 @@ def test_a_plain_exit_130_shows_no_panel(monkeypatch, capsys):
     with pytest.raises(SystemExit):
         cli.run()
     assert "Paused" not in strip_ansi(capsys.readouterr().out)
+
+
+# ── Book Keeper's 1.4.2 live check: two wording notes ─────────────────
+
+
+def test_a_folder_progress_line_names_its_pack(tmp_path, monkeypatch):
+    from xrpl_camp import proof_pack
+
+    s = Session(started_at="2026-01-01T00:00:00Z", wallet_address="rCamp")
+    s.mark_complete(4, "Send", txid="A" * 64, ledger_index=100)
+    proof_pack.save_proof_pack(
+        proof_pack.generate_proof_pack(s), str(tmp_path / "bob_xrpl_camp_proof_pack.json"),
+    )
+    monkeypatch.setattr(
+        transport, "lookup_tx", lambda *a, **k: {"found": False, "reason": "not found"},
+    )
+    result = runner.invoke(app, ["proof", "verify", str(tmp_path), "--online"])
+    out = strip_ansi(result.output).replace("\n", " ")
+    assert "bob_xrpl_camp_proof_pack.json: Checking lesson 4" in out
+    assert "ledger checked." not in out
+
+
+def test_fund_progress_does_not_claim_the_faucet_was_asked(monkeypatch, capsys):
+    from xrpl_camp import wallet
+
+    wallet.save_wallet("rCampLearner", "sEdTM1uX8pu2do5XvTnutH6HsouMaM2")
+    monkeypatch.setattr(lessons, "check_endpoint", lambda: None)
+    monkeypatch.setattr(
+        transport, "fund_wallet_detail",
+        lambda *a, **k: transport.FundResult("rCampLearner", 50_000_000, already_funded=True),
+    )
+    monkeypatch.setattr(transport, "get_balance", lambda *a, **k: 50_000_000)
+    lessons.lesson_3_fund_wallet(Session(started_at="2026-01-01T00:00:00Z"))
+    out = strip_ansi(capsys.readouterr().out).replace("\n", " ")
+    assert "Funding your wallet" not in out
+    assert "if it's empty" in out and "not asked again" in out

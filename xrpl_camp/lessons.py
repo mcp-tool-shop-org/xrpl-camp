@@ -1183,7 +1183,9 @@ def lesson_3_fund_wallet(session: Session, *, dry_run: bool = False) -> LessonRe
     # second one takes it from somebody else in the room. 1.4.2: say so,
     # instead of "Requesting funds... funded." for a request never made.
     funded, err = try_network(
-        "Funding your wallet from the Testnet faucet...",
+        # Worded for both outcomes: the balance is read first, and the faucet
+        # is asked only when it is empty (Book Keeper, 1.4.2 live check).
+        "Checking your balance, and asking the Testnet faucet if it's empty...",
         lambda: transport.fund_wallet_detail(w["seed"], dry_run=dry_run),
         faucet_error,
         waiting="(usually about ten seconds)",
