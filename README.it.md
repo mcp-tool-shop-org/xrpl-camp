@@ -76,15 +76,16 @@ Sei lezioni, in ordine, con ripresa in caso di riavvio:
 | `xrpl-camp read <address>` | Cosa ha scritto qualcun altro. Nessuna chiave, nessun accesso, nessuna autorizzazione |
 | `xrpl-camp read <hash>` | Una transazione completa |
 | `xrpl-camp try` | Provoca intenzionalmente errori sulla rete attiva. Non firma nulla, non costa nulla |
+| `xrpl-camp reserve` | Crea e distribuisci un NFT per consentire al proprietario di attivare il blocco di riserva e restituirlo. |
 | `xrpl-camp status` | Elenco di controllo dei progressi, con i tempi |
 | `xrpl-camp status --detail` | Vista per il facilitatore: portafoglio, endpoint, directory dello stato, passaggio successivo |
 | `xrpl-camp wallet create` / `show` | Crea o visualizza il tuo portafoglio Testnet |
 | `xrpl-camp fund` | Finanzia il tuo portafoglio tramite il faucet Testnet |
 | `xrpl-camp send --memo "hello"` | Invia un pagamento con una nota alla tua casella di posta |
 | `xrpl-camp verify --tx <hash>` | Verifica una transazione **che hai** inviato |
-| `xrpl-camp certificate` | Genera il certificato + pacchetto di prova |
+| `xrpl-camp certificate` | Genera il certificato e il pacchetto di prova (`--format text` aggiunge un oggetto commemorativo `.txt`). |
 | `xrpl-camp proof verify <file>` | Verifica l'hash di un pacchetto di prova. Completamente offline |
-| `xrpl-camp proof verify <file> --online` | Chiedi anche al registro se le transazioni sono effettivamente avvenute |
+| `xrpl-camp proof verify <file> --online` | Chiedi anche al registro se le transazioni si sono effettivamente verificate (`--record` aggiunge una ricevuta datata). |
 | `xrpl-camp proof verify <folder>` | Verifica tutti i pacchetti in una cartella, per i facilitatori |
 | `xrpl-camp reset` | Cancella tutto lo stato (richiede la digitazione di `RESET`) |
 | `xrpl-camp self-check` | Diagnostica il tuo ambiente **e** la tua connessione al registro |
