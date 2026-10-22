@@ -1,0 +1,35 @@
+
+  ✅ PASS — Proof pack integrity verified.
+
+  File:     forged.json
+  Schema:   xrpl-camp-proof-pack-v1
+  Address:  rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY
+  Network:  testnet
+  Lessons:  6
+  SHA-256:  sha256:8421f3c033e093f9616267e9d8ac2cde0d6b43d6014ce7dc8e226252c8f8eb7e
+
+  Checking lesson 4 against the ledger... done.
+  ─── Ledger check ───
+  Verified against: https://s.altnet.rippletest.net:51234/
+  This pack claims testnet at https://s.altnet.rippletest.net:51234/, which is what was checked.
+
+  SKIPPED   Mental Model
+           this lesson records no transaction
+  SKIPPED   Create Wallet
+           this lesson records no transaction
+  SKIPPED   Fund Wallet
+           this lesson records no transaction
+  MISMATCH  Send Payment
+           the memo on the ledger is not the sentence this pack attributes to the learner
+           this pack records ledger 21740887, but the ledger reports 21740900
+           this pack records a close time of 2026-10-22T18:25:10Z, but the ledger reports 2026-10-22T18:25:51Z
+  SKIPPED   Verify Transaction
+           this lesson records no transaction
+  SKIPPED   Certificate
+           this lesson records no transaction
+
+  1 of 1 transactions do not match what the ledger says. The ledger is the authority here, not this file.
+
+  No verification receipt added to forged.json: ledger check status is 'contradicted' (receipts are recorded only when the ledger confirms 
+the pack).
+

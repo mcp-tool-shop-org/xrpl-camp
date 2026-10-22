@@ -1,0 +1,13 @@
+  Asking the ledger... (reading a public account — no key, no login) read.
+
+  rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY — your entries, read back off the ledger, not off this machine.
+
+  21,740,883  2026-10-22T18:24:52Z  ← rJjHYTCPpNA3qAM8ZpCDtip3a8xg7B8PFo  100,000,000 drops
+  21,740,887  2026-10-22T18:25:10Z  → r4qwxxXVtdHEwYNRLXgtsjiP4e3yLyYaoC  1,000,000 drops
+      "book keeper v1.5.0 live check"
+  21,740,900  2026-10-22T18:25:51Z  → rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY
+  21,740,903  2026-10-22T18:26:02Z  → rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY
+  21,740,913  2026-10-22T18:26:40Z  → rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY
+  21,740,916  2026-10-22T18:26:50Z  → rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY
+
+  6 transactions, 1 carrying words. None of this is stored here — it came back from the network.

@@ -1,0 +1,9 @@
+readonly.json writable: False
+valid.json      the course proof pack (from the ae22f3b run, holding 3 receipts)
+forged.json     lesson 4 txid swapped and the hash re-sealed (harness/forge_pack.py.txt)
+tampered.json   valid.json with the memo text edited and the sha256 left as it was
+invalid-notjson.json  the bytes "not json {"
+invalid-empty.json    the JSON object {}
+readonly.json   a copy of valid.json with the read-only attribute set, so the --record write fails
+missing.json    does not exist
+folder/a.json   a copy of valid.json

@@ -1,0 +1,2 @@
+@mcptoolshop/xrpl-camp 1.4.2
+@mcptoolshop/npm-launcher 1.2.0

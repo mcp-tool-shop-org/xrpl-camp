@@ -1,0 +1,2 @@
+home dir exists before: no
+home dir exists after: no; cwd entries: 0

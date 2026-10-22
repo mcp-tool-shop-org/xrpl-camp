@@ -1,0 +1,2 @@
+  [RECORD_FOLDER_UNSUPPORTED] --record only works on a single proof pack file, not a folder.
+  Pass one proof pack file: xrpl-camp proof verify xrpl_camp_proof_pack.json --online --record

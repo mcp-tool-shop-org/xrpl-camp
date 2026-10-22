@@ -1,0 +1,12 @@
+                                                                                                                                           
+ Usage: xrpl-camp certificate [OPTIONS]                                                                                                    
+                                                                                                                                           
+ Generate a completion certificate and proof pack (--format text adds a .txt keepsake).                                                    
+                                                                                                                                           
+┌─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│ --out            <str>  Folder to write the files into (default: this directory)                                                        │
+│ --format         <str>  Certificate format: json (default) or text (also writes xrpl_camp_certificate.txt) [default: json]              │
+│ --dry-run               Show what would be sealed without writing any files                                                             │
+│ --help                  Show this message and exit.                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+

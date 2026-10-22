@@ -1,0 +1,15 @@
+<scratch>/camp/recheck150-e3:
+folder/
+forged.json
+invalid-empty.json
+invalid-notjson.json
+readonly.json
+tampered.json
+valid.json
+
+<scratch>/camp/recheck150-e3/folder:
+a.json
+valid.json receipts 4
+readonly.json receipts 3
+forged.json receipts 0
+a.json receipts 3
