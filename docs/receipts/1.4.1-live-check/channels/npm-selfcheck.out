@@ -1,0 +1,14 @@
+
+  OK  Version  1.4.1
+  OK  Platform  Windows AMD64 · Python 3.12.14
+  OK  Console encoding  utf-8
+  OK  Rich rendering  Table renders correctly
+  OK  Filesystem write  Temp write succeeded
+  --  State directory  not yet created: 
+<scratch>/camp\chan-npm-selfcheck\.xrpl-camp (follows your 
+working directory) (run: xrpl-camp start)
+  --  xrpl  -- (imported; version not reported)
+  --  typer  -- (imported; version not reported)
+  --  rich  -- (imported; version not reported)
+  --  Network checks  skipped (--offline)
+

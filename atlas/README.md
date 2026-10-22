@@ -1,18 +1,18 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-22 from commit bf78d27 by Atlas 1.24.0.
+Mapped at 2026-10-22 from commit 61f45e1 by Atlas 1.24.0.
 
 ## What this is
 
-7 parts, mostly Python (33 files), shell (7), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (33 files), shell (8), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-01 (1763b68)
+## What changed since 2026-10-22 (bf78d27)
 
-- docs/receipts/1.4.2-live-check-1abab5a/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.4.2-live-check-1abab5a/code.txt is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.4.2-live-check-1abab5a/flow/01-start.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
-- And 198 more new files that belong to no part.
-- 203 files added and 21 changed content, across 6 parts.
+- docs/receipts/1.4.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.4.1-live-check/account_checks.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
+- And 175 more new files that belong to no part.
+- 178 files added.
 
 ## What comes in
 
@@ -97,7 +97,7 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 - 6 reads use paths built at run time and are not named here.
 - 4 writes and 9 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
-- 201 files belong to no part: docs/receipts/1.4.2-live-check-1abab5a/README.md, docs/receipts/1.4.2-live-check-1abab5a/code.txt, docs/receipts/1.4.2-live-check-1abab5a/flow/01-start.cmd and 198 more.
+- 379 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 376 more.
 - Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.

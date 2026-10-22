@@ -1,0 +1,30 @@
+
+  ✓ Mental Model  (6s)
+  ✓ Create Wallet
+  ✓ Fund Wallet  (10s)
+  ✓ Send Payment  (12s)
+       tx: 2B7CF0F5679F06DF…
+  ✓ Verify Transaction  (0s)
+  ✓ Certificate
+
+  All 6 lessons complete in 29s.
+
+  ─── Detail ───
+  Version:   1.4.1
+  Endpoint:  https://s.altnet.rippletest.net:51234/  (testnet)
+  Wallet:    rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC
+  Created:   68 seconds ago  (2026-10-22T05:49:57.554617+00:00)
+  Balance:   99.00 XRP (98,999,990 drops)
+  Mailbox:   rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR
+  Started:   76 seconds ago  (2026-10-22T05:49:50.767243+00:00)
+  Last:      Lesson 6 (Certificate) — 5 seconds ago  (2026-10-22T05:51:02.214643+00:00)
+  lesson_4:  2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4
+  Artifact:  
+<scratch>/camp\flow-v141-20261022T0549Z\cwd\x
+rpl_camp_certificate.json
+  Artifact:  
+<scratch>/camp\flow-v141-20261022T0549Z\cwd\x
+rpl_camp_proof_pack.json
+  State:     
+<scratch>/camp\flow-v141-20261022T0549Z\home
+

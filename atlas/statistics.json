@@ -173,8 +173,8 @@
         "path": "BUILD.md"
       },
       {
-        "commits": 6,
-        "lines": 312,
+        "commits": 5,
+        "lines": 298,
         "path": "CHANGELOG.md"
       },
       {
@@ -238,8 +238,8 @@
         "path": "SHIP_GATE.md"
       },
       {
-        "commits": 8,
-        "lines": 372,
+        "commits": 9,
+        "lines": 401,
         "path": "atlas/README.md"
       },
       {
@@ -248,18 +248,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 8,
-        "lines": 1560,
+        "commits": 9,
+        "lines": 1651,
         "path": "atlas/page.json"
       },
       {
-        "commits": 8,
-        "lines": 1952,
+        "commits": 9,
+        "lines": 3337,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 8,
-        "lines": 20414,
+        "commits": 9,
+        "lines": 24112,
         "path": "atlas/structure.json"
       },
       {
@@ -1613,13 +1613,13 @@
         "path": "tests/test_transport_contract.py"
       },
       {
-        "commits": 4,
-        "lines": 596,
+        "commits": 3,
+        "lines": 494,
         "path": "tests/test_v142_audit_fixes.py"
       },
       {
-        "commits": 4,
-        "lines": 639,
+        "commits": 3,
+        "lines": 478,
         "path": "tests/test_v142_live_check_fixes.py"
       },
       {
@@ -1653,8 +1653,8 @@
         "path": "xrpl_camp/certificate.py"
       },
       {
-        "commits": 10,
-        "lines": 3296,
+        "commits": 9,
+        "lines": 3190,
         "path": "xrpl_camp/cli.py"
       },
       {
@@ -1663,13 +1663,13 @@
         "path": "xrpl_camp/errors.py"
       },
       {
-        "commits": 10,
-        "lines": 5700,
+        "commits": 9,
+        "lines": 5632,
         "path": "xrpl_camp/lessons.py"
       },
       {
-        "commits": 8,
-        "lines": 2242,
+        "commits": 7,
+        "lines": 2195,
         "path": "xrpl_camp/models.py"
       },
       {
@@ -1678,8 +1678,8 @@
         "path": "xrpl_camp/proof_pack.py"
       },
       {
-        "commits": 8,
-        "lines": 6504,
+        "commits": 7,
+        "lines": 6446,
         "path": "xrpl_camp/transport.py"
       },
       {
@@ -1693,9 +1693,9 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-10-22T07:04:49.612Z",
+  "generatedAt": "2026-10-22T08:04:13.179Z",
   "generatedFrom": {
-    "commit": "bf78d27161e3204223704ee1c517b72f8e8e3e60"
+    "commit": "61f45e131dc70e877c29f1efa066fe35fa35270e"
   },
   "pairs": [
     {
@@ -1772,8 +1772,8 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-10-22T03:04:44-04:00",
-    "inScopeFiles": 294,
+    "headDate": "2026-10-22T04:03:37-04:00",
+    "inScopeFiles": 480,
     "pinnedStart": null,
     "priorFloor": "fallen",
     "qualifyingCommits": 31,
@@ -1781,7 +1781,7 @@
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-25T07:04:44.000Z",
+    "since": "2026-04-25T08:03:37.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

@@ -1,0 +1,10 @@
+Exception ignored on flushing sys.stdout:
+Traceback (most recent call last):
+  File "<scratch>/_harness\interrupt_cli.py", line 41, in flush
+    log.flush()
+ValueError: I/O operation on closed file.
+Exception ignored in: <__main__.Tee object at 0x000001CF58D448B0>
+Traceback (most recent call last):
+  File "<scratch>/_harness\interrupt_cli.py", line 41, in flush
+    log.flush()
+ValueError: I/O operation on closed file.

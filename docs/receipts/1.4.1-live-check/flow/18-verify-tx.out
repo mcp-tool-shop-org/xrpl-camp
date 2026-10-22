@@ -1,0 +1,38 @@
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 5: Verify a Transaction                                                                                                          │
+│                                                                                                                                         │
+│ Anyone can look up any transaction on the XRPL.                                                                                         │
+│ No login needed. No API key. Just the transaction hash.                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+  Endpoint: https://s.altnet.rippletest.net:51234/
+
+  Looking up transaction... (asking the ledger what it recorded) found.
+
+                                 Transaction Details                                  
+┌─────────────────┬──────────────────────────────────────────────────────────────────┐
+│ Field           │ Value                                                            │
+├─────────────────┼──────────────────────────────────────────────────────────────────┤
+│ Hash            │ 2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4 │
+│ From            │ rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC                               │
+│ To              │ rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR                               │
+│ Amount          │ 1000000 drops                                                    │
+│ Delivered       │ 1000000 drops                                                    │
+│ Fee             │ 10 drops                                                         │
+│ Memo (readback) │ book keeper v1.4.1 live check                                    │
+│ Ledger          │ 21727381                                                         │
+│ Time            │ 2026-10-22T05:50:20Z                                             │
+│ Result          │ tesSUCCESS                                                       │
+│ Validated       │ True                                                             │
+└─────────────────┴──────────────────────────────────────────────────────────────────┘
+
+  You wrote:        book keeper v1.4.1 live check
+  Ledger returned:  book keeper v1.4.1 live check
+  Identical. Not our copy of it — the ledger's.
+
+  You don't have to trust this tool.
+  Verify it yourself — this is the full hash:
+  2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4
+  and this is where to look it up:
+  https://testnet.xrpl.org/transactions/2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4
+
+  ✓ Independently verified. No login, no API key — just the hash and the open ledger.

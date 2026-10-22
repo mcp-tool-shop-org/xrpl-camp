@@ -1,0 +1,2 @@
+cmd: xrpl-camp --yes try
+exit: 0  seconds: 5
