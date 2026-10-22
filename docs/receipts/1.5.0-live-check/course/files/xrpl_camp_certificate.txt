@@ -1,0 +1,27 @@
+XRPL Camp
+=========
+
+rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY completed 6 XRPL Camp lessons on testnet, finishing 2026-10-22.
+
+  1. Mental Model                 2026-10-22
+  2. Create Wallet                2026-10-22
+  3. Fund Wallet                  2026-10-22
+  4. Send Payment                 2026-10-22
+     "book keeper v1.5.0 live check"
+     https://testnet.xrpl.org/transactions/0953A221ACC32DD1DB752380FD6DC37D5474519AA42A5F2A8256A08AA5334454
+  5. Verify Transaction           2026-10-22
+  6. Certificate                  2026-10-22
+
+Time at camp: 30 seconds.
+
+Every lesson above that names a transaction is recorded on a public ledger
+nobody involved here controls. You do not have to take this file's word for it:
+
+  xrpl-camp proof verify xrpl_camp_proof_pack.json --online
+
+Testnet is periodically reset. If a link stops resolving, that is the network
+being wiped rather than the transaction being fake -- the proof pack records
+the ledger index each transaction closed in, so the two can be told apart.
+
+Issued on 2026-10-22 by xrpl-camp. This is a record of what you did, not a credential:
+nobody accredits it and it certifies nothing about you.

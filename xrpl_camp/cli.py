@@ -30,6 +30,7 @@ from xrpl_camp import lessons, wallet
 from xrpl_camp.errors import (
     EXIT_OK,
     EXIT_PARTIAL,
+    EXIT_RUNTIME,
     EXIT_USER,
     CampError,
     CampFailure,
@@ -317,6 +318,10 @@ def status(
     if done == 6:
         duration_str = f" in {format_duration(total)}" if total > 0 else ""
         console.print(f"  [bold green]All 6 lessons complete{duration_str}.[/bold green]")
+        console.print(
+            "  [dim]A next step after camp: xrpl-camp reserve — "
+            "watch the owner reserve lock and come back.[/dim]",
+        )
     else:
         console.print(f"  [dim]{done}/6 lessons complete[/dim]")
 
@@ -407,11 +412,11 @@ def _stamp(iso: str) -> str:
 
 def _artifact_paths() -> list[Path]:
     """Certificate and proof pack, if they have been written here."""
-    from xrpl_camp.certificate import CERTIFICATE_FILE
+    from xrpl_camp.certificate import CERTIFICATE_FILE, CERTIFICATE_TEXT_FILE
     from xrpl_camp.proof_pack import PROOF_PACK_FILE
 
     found = []
-    for name in (CERTIFICATE_FILE, PROOF_PACK_FILE):
+    for name in (CERTIFICATE_FILE, PROOF_PACK_FILE, CERTIFICATE_TEXT_FILE):
         path = Path.cwd() / name
         if path.exists():
             found.append(path.resolve())
@@ -710,6 +715,39 @@ def try_cmd(
 
 
 # ---------------------------------------------------------------------------
+# Reserve command - watch the owner reserve lock and return
+# ---------------------------------------------------------------------------
+
+
+@app.command("reserve")
+def reserve_cmd(
+    dry_run: Annotated[
+        bool, typer.Option(
+            "--dry-run",
+            help="Show simulated reserve numbers without network calls or state changes",
+        )
+    ] = False,
+    json_output: Annotated[
+        bool, typer.Option(
+            "--json",
+            help="Emit one JSON document with both reserve moves (progress to stderr)",
+        )
+    ] = False,
+) -> None:
+    """Mint an NFT, then burn it, and watch the owner reserve lock and come back.
+
+    Signs two Testnet transactions from your wallet: an NFTokenMint, then an
+    NFTokenBurn of that token. The balance moves only by the fee (~20 drops
+    total), while spendable XRP moves by the owner reserve increment — held on
+    the mint, released on the burn, never spent.
+    """
+    simulate = _simulating(dry_run)
+    code = lessons.run_reserve(dry_run=simulate, json_output=json_output)
+    if code != EXIT_OK:
+        raise typer.Exit(code)
+
+
+# ---------------------------------------------------------------------------
 # Verify command
 # ---------------------------------------------------------------------------
 
@@ -769,9 +807,18 @@ def certificate(
     out: Annotated[
         str, typer.Option(
             "--out",
-            help="Folder to write the two files into (default: this directory)",
+            help="Folder to write the files into (default: this directory)",
         ),
     ] = "",
+    fmt: Annotated[
+        str, typer.Option(
+            "--format",
+            help=(
+                "Certificate format: json (default) or text "
+                "(also writes xrpl_camp_certificate.txt)"
+            ),
+        ),
+    ] = "json",
     dry_run: Annotated[
         bool, typer.Option(
             "--dry-run",
@@ -779,8 +826,18 @@ def certificate(
         )
     ] = False,
 ) -> None:
-    """Generate a completion certificate and proof pack. Writes two files."""
+    """Generate a completion certificate and proof pack (--format text adds a .txt keepsake)."""
+    from xrpl_camp.certificate import CERTIFICATE_FORMATS
+
     simulate = _simulating(dry_run)
+    fmt_norm = str(fmt or "json").strip().lower()
+    if fmt_norm not in CERTIFICATE_FORMATS:
+        raise _fail(CampError(
+            code="BAD_FORMAT",
+            message=f"Unknown certificate format '{fmt}'.",
+            hint="Use --format json (default) or --format text.",
+            exit_code=EXIT_USER,
+        ))
 
     # Read-only: a command that is about to refuse should not leave state
     # behind for having been run.
@@ -793,7 +850,9 @@ def certificate(
             exit_code=EXIT_USER,
         ))
 
-    result = lessons.lesson_6_certificate(session, dry_run=simulate, out_dir=out)
+    result = lessons.lesson_6_certificate(
+        session, dry_run=simulate, out_dir=out, fmt=fmt_norm,
+    )
     if not result:
         raise typer.Exit(result.exit_code)
 
@@ -824,6 +883,12 @@ def proof_verify(
             "--online", help="Also check every transaction against the XRPL ledger",
         )
     ] = False,
+    record: Annotated[
+        bool, typer.Option(
+            "--record",
+            help="Append a dated verification receipt to the proof pack (requires --online)",
+        )
+    ] = False,
     rpc_url: Annotated[
         str, typer.Option(
             "--rpc-url",
@@ -843,29 +908,49 @@ def proof_verify(
 
     from xrpl_camp.proof_pack import verify_proof_pack
 
+    def reject(err: CampError) -> typer.Exit:
+        return _reject_proof_verify(err, file, json_output=json_output)
+
+    if record and not online:
+        raise reject(CampError(
+            code="RECORD_REQUIRES_ONLINE",
+            message="--record requires --online: there is no ledger check to record.",
+            hint="Run with both flags: xrpl-camp proof verify <file> --online --record",
+            exit_code=EXIT_USER,
+        ))
+
+    if record and _simulating(False):
+        raise reject(CampError(
+            code="RECORD_DRY_RUN",
+            message=(
+                "Cannot --record in dry-run mode: no online check is run "
+                "and dry-run never writes to disk."
+            ),
+            hint="Remove --dry-run to check the ledger and record a receipt, or remove --record.",
+            exit_code=EXIT_USER,
+        ))
+
     # A facilitator with thirty packs had to run thirty commands. A folder
     # iterates; a single file behaves exactly as it always did. Exit code is
     # non-zero if ANY pack fails, stated up front so a room script cannot
     # silently pass a bad pack.
     if file.is_dir():
+        if record:
+            raise reject(CampError(
+                code="RECORD_FOLDER_UNSUPPORTED",
+                message="--record only works on a single proof pack file, not a folder.",
+                hint=(
+                    "Pass one proof pack file: "
+                    "xrpl-camp proof verify xrpl_camp_proof_pack.json --online --record"
+                ),
+                exit_code=EXIT_USER,
+            ))
         # 1.4.2: --online and --rpc-url used to be dropped here, so a folder
         # was only ever hash-checked: a forged, re-hashed pack passed a
         # facilitator's `proof verify <folder> --online` with exit 0.
         raise _verify_folder(
             file, json_output=json_output, online=online, rpc_url=rpc_url,
         )
-
-    def reject(err: CampError) -> typer.Exit:
-        if json_output:
-            print(json_mod.dumps({
-                "valid": False,
-                "hash_match": False,
-                "file": str(file),
-                "code": err.code,
-                "message": err.message,
-            }, indent=2))
-            return typer.Exit(err.exit_code)
-        return _fail(err)
 
     if not file.exists():
         raise reject(CampError(
@@ -901,6 +986,7 @@ def proof_verify(
         result = {
             "valid": valid,
             "hash_match": valid,
+            "recorded": False,
             "file": str(file),
             "schema": pack.get("schema", ""),
             "address": pack.get("address", ""),
@@ -942,8 +1028,37 @@ def proof_verify(
         if _simulating(False):
             raise _online_skipped_for_dry_run(json_output, offline)
         raise _verify_online(
-            pack, file, rpc_url=rpc_url, json_output=json_output, offline=offline,
+            pack,
+            file,
+            rpc_url=rpc_url,
+            json_output=json_output,
+            offline=offline,
+            record=record,
         )
+
+
+def _reject_proof_verify(
+    err: CampError,
+    file: Path,
+    *,
+    json_output: bool,
+    hash_match: bool | None = None,
+) -> typer.Exit:
+    """Emit a structured error for `proof verify` (single JSON doc when `--json`)."""
+    import json as json_mod
+
+    if json_output:
+        print(json_mod.dumps({
+            "valid": False,
+            "hash_match": hash_match,
+            "recorded": False,
+            "file": str(file),
+            "code": err.code,
+            "message": err.message,
+            "hint": err.hint,
+        }, indent=2))
+        return typer.Exit(err.exit_code)
+    return _fail(err)
 
 
 def _online_skipped_for_dry_run(
@@ -955,6 +1070,7 @@ def _online_skipped_for_dry_run(
     note = "--online was skipped: --dry-run makes no network calls."
     if json_output:
         doc = dict(offline or {})
+        doc["recorded"] = False
         doc["online"] = {"status": "skipped", "message": note}
         print(json_mod.dumps(doc, indent=2))
     else:
@@ -963,8 +1079,13 @@ def _online_skipped_for_dry_run(
 
 
 def _verify_online(
-    pack: dict, file: Path, *, rpc_url: str, json_output: bool,
+    pack: dict,
+    file: Path,
+    *,
+    rpc_url: str,
+    json_output: bool,
     offline: dict | None = None,
+    record: bool = False,
 ) -> typer.Exit:
     """Ask the ledger whether the transactions this pack names actually happened.
 
@@ -975,10 +1096,15 @@ def _verify_online(
     import json as json_mod
 
     from xrpl_camp.proof_pack import (
+        SUMMARY_CONFIRMED,
         SUMMARY_CONTRADICTED,
+        build_verification_receipt,
         endpoint_claim,
         online_exit_code,
+        record_verification,
         resolve_verification_endpoint,
+        verify_proof_pack,
+        write_proof_pack_atomic,
     )
 
     # NEVER pack["rpc_url"]. A forged pack can name an endpoint its author
@@ -990,14 +1116,86 @@ def _verify_online(
     claim = endpoint_claim(pack, endpoint)
     results, summary = _online_check(pack, endpoint, quiet=json_output)
     code = online_exit_code(summary)
+    online_status = str(summary.get("status", ""))
+
+    recorded = False
+    record_skipped = ""
+    if record:
+        if online_status != SUMMARY_CONFIRMED:
+            record_skipped = online_status or "unconfirmed"
+        else:
+            receipt = build_verification_receipt(endpoint, results, summary)
+            record_verification(pack, receipt)
+            mem_valid, mem_message = verify_proof_pack(pack)
+            if not mem_valid:
+                raise _reject_proof_verify(
+                    CampError(
+                        code="RECORD_VERIFY_FAILED",
+                        message=f"Proof pack failed integrity verification before writing {file}.",
+                        hint="Regenerate the proof pack with 'xrpl-camp certificate'.",
+                        detail=mem_message,
+                        exit_code=EXIT_RUNTIME,
+                    ),
+                    file,
+                    json_output=json_output,
+                    hash_match=True,
+                )
+            try:
+                write_proof_pack_atomic(pack, file)
+                reloaded = json_mod.loads(file.read_text(encoding="utf-8"))
+            except CampFailure as exc:
+                raise _reject_proof_verify(
+                    exc.error,
+                    file,
+                    json_output=json_output,
+                    hash_match=True,
+                ) from None
+            except (json_mod.JSONDecodeError, ValueError, OSError) as exc:
+                raise _reject_proof_verify(
+                    CampError(
+                        code="RECORD_VERIFY_FAILED",
+                        message=f"Could not write or re-read the verification receipt in {file}.",
+                        hint=(
+                            "Restore the proof pack or regenerate it with "
+                            "'xrpl-camp certificate'."
+                        ),
+                        detail=f"{type(exc).__name__}: {exc}",
+                        exit_code=EXIT_RUNTIME,
+                    ),
+                    file,
+                    json_output=json_output,
+                    hash_match=True,
+                ) from None
+
+            post_valid, post_message = verify_proof_pack(reloaded)
+            if not post_valid:
+                raise _reject_proof_verify(
+                    CampError(
+                        code="RECORD_VERIFY_FAILED",
+                        message=(
+                            "Proof pack failed integrity verification after "
+                            f"recording the receipt in {file}."
+                        ),
+                        hint="Regenerate the proof pack with 'xrpl-camp certificate'.",
+                        detail=post_message,
+                        exit_code=EXIT_RUNTIME,
+                    ),
+                    file,
+                    json_output=json_output,
+                    hash_match=True,
+                )
+            recorded = True
 
     if json_output:
         # One document: the hash result, then the ledger's. "valid" means the
         # pack holds up to every check that was run, so a pack the ledger
         # contradicts is not valid even though its hash matches (1.4.2).
         doc = dict(offline or {"file": str(file)})
-        if summary.get("status") == SUMMARY_CONTRADICTED:
+        if online_status == SUMMARY_CONTRADICTED:
             doc["valid"] = False
+        doc["recorded"] = recorded
+        if record_skipped:
+            doc["record_skipped"] = record_skipped
         doc.update({"endpoint": endpoint, "online": summary, "lessons": results})
         print(json_mod.dumps(doc, indent=2, default=str))
         return typer.Exit(code)
@@ -1028,6 +1226,19 @@ def _verify_online(
             console.print(f"           [dim]{escape(str(problem))}[/dim]")
     console.print()
     console.print(f"  {escape(str(summary.get('message', summary.get('status', ''))))}")
+    if recorded:
+        receipt_count = len(pack.get("verifications", []))
+        word = "receipt" if receipt_count == 1 else "receipts"
+        console.print(
+            f"\n  [dim]Verification receipt added to {escape(str(file))} "
+            f"(pack now holds {receipt_count} {word}; unsealed, self-reported log).[/dim]",
+        )
+    elif record_skipped:
+        console.print(
+            f"\n  [dim]No verification receipt added to {escape(str(file))}: "
+            f"ledger check status is '{escape(record_skipped)}' "
+            "(receipts are recorded only when the ledger confirms the pack).[/dim]",
+        )
     console.print()
     return typer.Exit(code)
 

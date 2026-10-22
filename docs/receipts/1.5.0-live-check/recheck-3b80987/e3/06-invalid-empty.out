@@ -1,0 +1,9 @@
+{
+  "valid": false,
+  "hash_match": null,
+  "recorded": false,
+  "file": "invalid-empty.json",
+  "code": "PACK_INVALID",
+  "message": "That file is not an XRPL Camp proof pack: schema is missing, expected xrpl-camp-proof-pack-v*",
+  "hint": "Point this at xrpl_camp_proof_pack.json - not the certificate file."
+}

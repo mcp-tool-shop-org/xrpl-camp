@@ -1,0 +1,35 @@
+[
+  {
+    "txid": "D7F6E4E4AE5083C4967D7F1DF0769070B4A2F828E98D86C78894604865BFED19",
+    "type": "NFTokenMint",
+    "result": "tesSUCCESS",
+    "validated": true,
+    "ledger_index": 21741235,
+    "fee_drops": 10,
+    "account": "rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY",
+    "balance_before": 98999950,
+    "balance_after": 98999940,
+    "owner_count_before": 0,
+    "owner_count_after": 1,
+    "nft_nodes": [
+      "CreatedNode:NFTokenPage"
+    ],
+    "nftoken_id": "00000000AA1EE1B00AE478F62C71D0AFDFF45D842A57D02B98CCFCF1014BBD56"
+  },
+  {
+    "txid": "29F14935DEA4FEC00241C716044E934A7E572DE51F714CFA3024817E3875A9B5",
+    "type": "NFTokenBurn",
+    "result": "tesSUCCESS",
+    "validated": true,
+    "ledger_index": 21741238,
+    "fee_drops": 10,
+    "account": "rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY",
+    "balance_before": 98999940,
+    "balance_after": 98999930,
+    "owner_count_before": 1,
+    "owner_count_after": 0,
+    "nft_nodes": [
+      "DeletedNode:NFTokenPage"
+    ]
+  }
+]

@@ -34,48 +34,48 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 178,
-      "changed": 0,
+      "added": 50,
+      "changed": 7,
       "moved": 0,
-      "parts": 0,
+      "parts": 4,
       "removed": 0
     },
     "items": [
       {
         "kind": "unassigned",
-        "sentence": "docs/receipts/1.4.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "sentence": "docs/receipts/1.5.0-live-check/recheck-3b80987/code.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          "docs/receipts/1.4.1-live-check/README.md"
+          "docs/receipts/1.5.0-live-check/recheck-3b80987/code.txt"
         ]
       },
       {
         "kind": "unassigned",
-        "sentence": "docs/receipts/1.4.1-live-check/account_checks.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "sentence": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/00-setup.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          "docs/receipts/1.4.1-live-check/account_checks.txt"
+          "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/00-setup.txt"
         ]
       },
       {
         "kind": "unassigned",
-        "sentence": "docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "sentence": "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/01-refuse-no-online.cmd is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          "docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd"
+          "docs/receipts/1.5.0-live-check/recheck-3b80987/e3/01-refuse-no-online.cmd"
         ]
       },
       {
         "kind": "unassigned",
-        "sentence": "And 175 more new files that belong to no part.",
+        "sentence": "And 47 more new files that belong to no part.",
         "subjects": []
       },
       {
         "kind": "counts",
-        "sentence": "178 files added.",
+        "sentence": "50 files added and 7 changed content, across 4 parts.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "bf78d27161e3204223704ee1c517b72f8e8e3e60",
-      "generatedAt": "2026-10-22T07:04:49.612Z"
+      "commit": "cafcb2a0f20abab0c148f8c03d9da2370aca0257",
+      "generatedAt": "2026-10-22T18:32:04.661Z"
     },
     "unchanged": false
   },
@@ -94,66 +94,6 @@
       ],
       "relation": "inside",
       "shared": 7
-    },
-    {
-      "a": "xrpl_camp/cli.py",
-      "b": "xrpl_camp/transport.py",
-      "either": 8,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 6
-    },
-    {
-      "a": "xrpl_camp/lessons.py",
-      "b": "xrpl_camp/transport.py",
-      "either": 8,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 6
-    },
-    {
-      "a": "xrpl_camp/models.py",
-      "b": "xrpl_camp/transport.py",
-      "either": 7,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 5
-    },
-    {
-      "a": "xrpl_camp/cli.py",
-      "b": "xrpl_camp/models.py",
-      "either": 9,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 5
     }
   ],
   "changesTogetherNote": [
@@ -161,9 +101,9 @@
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "61f45e131dc70e877c29f1efa066fe35fa35270e",
+  "commit": "eae5d5fdb225025f05fc60b85e6d2a594806fcee",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly Python (33 files), shell (8), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
+  "derived": "7 parts, mostly Python (34 files), shell (9), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
     {
       "checks": [
@@ -192,7 +132,7 @@
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 23
+          "files": 24
         },
         {
           "boundary": "xrpl_camp",
@@ -440,13 +380,13 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-22T08:04:13.179Z",
+  "generatedAt": "2026-10-22T18:47:12.979Z",
   "limits": [
     "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
     "6 reads use paths built at run time and are not named here.",
-    "4 writes and 9 reads go to a path their caller passes, not to this repository.",
+    "4 writes and 10 reads go to a path their caller passes, not to this repository.",
     "1 write goes to a temporary directory, not to this repository.",
-    "379 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 376 more.",
+    "581 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 578 more.",
     "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
   ],
   "mainDoor": ".github/workflows/ci.yml",
@@ -471,10 +411,10 @@
   "startReason": "This path follows xrpl-camp (a command people run, from pyproject.toml) from its entry, since CI only checks code.",
   "summary": null,
   "summaryFrom": null,
-  "testFiles": 31,
+  "testFiles": 32,
   "testedBy": {
     "bin": 0,
-    "xrpl_camp": 21
+    "xrpl_camp": 22
   },
   "unnamedWrites": 0,
   "unread": [

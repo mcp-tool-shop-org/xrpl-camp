@@ -1,0 +1,9 @@
+{
+  "valid": false,
+  "hash_match": null,
+  "recorded": false,
+  "file": "invalid-notjson.json",
+  "code": "PACK_INVALID",
+  "message": "That file is not an XRPL Camp proof pack: invalid JSON",
+  "hint": "Point this at xrpl_camp_proof_pack.json - not the certificate file."
+}

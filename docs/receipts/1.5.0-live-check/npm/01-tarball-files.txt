@@ -1,0 +1,11 @@
+package/LICENSE
+package/bin/xrpl-camp.js
+package/package.json
+package/README.es.md
+package/README.fr.md
+package/README.hi.md
+package/README.it.md
+package/README.ja.md
+package/README.md
+package/README.pt-BR.md
+package/README.zh.md

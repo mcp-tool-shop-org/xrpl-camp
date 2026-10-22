@@ -45,6 +45,16 @@ xrpl-camp try
 
 Seven deliberate failures against the live network via the `simulate` facility. Nothing is signed, nothing is submitted, and it costs zero drops. Ends with a receipt showing which failures would have reached the ledger and charged you.
 
+## Watching the owner reserve lock and return
+
+```bash
+xrpl-camp reserve              # mint an NFT, then burn it (~20 drops in fees)
+xrpl-camp reserve --dry-run    # simulated numbers, zero network calls
+xrpl-camp reserve --json       # one JSON document on stdout, progress on stderr
+```
+
+Signs two Testnet transactions from your wallet: an `NFTokenMint` and an `NFTokenBurn` of that token. Any leftover `xrpl-camp` NFT from an earlier interrupted run is burned first. Exits 1 if you have no wallet or no spendable XRP, and exits non-zero (naming the `NFTokenID`) if a burn fails.
+
 ## Individual lessons
 
 ```bash
@@ -54,6 +64,7 @@ xrpl-camp fund
 xrpl-camp send --memo "hello"
 xrpl-camp verify --tx <hash>
 xrpl-camp certificate
+xrpl-camp certificate --format text       # also writes xrpl_camp_certificate.txt
 ```
 
 `verify` credits lesson 5 only for a transaction you sent. It will still show you anyone's transaction — it just will not pretend you wrote it.
@@ -75,12 +86,13 @@ xrpl-camp support-bundle         # diagnostic zip, home path and username redact
 ```bash
 xrpl-camp proof verify <file>                    # hash only, zero network calls
 xrpl-camp proof verify <file> --online           # also ask the ledger
+xrpl-camp proof verify <file> --online --record  # append a dated receipt to the pack
 xrpl-camp proof verify <file> --online --rpc-url https://your-node:51234/
 xrpl-camp proof verify <folder> --online         # a whole workshop at once
 xrpl-camp proof verify <file> --json
 ```
 
-See [Proof Pack](/xrpl-camp/handbook/proof-pack/) for what each result means.
+`--record` is opt-in and only works on a single valid proof pack with `--online` (never on a folder, never without `--online`, and never under `--dry-run` — each exits 1). A receipt is added only when the ledger confirms the pack (`confirmed`); any other online outcome leaves the file untouched. See [Proof Pack](/xrpl-camp/handbook/proof-pack/) for what each result means.
 
 ## Starting over
 

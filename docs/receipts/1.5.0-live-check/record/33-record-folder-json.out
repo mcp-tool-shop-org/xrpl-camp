@@ -1,0 +1,9 @@
+{
+  "valid": false,
+  "hash_match": false,
+  "recorded": false,
+  "file": "folder",
+  "code": "RECORD_FOLDER_UNSUPPORTED",
+  "message": "--record only works on a single proof pack file, not a folder.",
+  "hint": "Pass one proof pack file: xrpl-camp proof verify xrpl_camp_proof_pack.json --online --record"
+}

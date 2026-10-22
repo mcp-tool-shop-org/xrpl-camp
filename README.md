@@ -76,15 +76,16 @@ Six lessons, in order, resuming if you restart:
 | `xrpl-camp read <address>` | What somebody else wrote. No key, no login, no permission |
 | `xrpl-camp read <hash>` | One transaction, in full |
 | `xrpl-camp try` | Break it on purpose against the live network. Signs nothing, costs nothing |
+| `xrpl-camp reserve` | Mint and burn an NFT to watch the owner reserve lock and return |
 | `xrpl-camp status` | Progress checklist, with timings |
 | `xrpl-camp status --detail` | Facilitator view: wallet, endpoint, state directory, next step |
 | `xrpl-camp wallet create` / `show` | Create or display your Testnet wallet |
 | `xrpl-camp fund` | Fund your wallet via the Testnet faucet |
 | `xrpl-camp send --memo "hello"` | Send a memo payment to your mailbox |
 | `xrpl-camp verify --tx <hash>` | Verify a transaction **you** sent |
-| `xrpl-camp certificate` | Generate the certificate + proof pack |
+| `xrpl-camp certificate` | Generate the certificate + proof pack (`--format text` adds a `.txt` keepsake) |
 | `xrpl-camp proof verify <file>` | Check a proof pack's hash. Fully offline |
-| `xrpl-camp proof verify <file> --online` | Also ask the ledger whether the transactions really happened |
+| `xrpl-camp proof verify <file> --online` | Also ask the ledger whether the transactions really happened (`--record` appends a dated receipt) |
 | `xrpl-camp proof verify <folder>` | Verify every pack in a folder — for facilitators |
 | `xrpl-camp reset` | Wipe all state (requires typing `RESET`) |
 | `xrpl-camp self-check` | Diagnose your environment **and** your connection to the ledger |

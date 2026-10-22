@@ -1,0 +1,9 @@
+{
+  "valid": false,
+  "hash_match": true,
+  "recorded": false,
+  "file": "readonly.json",
+  "code": "ARTIFACT_WRITE_FAILED",
+  "message": "Could not write readonly.json: [WinError 5] Access is denied: '<scratch>/camp\\\\recheck150-e3\\\\readonly.jsonxzgcvu4x.tmp' -> 'readonly.json'.",
+  "hint": "Check that the path's parent directory is writable and that the path itself does not point at a directory."
+}

@@ -101,6 +101,21 @@ The three-letter prefix on an XRPL result code tells you which, before you press
 | `tel` | rejected locally by the server | nothing |
 | `tef` | already stale (e.g. a replayed sequence number) | nothing |
 
+## After camp: the reserve
+
+Lesson 3 showed the **base reserve** locked by your account existing. Every object your account owns on the ledger — an NFT page, a trust line, an offer — also locks an **owner reserve increment** for as long as you hold it.
+
+```bash
+xrpl-camp reserve
+```
+
+`xrpl-camp reserve` signs two Testnet transactions from your wallet in sequence: an `NFTokenMint`, then an `NFTokenBurn` of that same token. For each step it shows `OwnerCount`, total balance, and spendable XRP before and after:
+
+- On the mint, your balance drops by ~10 drops (the fee), while your spendable XRP drops by the fee **plus** the owner reserve increment (`locked`).
+- On the burn, your balance drops by another ~10 drops, while your spendable XRP jumps back up as the owner reserve is `released`.
+
+The whole demonstration costs two fees (~20 drops). The reserve is held while the object exists on the ledger and returned the moment it is removed — never spent.
+
 ## Endpoint and state
 
 ```bash

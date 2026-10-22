@@ -1,0 +1,9 @@
+{
+  "valid": false,
+  "hash_match": false,
+  "recorded": false,
+  "file": "valid.json",
+  "code": "RECORD_REQUIRES_ONLINE",
+  "message": "--record requires --online: there is no ledger check to record.",
+  "hint": "Run with both flags: xrpl-camp proof verify <file> --online --record"
+}

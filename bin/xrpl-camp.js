@@ -6,10 +6,11 @@
 // package.json's own "version" and pyproject.toml's, and all three have
 // already drifted independently in production (live npm registry served
 // 1.3.2, a version that exists nowhere in git). `tag` is intentionally
-// omitted: @mcptoolshop/npm-launcher@^1.0.0 already defaults it to
+// omitted: @mcptoolshop/npm-launcher@^1.2.0 already defaults it to
 // `v${config.version}`, which matches this repo's tagging convention, so
 // spelling it out here was redundant duplication of something the
-// dependency derives for free.
+// dependency derives for free (and 1.2.0 passes --version and --help
+// straight through to the tool).
 const { version } = require("../package.json");
 
 process.env.MCPTOOLSHOP_LAUNCH_CONFIG = JSON.stringify({

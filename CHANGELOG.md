@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.0] - 2026-10-22
+
+Wires the remaining CLI surfaces from the 1.4.0 build (issue #14): the owner
+reserve walkthrough, the plain-text keepsake certificate and share block, and
+dated verification receipts in proof packs.
+
+### Added
+
+- **`xrpl-camp reserve`** — mints an `xrpl-camp` NFT and burns it in the same
+  run so you can watch `OwnerCount`, total balance and spendable XRP move side
+  by side. Balance moves only by the two transaction fees (~20 drops);
+  spendable XRP drops by the owner reserve increment (`locked`) on the mint and
+  returns (`released`) on the burn. Any leftover `xrpl-camp` NFT from an
+  interrupted run is burned first. Supports `--dry-run` (simulated numbers,
+  zero network calls) and `--json` (one JSON document, progress to stderr).
+- **`xrpl-camp certificate --format json|text` and share block** — `--format text`
+  writes `xrpl_camp_certificate.txt` (a human-readable narrative keepsake)
+  alongside `xrpl_camp_certificate.json` and `xrpl_camp_proof_pack.json`, using
+  the same seed-leak guard, atomic temp-file write and unique `.bak` backup
+  path. Sealing a certificate (via `certificate` or Lesson 6 in `start`) now
+  prints a plain-text copy-to-share block with the explorer link and `proof verify`
+  command.
+- **`xrpl-camp proof verify <file> --online --record`** — appends a dated,
+  self-reported verification receipt to `pack["verifications"]` when the ledger
+  confirms the pack (outside the SHA-256 seal, so the original `sha256` stays
+  intact) and re-verifies the file after writing. Refuses tampered packs without
+  modifying the file, and refuses `--record` without `--online`, on a folder, or
+  under `--dry-run`.
+
+### Changed
+
+- `@mcptoolshop/npm-launcher` dependency range updated from `1.1.1` to
+  `^1.2.0`, passing `--version` and `--help` through to the binary.
+- `XRPLUnfundedAccount` now exits `1` (a user error) rather than `2`, matching
+  `unfunded_error()` and the documented exit codes wherever an unfunded account
+  is reported (including Lesson 4's `send` and `reserve`).
+- `proof verify --online --record` appends a receipt only on a `confirmed`
+  ledger check; unconfirmed outcomes (`contradicted`, `unknown`,
+  `ledger_history_gone`, `nothing_to_check`) leave the pack untouched.
+- `proof verify --json` errors that come before the hash check now report
+  `"hash_match": null`, not `false`.
+
 ## [1.4.2] - 2026-10-22
 
 From an outside review of v1.4.1 and a live run of the whole course on the XRPL

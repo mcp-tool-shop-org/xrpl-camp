@@ -135,3 +135,42 @@ def test_the_full_guided_flow_completes_against_the_live_testnet(tmp_path):
     tx = transport.lookup_tx(saved.txids["lesson_4"])
     assert tx["found"] is True
     assert tx["result"] == "tesSUCCESS"
+
+
+def test_reserve_locks_and_releases_owner_reserve_on_live_testnet(
+    funded_wallet, capsys,
+):
+    """`xrpl-camp reserve` against the live Testnet: mint then burn."""
+    import json
+
+    wallet.save_wallet(funded_wallet.address, funded_wallet.seed)
+
+    code = lessons.run_reserve(json_output=True)
+    captured = capsys.readouterr()
+    assert code == 0, captured.err
+
+    data = json.loads(captured.out)
+    mint = data["mint"]
+    burn = data["burn"]
+
+    assert len(mint["txid"]) == 64
+    assert len(burn["txid"]) == 64
+
+    # OwnerCount goes up by 1 on the mint, then back down by 1 on the burn.
+    assert mint["owner_count_delta"] == 1
+    assert burn["owner_count_delta"] == -1
+    assert burn["owner_count_after"] == mint["owner_count_before"]
+
+    # Balance moves only by the two transaction fees.
+    assert -10_000 <= mint["balance_delta"] < 0
+    assert -10_000 <= burn["balance_delta"] < 0
+
+    # Spendable XRP falls by the reserve increment (plus fee), then comes back.
+    inc = mint["reserve_delta"]
+    assert inc > 0
+    assert burn["reserve_delta"] == -inc
+    assert mint["spendable_delta"] == mint["balance_delta"] - inc
+    assert burn["spendable_delta"] == burn["balance_delta"] + inc
+    assert data["net_reserve_delta"] == 0
+    assert data["net_balance_delta"] == mint["balance_delta"] + burn["balance_delta"]
+    assert data["net_spendable_delta"] == data["net_balance_delta"]

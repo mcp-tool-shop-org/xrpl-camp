@@ -1,0 +1,2 @@
+  [WALLET_MISSING] No wallet found.
+  Run 'xrpl-camp wallet create' (or 'xrpl-camp start') to make one.

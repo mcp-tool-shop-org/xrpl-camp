@@ -76,6 +76,22 @@ With `--json`, a file or a folder prints exactly one JSON document, and progress
 
 A pack in a newer format than this version knows (`xrpl-camp-proof-pack-v*`) is still checked: its hash is verified, and the output says the version is unknown.
 
+## Verification receipts (`--record`)
+
+```bash
+xrpl-camp proof verify xrpl_camp_proof_pack.json --online --record
+```
+
+Passing `--record` alongside `--online` on a single valid proof pack appends a dated entry to `verifications` inside the file and writes it back atomically **only when the ledger confirms the pack** (`confirmed`). If the online check is `contradicted`, `unknown`, `ledger_history_gone`, or `nothing_to_check`, no receipt is added and the file is left untouched.
+
+Because `verifications` sits outside the SHA-256 hash, appending a receipt leaves `sha256` unchanged, and the file continues to pass `xrpl-camp proof verify`. A tampered pack whose hash does not match is refused before any network call and is left byte-for-byte unchanged.
+
+Receipts are **self-reported log lines**, not cryptographic signatures:
+
+- Each receipt records when a copy of the tool ran `--online`, which endpoint it queried, and what the ledger answered on that date.
+- Every receipt carries a built-in disclaimer (`"self_reported": true`), stating explicitly that it sits outside the seal and proves nothing on its own.
+- Having more receipts is never a score or a level. Its only use is historical context after a Testnet reset, when someone who checked the pack while the ledger history was still live wants a dated note of what they saw.
+
 ## Longevity
 
 The Testnet is reset from time to time, and the transactions in your pack will eventually stop resolving. That is a property of a test network, not a flaw in the record — the pack keeps the ledger indices and close times, so a reader years from now can tell that these events were real and that the network they lived on has since been rebuilt.

@@ -1,18 +1,18 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-22 from commit 61f45e1 by Atlas 1.24.0.
+Mapped at 2026-10-22 from commit eae5d5f by Atlas 1.24.0.
 
 ## What this is
 
-7 parts, mostly Python (33 files), shell (8), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (34 files), shell (9), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-22 (bf78d27)
+## What changed since 2026-10-22 (cafcb2a)
 
-- docs/receipts/1.4.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.4.1-live-check/account_checks.txt is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
-- And 175 more new files that belong to no part.
-- 178 files added.
+- docs/receipts/1.5.0-live-check/recheck-3b80987/code.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.0-live-check/recheck-3b80987/e3/00-setup.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.0-live-check/recheck-3b80987/e3/01-refuse-no-online.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
+- And 47 more new files that belong to no part.
+- 50 files added and 7 changed content, across 4 parts.
 
 ## What comes in
 
@@ -56,10 +56,6 @@ CI writes nothing this map can see.
 ## What tends to change together
 
 - **xrpl_camp/cli.py** and **xrpl_camp/lessons.py** changed together in 7 of 9 commits, inside the xrpl_camp part.
-- **xrpl_camp/cli.py** and **xrpl_camp/transport.py** changed together in 6 of 8 commits, inside the xrpl_camp part.
-- **xrpl_camp/lessons.py** and **xrpl_camp/transport.py** changed together in 6 of 8 commits, inside the xrpl_camp part.
-- **xrpl_camp/models.py** and **xrpl_camp/transport.py** changed together in 5 of 7 commits, inside the xrpl_camp part.
-- **xrpl_camp/cli.py** and **xrpl_camp/models.py** changed together in 5 of 9 commits, inside the xrpl_camp part.
 
 Confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
@@ -95,9 +91,9 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 
 - 1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.
 - 6 reads use paths built at run time and are not named here.
-- 4 writes and 9 reads go to a path their caller passes, not to this repository.
+- 4 writes and 10 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
-- 379 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 376 more.
+- 581 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 578 more.
 - Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.

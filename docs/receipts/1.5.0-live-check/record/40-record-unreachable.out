@@ -1,0 +1,35 @@
+
+  ✅ PASS — Proof pack integrity verified.
+
+  File:     valid.json
+  Schema:   xrpl-camp-proof-pack-v1
+  Address:  rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY
+  Network:  testnet
+  Lessons:  6
+  SHA-256:  sha256:32b165a12ab2956c842e739d36b83c24a67b816055d43fe55b6518491fcd045e
+
+  Checking lesson 4 against the ledger...
+  ─── Ledger check ───
+  Verified against: https://s.altnet.rippletest.net:1/
+  This pack claims testnet at https://s.altnet.rippletest.net:51234/, but it was checked against https://s.altnet.rippletest.net:1/ -- the 
+pack does not get to choose where it is verified. If this pack really was made against another endpoint, re-run with --rpc-url to check it 
+there deliberately.
+
+  SKIPPED   Mental Model
+           this lesson records no transaction
+  SKIPPED   Create Wallet
+           this lesson records no transaction
+  SKIPPED   Fund Wallet
+           this lesson records no transaction
+  UNREACHED  Send Payment
+           Could not connect to https://s.altnet.rippletest.net:1/: 
+  SKIPPED   Verify Transaction
+           this lesson records no transaction
+  SKIPPED   Certificate
+           this lesson records no transaction
+
+  1 of 1 transactions could not be checked because the endpoint was unreachable. Nothing was disproved and nothing was confirmed.
+
+  No verification receipt added to valid.json: ledger check status is 'unknown' (receipts are recorded only when the ledger confirms the 
+pack).
+

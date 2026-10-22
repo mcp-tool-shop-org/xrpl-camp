@@ -1,0 +1,13 @@
+{
+  "valid": false,
+  "hash_match": false,
+  "recorded": false,
+  "file": "tampered.json",
+  "schema": "xrpl-camp-proof-pack-v1",
+  "address": "rGWW1JWMihT9PaEntHFVaxY5oaacMa38RY",
+  "network": "testnet",
+  "lessons_completed": 6,
+  "tool_version": "1.5.0",
+  "sha256": "sha256:32b165a12ab2956c842e739d36b83c24a67b816055d43fe55b6518491fcd045e",
+  "message": "Hash mismatch: stored sha256:32b165a12ab2956c842e739d36b83c24a67b816055d43fe55b6518491fcd045e, computed sha256:ec7763d5aeadedc24104cdb7304e7391a5e0350b5c5b34bb0bbf5f99b91e9552"
+}

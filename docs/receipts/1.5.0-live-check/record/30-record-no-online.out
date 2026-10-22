@@ -1,0 +1,2 @@
+  [RECORD_REQUIRES_ONLINE] --record requires --online: there is no ledger check to record.
+  Run with both flags: xrpl-camp proof verify <file> --online --record

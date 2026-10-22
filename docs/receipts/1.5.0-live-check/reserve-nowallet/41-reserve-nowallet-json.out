@@ -1,0 +1,7 @@
+{
+  "ok": false,
+  "code": "WALLET_MISSING",
+  "message": "No wallet found.",
+  "hint": "Run 'xrpl-camp wallet create' (or 'xrpl-camp start') to make one.",
+  "leftover_burned": []
+}
