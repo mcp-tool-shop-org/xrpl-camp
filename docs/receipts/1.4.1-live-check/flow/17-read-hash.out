@@ -1,0 +1,21 @@
+  Looking it up... (one hash, no login, no API key) found.
+
+                                 Transaction Details                                  
+┌─────────────────┬──────────────────────────────────────────────────────────────────┐
+│ Field           │ Value                                                            │
+├─────────────────┼──────────────────────────────────────────────────────────────────┤
+│ Hash            │ 2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4 │
+│ From            │ rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC                               │
+│ To              │ rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR                               │
+│ Amount          │ 1000000 drops                                                    │
+│ Delivered       │ 1000000 drops                                                    │
+│ Fee             │ 10 drops                                                         │
+│ Memo (readback) │ book keeper v1.4.1 live check                                    │
+│ Ledger          │ 21727381                                                         │
+│ Time            │ 2026-10-22T05:50:20Z                                             │
+│ Result          │ tesSUCCESS                                                       │
+│ Validated       │ True                                                             │
+└─────────────────┴──────────────────────────────────────────────────────────────────┘
+
+  On the public ledger, where anyone can check it:
+  https://testnet.xrpl.org/transactions/2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4

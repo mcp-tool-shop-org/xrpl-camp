@@ -1,0 +1,7 @@
+write <home>/AppData\Local\Temp\hc3qdxfm
+os.remove <home>/AppData\Local\Temp\hc3qdxfm -1
+os.mkdir <home>/AppData\Local\Temp\xrpl-camp-txw7mh4j 448
+write <home>/AppData\Local\Temp\xrpl-camp-txw7mh4j\probe.txt
+shutil.rmtree <home>/AppData\Local\Temp\xrpl-camp-txw7mh4j None
+os.remove <home>/AppData\Local\Temp\xrpl-camp-txw7mh4j\probe.txt -1
+os.rmdir <home>/AppData\Local\Temp\xrpl-camp-txw7mh4j -1

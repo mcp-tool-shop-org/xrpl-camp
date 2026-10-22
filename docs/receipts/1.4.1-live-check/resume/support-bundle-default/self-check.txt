@@ -1,0 +1,10 @@
+  OK  Version  1.4.1
+  OK  Platform  Windows AMD64 · Python 3.13.13
+  OK  Console encoding  utf-8
+  OK  Rich rendering  Table renders correctly
+  OK  Filesystem write  Temp write succeeded
+  OK  State directory  3 file(s) in <scratch>/camp\resume-20261022T0554Z-faucet\.xrpl-camp (follows your working directory)
+  OK  xrpl  5.2.0
+  OK  typer  0.27.3
+  OK  rich  15.0.0
+  --  Network checks  skipped (--offline)

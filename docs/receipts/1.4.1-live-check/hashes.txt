@@ -1,0 +1,6 @@
+1 flow lesson 4                      2B7CF0F5679F06DF Payment rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC -> rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR amt=1000000 tesSUCCESS ledger=21727381 validated memo='book keeper v1.4.1 live check'
+2 send --memo                        A3418C433A0A1D65 Payment rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC -> rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR amt=1 tesSUCCESS ledger=21727400 validated memo='book keeper send check'
+3 interrupted after submit           18B8294A3DC78953 Payment rEzKTTzXAE9QjhS2GCxUrMZ5njvmt4898L -> rJFJLg4ffZ44JMPc5ZaABPGKPcbYFuhQ6v amt=1000000 tesSUCCESS ledger=21727568 validated memo='resume check after submit'
+3 resume re-send (duplicate)         7AA45A5D01A1EF7D Payment rEzKTTzXAE9QjhS2GCxUrMZ5njvmt4898L -> rJFJLg4ffZ44JMPc5ZaABPGKPcbYFuhQ6v amt=1 tesSUCCESS ledger=21727575 validated memo='resume check after submit'
+3 resume after faucet Ctrl-C         8C350B86070D341D Payment rfPZMN7bH5FLfZZoyjo9xzK1yWDpbsvyEP -> rEk8XVc1Ern3vRzfysvZQTa5YQNjHUQwyq amt=1000000 tesSUCCESS ledger=21727537 validated memo='resume check in flight'
+3 resume after early submit Ctrl-C   1416EDB0748C2002 Payment r9GFm3muHMuoJj4mokZ5PGio5vYWXn7rYY -> rDmiKaSCZMwW9MvPtgbmqett496k3DtQwe amt=1000000 tesSUCCESS ledger=21727499 validated memo='resume check submit'

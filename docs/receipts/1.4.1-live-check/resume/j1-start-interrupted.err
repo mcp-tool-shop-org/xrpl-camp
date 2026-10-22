@@ -1,0 +1,3 @@
+[interrupt_cli] submit returned: tesSUCCESS hash=18B8294A3DC78953558FFACBB02B2ACD98E2554145C69B95C7AA37DEAC1378EC
+[interrupt_cli] Ctrl-C 0.5s after the submit RPC returned
+[interrupt_cli] fired=True exit=130
