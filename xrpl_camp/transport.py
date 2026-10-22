@@ -1577,12 +1577,21 @@ def resolve_in_flight(
     :func:`_engine_failure` does.
     """
     url = url or get_rpc_url()
+    # server_state is read BEFORE the lookup (Argon F2). If the validated
+    # ledger is already past LastLedgerSequence here, every ledger the payment
+    # could have landed in was final when the lookup ran, so a miss is
+    # conclusive. Read after, a payment validated between the two calls would
+    # look absent, and lesson 4 would send the memo twice.
+    state = _server_state(url) or {}
+    seq = _int_or_none((state.get("validated_ledger") or {}).get("seq")) or 0
     try:
         return _resolve_after_lapse(txid, last_ledger, destination, amount_drops, url)
     except XRPLSubmissionUnresolved as exc:
-        state = _server_state(url) or {}
-        seq = _int_or_none((state.get("validated_ledger") or {}).get("seq")) or 0
-        if last_ledger and seq > last_ledger and "lookup=" not in (exc.error.detail or ""):
+        lookup_worked = "lookup=" not in (exc.error.detail or "")
+        if (
+            last_ledger and seq > last_ledger and lookup_worked
+            and _holds_window(state, last_ledger)
+        ):
             return None
         raise XRPLSubmissionUnresolved(
             "Your last payment was signed and sent, and it may still land: "
@@ -1593,6 +1602,29 @@ def resolve_in_flight(
             last_ledger=last_ledger,
             detail=f"validated_seq={seq} last_ledger={last_ledger}",
         ) from exc
+
+
+#: xrpl-py's autofill sets LastLedgerSequence this many ledgers past the one
+#: it read, so a payment can only have landed in this many ledgers up to it.
+_LAST_LEDGER_OFFSET = 20
+
+
+def _holds_window(state: dict, last_ledger: int) -> bool:
+    """Whether the server still holds every ledger the payment could be in.
+
+    A miss only proves absence if the server has those ledgers. After online
+    deletion or a Testnet reset it may not, and "not found" then means
+    "not known" (Argon F2). ``complete_ledgers`` is "a-b,c-d"; one span must
+    cover the whole window.
+    """
+    first = max(1, last_ledger - _LAST_LEDGER_OFFSET)
+    raw = str(state.get("complete_ledgers", "") or "").strip()
+    for span in raw.split(","):
+        lo, _, hi = span.strip().partition("-")
+        low, high = _int_or_none(lo.strip()), _int_or_none((hi or lo).strip())
+        if low is not None and high is not None and low <= first and last_ledger <= high:
+            return True
+    return False
 
 
 def _submission_failure(
@@ -1796,11 +1828,12 @@ def send_memo_payment(
 
     # Autofill + sign BEFORE submitting, so the hash exists on this side of
     # the wire. Autofill and signing are entirely pre-submission — nothing has
-    # been sent when they fail — so this stays best effort: if it cannot be
-    # done, submit the unsigned payment exactly as before and carry no hash.
-    # A tool that could not pre-sign must still be able to send; what it must
-    # NOT do is call an unresolved submission retryable, and that holds either
-    # way (see `_submission_failure`).
+    # been sent when they fail. Without `on_signed` this stays best effort: if
+    # it cannot be done, submit the unsigned payment exactly as before and
+    # carry no hash; what it must NOT do is call an unresolved submission
+    # retryable, and that holds either way (see `_submission_failure`).
+    # With `on_signed`, the caller has asked that nothing be sent whose hash it
+    # hasn't saved, so a failed pre-sign stops here (1.4.2, Argon F3).
     to_submit = payment
     txid = ""
     last_ledger = 0
@@ -1809,7 +1842,14 @@ def send_memo_payment(
         txid = str(signed.get_hash())
         last_ledger = _int_or_none(signed.last_ledger_sequence) or 0
         to_submit = signed
-    except Exception:
+    except Exception as e:
+        if on_signed is not None:
+            raise XRPLConnectionError(
+                "Could not prepare the payment: reading the fee, sequence or "
+                "ledger from the network failed. Nothing was sent.",
+                code="NET_PRESIGN",
+                detail=f"{type(e).__name__}: {e}",
+            ) from e
         logger.debug("could not pre-sign; submitting unsigned", exc_info=True)
 
     if txid and on_signed is not None:

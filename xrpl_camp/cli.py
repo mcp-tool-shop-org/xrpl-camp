@@ -9,6 +9,7 @@ they can quote in a bug report, a plain message, and something to try next.
 
 from __future__ import annotations
 
+import contextlib
 import os
 import platform
 import re
@@ -909,7 +910,10 @@ def proof_verify(
             "sha256": pack.get("sha256", ""),
             "message": message,
         }
-        print(json_mod.dumps(result, indent=2))
+        if not (online and valid):
+            print(json_mod.dumps(result, indent=2))
+        # Otherwise the online path prints ONE document with `result` folded
+        # in (1.4.2): --json is a single parseable object, never two.
     else:
         if valid:
             console.print("\n  [green]✅ PASS[/green] — Proof pack integrity verified.\n")
@@ -934,18 +938,25 @@ def proof_verify(
         raise typer.Exit(1)
 
     if online:
+        offline = result if json_output else None
         if _simulating(False):
-            raise _online_skipped_for_dry_run(json_output)
-        raise _verify_online(pack, file, rpc_url=rpc_url, json_output=json_output)
+            raise _online_skipped_for_dry_run(json_output, offline)
+        raise _verify_online(
+            pack, file, rpc_url=rpc_url, json_output=json_output, offline=offline,
+        )
 
 
-def _online_skipped_for_dry_run(json_output: bool) -> typer.Exit:
+def _online_skipped_for_dry_run(
+    json_output: bool, offline: dict | None = None,
+) -> typer.Exit:
     """--online under --dry-run: dry-run promises no network calls (1.4.2)."""
     import json as json_mod
 
     note = "--online was skipped: --dry-run makes no network calls."
     if json_output:
-        print(json_mod.dumps({"online": {"status": "skipped", "message": note}}))
+        doc = dict(offline or {})
+        doc["online"] = {"status": "skipped", "message": note}
+        print(json_mod.dumps(doc, indent=2))
     else:
         console.print(f"  [yellow]{note}[/yellow]\n")
     return typer.Exit(EXIT_OK)
@@ -953,6 +964,7 @@ def _online_skipped_for_dry_run(json_output: bool) -> typer.Exit:
 
 def _verify_online(
     pack: dict, file: Path, *, rpc_url: str, json_output: bool,
+    offline: dict | None = None,
 ) -> typer.Exit:
     """Ask the ledger whether the transactions this pack names actually happened.
 
@@ -963,6 +975,7 @@ def _verify_online(
     import json as json_mod
 
     from xrpl_camp.proof_pack import (
+        SUMMARY_CONTRADICTED,
         endpoint_claim,
         online_exit_code,
         resolve_verification_endpoint,
@@ -975,16 +988,18 @@ def _verify_online(
     # for a learner running lessons and wrong for auditing someone else's file.
     endpoint = resolve_verification_endpoint(rpc_url)
     claim = endpoint_claim(pack, endpoint)
-    results, summary = _online_check(pack, endpoint)
+    results, summary = _online_check(pack, endpoint, quiet=json_output)
     code = online_exit_code(summary)
 
     if json_output:
-        print(json_mod.dumps({
-            "file": str(file),
-            "endpoint": endpoint,
-            "online": summary,
-            "lessons": results,
-        }, indent=2, default=str))
+        # One document: the hash result, then the ledger's. "valid" means the
+        # pack holds up to every check that was run, so a pack the ledger
+        # contradicts is not valid even though its hash matches (1.4.2).
+        doc = dict(offline or {"file": str(file)})
+        if summary.get("status") == SUMMARY_CONTRADICTED:
+            doc["valid"] = False
+        doc.update({"endpoint": endpoint, "online": summary, "lessons": results})
+        print(json_mod.dumps(doc, indent=2, default=str))
         return typer.Exit(code)
 
     # Rendered as a clearly separate second block. The hash result above and
@@ -1017,12 +1032,40 @@ def _verify_online(
     return typer.Exit(code)
 
 
-def _online_check(pack: dict, endpoint: str) -> tuple[list, dict]:
+def _online_check(
+    pack: dict, endpoint: str, *, quiet: bool = False,
+) -> tuple[list, dict]:
     """Look up each lesson's transaction on `endpoint`; classify and summarise.
 
     Shared by a single file and a folder (1.4.2), so both ask the ledger the
-    same questions.
+    same questions. `quiet` (for --json) sends the progress lines to stderr,
+    so stdout carries nothing but the JSON document.
     """
+    with _progress_to_stderr(quiet):
+        return _online_check_inner(pack, endpoint)
+
+
+@contextlib.contextmanager
+def _progress_to_stderr(enabled: bool):
+    """Swap the lessons console for a stderr one for the duration (1.4.2).
+
+    Swapped rather than repointed: a Console's `file` reads back the resolved
+    stream, so restoring it would pin whatever stdout was at the time.
+    """
+    from xrpl_camp import lessons
+
+    if not enabled:
+        yield
+        return
+    previous = lessons.console
+    lessons.console = Console(stderr=True)
+    try:
+        yield
+    finally:
+        lessons.console = previous
+
+
+def _online_check_inner(pack: dict, endpoint: str) -> tuple[list, dict]:
     from xrpl_camp import lessons, transport
     from xrpl_camp.errors import lookup_error
     from xrpl_camp.proof_pack import (
@@ -1126,7 +1169,10 @@ def _verify_folder(
         valid, message = verify_proof_pack(pack)
         # A pack that fails its own hash is already answered; it is never
         # sent to the ledger (as for a single file).
-        summary = _online_check(pack, endpoint)[1] if (check_online and valid) else None
+        summary = (
+            _online_check(pack, endpoint, quiet=json_output)[1]
+            if (check_online and valid) else None
+        )
         results.append((path, valid, message, pack, summary))
 
     rollup = batch_summary([
@@ -1147,17 +1193,31 @@ def _verify_folder(
     else:
         code = EXIT_OK
 
+    def holds(valid: bool, summary: dict | None) -> bool:
+        # Valid = holds up to every check that was run: a matching hash the
+        # ledger contradicts is not valid (1.4.2, Argon F1).
+        return valid and not (
+            summary and summary.get("status") == SUMMARY_CONTRADICTED
+        )
+
+    failed = sum(1 for _p, v, _m, _k, s in results if not holds(v, s))
     skip_note = "--online was skipped: --dry-run makes no network calls."
     if json_output:
         out = {
             "folder": str(folder),
             "checked": len(results),
-            "passed": len(results) - len(hash_failed),
-            "failed": len(hash_failed),
+            # With --online, "passed" is a clean pass on every check (the
+            # rollup's count); packs that couldn't be checked are neither.
+            "passed": rollup["passed"] if check_online else len(results) - failed,
+            "failed": failed,
+            **(
+                {"unverifiable": len(results) - failed - rollup["passed"]}
+                if check_online else {}
+            ),
             "packs": [
                 {
                     "file": str(path),
-                    "valid": valid,
+                    "valid": holds(valid, summary),
                     "hash_match": valid,
                     "address": pack.get("address", ""),
                     "network": pack.get("network", ""),
@@ -1190,7 +1250,9 @@ def _verify_folder(
     for path, valid, message, pack, summary in results:
         mark = "[green]PASS[/green]" if valid else "[red]FAIL[/red]"
         who = str(pack.get("address", "")) or "unknown address"
-        tail = "" if valid else f" — {escape(message)}"
+        # A newer schema's warning is shown even when its hash holds (F4).
+        newer = valid and pack.get("schema") != PROOF_PACK_SCHEMA
+        tail = f" — {escape(message)}" if (not valid or newer) else ""
         ledger = ""
         if summary is not None:
             status = str(summary.get("status", ""))
