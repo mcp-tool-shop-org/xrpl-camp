@@ -82,9 +82,9 @@ tee'd stdout. Its own flush failed at exit, so the process exit is 120, while th
 `harness/trace_camp.py` installs Python audit hooks and logs every DNS lookup, every connect, every write-mode `open`
 and every mkdir, rename, remove and chmod. File listings are taken before and after each run.
 
-| Run | Exit | Lessons | Lookups | Writes (not `__pycache__`) | New files |
+| Run | Exit | Lessons | Lookups | Filesystem changes (not `__pycache__`) | New files |
 |---|---|---|---|---|---|
-| control: `self-check --offline` | 0 | — | 0 | 7 (its temp-dir probe) | 0 |
+| control: `self-check --offline` | 0 | — | 0 | 7 (its temp-dir probe: write, mkdir, remove) | 0 |
 | control: `read <address>` | 0 | — | 1 (`s.altnet.rippletest.net`) | 0 | 0 |
 | `--yes start --dry-run --memo …` | 0 | all 6 shown; lesson 6 "SIMULATION — No artifacts" | **0** | **0** | **0** |
 | `--yes --dry-run start --memo …` (global flag) | 0 | all 6 | **0** | **0** | **0** |
