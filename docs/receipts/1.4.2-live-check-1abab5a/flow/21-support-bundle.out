@@ -1,0 +1,25 @@
+
+  OK  Version  1.4.2
+  OK  Platform  Windows AMD64 · Python 3.13.13
+  OK  Console encoding  utf-8
+  OK  Rich rendering  Table renders correctly
+  OK  Filesystem write  Temp write succeeded
+  OK  State directory  3 file(s) in 
+<scratch>/camp\recheck-142-1abab5a-20261022T0
+641Z\flow\home
+  OK  xrpl  5.2.0
+  OK  typer  0.27.3
+  OK  rich  15.0.0
+  OK  Endpoint  https://s.altnet.rippletest.net:51234/  (testnet)
+  OK  Endpoint reachable  yes, 107 ms to open a connection
+  OK  Ledger round-trip  network_id 1 (Testnet)
+
+  This bundle will contain:
+    self-check.txt      the diagnostics printed above
+    session.json        your lesson progress (no seed)
+    state-listing.txt   the names of files in the state folder (no contents)
+    environment.json    tool version, OS, endpoint, XRPL_CAMP_* settings
+  No seed, no wallet file, and no user names or home paths.
+
+  Bundle written: bundle.zip
+  Attach this file to your GitHub issue.

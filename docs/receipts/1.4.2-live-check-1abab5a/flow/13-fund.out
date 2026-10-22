@@ -1,0 +1,20 @@
+  Endpoint: https://s.altnet.rippletest.net:51234/
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 3: Fund Your Wallet                                                                                                              │
+│                                                                                                                                         │
+│ The XRPL Testnet has a faucet that gives free test XRP.                                                                                 │
+│ This is play money — no real value, nothing at risk.                                                                                    │
+│ But it behaves exactly like real XRP on the ledger.                                                                                     │
+│                                                                                                                                         │
+│ Usually about ten seconds, and up to a minute when the faucet is                                                                        │
+│ busy — a whole room asking it at once will do that.                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Funding your wallet from the Testnet faucet... (usually about ten seconds) done.
+  Your wallet already holds test XRP, so the faucet was not asked again: its grants are shared with everyone using it.
+
+  Balance:   99.00 XRP (98,999,990 drops)
+  Spendable: 98.00 XRP — the other 1.00 is the reserve, locked for as long as the account exists. The ledger charges rent for the space you
+take up.
+
+  ✓ Account funded. The network knows you exist now.

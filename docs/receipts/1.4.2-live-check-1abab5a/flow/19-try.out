@@ -1,0 +1,61 @@
+┌──────────────────────────────────────────────────────────── XRPL Camp — try ────────────────────────────────────────────────────────────┐
+│ Breaking it on purpose                                                                                                                  │
+│                                                                                                                                         │
+│ Every one of these runs against the live network and none of them                                                                       │
+│ signs anything, sends anything or costs a drop. The ledger tells us                                                                     │
+│ exactly what it would have done.                                                                                                        │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Send to an address with one character wrong
+  Sending to: ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhA  (one character off)
+  refused  caught by your machine, before anything is built
+  An XRPL address carries its own checksum, so this never left your machine. You cannot send to an address that does not exist because you 
+cannot type one by accident.
+
+  Send a payment to yourself
+  Sending to: ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL  (yourself)
+  XRPLModelException  caught by the library, before anything is signed
+  The ledger would reject this as temREDUNDANT, but it never got the chance: the library refused to build the transaction at all.
+
+  Offer a fee the network will not relay
+  telCAN_NOT_QUEUE  caught by the server, before consensus
+  The server would not even pass it on. A transaction rejected here never reaches consensus and never costs anything — which is why the fee
+is a queue, not a charge.
+
+  Look up a transaction that never existed
+  Looking up: A4E7DBAED0492C4AD1AC518B4776205C5F3A6C5F15B57C313B951CE37AF345BE
+  txnNotFound  caught by the ledger itself
+  That is a perfectly well-formed hash. It is just not a transaction. The ledger does not guess, and reading is free, so asking cost 
+nothing at all.
+
+  Send the same transaction a second time
+  telCAN_NOT_QUEUE  caught by the server, before consensus
+  Every transaction carries a sequence number and each one can be used once. Replay a signed transaction and the ledger has already moved 
+past it. This is why nobody can charge you twice. (This preview answers telCAN_NOT_QUEUE, because the server cannot queue a transaction 
+whose sequence has passed. Submitted for real, the same transaction is refused with tefPAST_SEQ. Neither costs anything.)
+
+  Send one drop to an account that does not exist
+  Sending 1 drop to: rKg6hDfqdu2Pt992XdwRp6DFhM31igXZoK  (brand new)
+  tecNO_DST_INSUF_XRP  caught by the ledger itself
+  An account has to be funded to at least the base reserve before it exists at all. One drop is not enough to bring it into being — and 
+this is the first failure so far that would have reached the ledger.
+  For real, this one lands on the ledger and costs 10 drops. It cost 0 here.
+
+  Spend more than you have
+  Sending: 99,999,979 drops (99.999979 XRP)  (more than you have)
+  tecUNFUNDED_PAYMENT  caught by the ledger itself
+  Your balance is not your spendable balance. The reserve is locked for as long as the account exists, and a payment that ignores it lands 
+on the ledger as a failure you paid for.
+  For real, this one lands on the ledger and costs 10 drops. It cost 0 here.
+
+┌────────────────────────────────────────────────────────────── The receipt ──────────────────────────────────────────────────────────────┐
+│ 7 deliberate failures. This run cost 0 drops.                                                                                           │
+│                                                                                                                                         │
+│   5 free   — refused before the ledger ever saw them                                                                                    │
+│   2 costly — would have landed, 20 drops and a permanent row                                                                            │
+│                                                                                                                                         │
+│ The first three letters tell you which, before you press send:                                                                          │
+│   tem tel tef  malformed, rejected locally, already stale — never applied, never charged                                                │
+│   tec          the ledger accepted the transaction and recorded that it failed. You pay.                                                │
+│   tes          success                                                                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘

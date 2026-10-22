@@ -1,0 +1,8 @@
+bundle entries: ['self-check.txt', 'session.json', 'state-listing.txt', 'environment.json']
+self-check.txt: 595 chars, hits: none
+session.json: 4652 chars, hits: none
+state-listing.txt: 37 chars, hits: none
+environment.json: 795 chars, hits: none
+environment.json state_dir = <scratch>/camp\recheck-142-1abab5a-20261022T0641Z\flow\home
+environment.json camp_environment = {'XRPL_CAMP_HOME': '<scratch>/camp\\recheck-142-1abab5a-20261022T0641Z\\flow\\home'}
+RESULT: CLEAN

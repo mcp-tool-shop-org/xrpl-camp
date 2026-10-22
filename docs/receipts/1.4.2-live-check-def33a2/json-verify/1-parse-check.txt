@@ -1,0 +1,6 @@
+json.loads: one document OK, 2588 chars; top-level keys: ['checked', 'endpoint', 'failed', 'folder', 'packs', 'passed', 'summary', 'unverifiable']
+top level passed = 1
+top level failed = 1
+top level unverifiable = 0
+{'file': 'packs\\forged.json', 'valid': False, 'hash_match': True}
+{'file': 'packs\\honest.json', 'valid': True, 'hash_match': True}

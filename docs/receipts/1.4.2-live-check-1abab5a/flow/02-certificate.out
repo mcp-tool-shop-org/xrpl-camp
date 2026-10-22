@@ -1,0 +1,39 @@
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 6: Your Certificate                                                                                                              │
+│                                                                                                                                         │
+│ It records what you did: the lessons you finished, what you                                                                             │
+│ sent, your public address, and the words you wrote. No seed,                                                                            │
+│ nothing private. Safe to share.                                                                                                         │
+│                                                                                                                                         │
+│ The proof pack adds a SHA-256 hash, so an edit shows up. But                                                                            │
+│ the hash is not what makes it trustworthy — anyone can                                                                                  │
+│ recompute one. What nobody can fake is the transaction: the                                                                             │
+│ pack names a hash on a public ledger, and that either exists                                                                            │
+│ or it doesn't.                                                                                                                          │
+│                                                                                                                                         │
+│ Testnet is reset from time to time and this copy goes with it.                                                                          │
+│ The mechanism is real; this particular record is not forever.                                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────── XRPL Camp — Complete ──────────────────────────────────────────────────────────┐
+│ Your completion bundle:                                                                                                                 │
+│                                                                                                                                         │
+│   Certificate:                                                                                                                          │
+│ <scratch>/camp\recheck-142-1abab5a-202610 │
+│ 22T0641Z\flow\cwd\xrpl_camp_certificate.json                                                                                            │
+│   Proof pack:                                                                                                                           │
+│ <scratch>/camp\recheck-142-1abab5a-202610 │
+│ 22T0641Z\flow\cwd\xrpl_camp_proof_pack.json                                                                                             │
+│                                                                                                                                         │
+│   Address:      ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL                                                                                      │
+│   Lessons:      6                                                                                                                       │
+│   Duration:     29s                                                                                                                     │
+│   SHA-256:      sha256:9dd92c8d19d5eb5ed5d49dad655d1b5e0254337bb7304b87b39cd086589fb456                                                 │
+│                                                                                                                                         │
+│   Verify your proof pack anytime:                                                                                                       │
+│   xrpl-camp proof verify xrpl_camp_proof_pack.json                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Your transaction on the public ledger:
+  https://testnet.xrpl.org/transactions/C298D52D6D61B957B69767712B342B05B4A977656DB2C616F1A9AECEA4A85741
+
+  ✓ Record sealed. This is yours to keep — and anyone can check it against the ledger.

@@ -1,0 +1,16 @@
+C298D52D6D61B957B69767712B342B05B4A977656DB2C616F1A9AECEA4A85741  item 1 flow, lesson 4
+    Payment ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL -> rpq9Jpej46ycuHZH4gJnwuCY42B87P2x1E 1000000 drops tesSUCCESS ledger 21728306 validated memo='book keeper 142-1abab5a live check'
+0D06FAFCD8084B1B88720113B0585F0BABD90ABA2F815B9C12037FC5BAE90C19  item 1 send --memo
+    Payment ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL -> rpq9Jpej46ycuHZH4gJnwuCY42B87P2x1E 1 drops tesSUCCESS ledger 21728313 validated memo='book keeper 142-1abab5a send check'
+7AB38D6E9FBB8545D53B91AE1787DF40F4F5051CD2A86291005D91D8B921BF74  item 1 j: Ctrl-C 0.5 s after submit; recorded on resume, not re-sent
+    Payment rBPAEubpLmWQfJk1EkTdpU2bGLsYxprusy -> rnY3giNXCneffWKESzTxPjrMnt9pg4eVuD 1000000 drops tesSUCCESS ledger 21728436 validated memo='recheck 142-1abab5a j'
+0D01ECC9319394AF0602D5BDA83E69379744125284CE00F2D6D654BE799EED24  item 1 s: resume after Ctrl-C 0.3 s after 'Submitting'
+    Payment rJ7MtkCH6EUE8K7p49fDpQzZgSibQXxVA9 -> rG9Pqp9eQowueYurXGowYb2SGJv8xx7kGb 1000000 drops tesSUCCESS ledger 21728377 validated memo='recheck 142-1abab5a s'
+39004F2695909AE8C956FCD55E754B958F1A777FC6D04D141648370FDB9ED00B  item 1 i: resume after Ctrl-C 2.5 s after 'Submitting'
+    Payment rLFUxkq7e4MhpoQ8iWNqPDHQFoEkPig317 -> rsLHKheZgHFu9uybK59zx7BVMvwQgZmtJb 1000000 drops tesSUCCESS ledger 21728408 validated memo='recheck 142-1abab5a i'
+04C4A5CEC85EE13C1608D0C5463EDACF7BE42D48C7CFEC85EA150DE7D12FD547  item 1 g: resume after Ctrl-C in the faucet wait
+    Payment rppuAdkzz1N9fQpxNJvi5p3zCWCLZNbvMH -> rLCKTD85NiHsyRqSRZKN6TqoxBBG3GKznm 1000000 drops tesSUCCESS ledger 21728467 validated memo='recheck 142-1abab5a f2'
+
+D5 check, every transaction of the j learner rBPAEubp…:
+    ledger 21728432 Payment rJjHYTCPpN.. -> rBPAEubpLm.. 100000000 tesSUCCESS memo=''
+    ledger 21728436 Payment rBPAEubpLm.. -> rnY3giNXCn.. 1000000 tesSUCCESS memo='recheck 142-1abab5a j'

@@ -1,0 +1,12 @@
+  forged.json: Checking lesson 4 against the ledger... done.
+  honest.json: Checking lesson 4 against the ledger... done.
+
+  Ledger checked against: https://s.altnet.rippletest.net:51234/
+
+  PASS  forged.json  ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL  ledger: FAILED
+  PASS  honest.json  ra2nAB9mjqaRSq5N3PUb3TmyA2RMhwVdhL  ledger: VERIFIED
+
+  2 of 2 packs pass the hash check.
+  1 of 2 proof packs need a look; 1 passed.
+    • forged.json: the ledger contradicts this pack
+
