@@ -82,7 +82,7 @@ A pack in a newer format than this version knows (`xrpl-camp-proof-pack-v*`) is 
 xrpl-camp proof verify xrpl_camp_proof_pack.json --online --record
 ```
 
-Passing `--record` alongside `--online` on a single valid proof pack appends a dated entry to `verifications` inside the file and writes it back atomically.
+Passing `--record` alongside `--online` on a single valid proof pack appends a dated entry to `verifications` inside the file and writes it back atomically **only when the ledger confirms the pack** (`confirmed`). If the online check is `contradicted`, `unknown`, `ledger_history_gone`, or `nothing_to_check`, no receipt is added and the file is left untouched.
 
 Because `verifications` sits in `UNSEALED_FIELDS` — outside the SHA-256 hash — appending a receipt leaves `sha256` unchanged, and the file continues to pass `xrpl-camp proof verify`. A tampered pack whose hash does not match is refused before any network call and is left byte-for-byte unchanged.
 

@@ -92,7 +92,7 @@ xrpl-camp proof verify <folder> --online         # a whole workshop at once
 xrpl-camp proof verify <file> --json
 ```
 
-`--record` is opt-in and only works on a single valid proof pack with `--online` (never on a folder, never without `--online`, and never under `--dry-run` — each exits 1). See [Proof Pack](/xrpl-camp/handbook/proof-pack/) for what each result means.
+`--record` is opt-in and only works on a single valid proof pack with `--online` (never on a folder, never without `--online`, and never under `--dry-run` — each exits 1). A receipt is added only when the ledger confirms the pack (`confirmed`); any other online outcome leaves the file untouched. See [Proof Pack](/xrpl-camp/handbook/proof-pack/) for what each result means.
 
 ## Starting over
 

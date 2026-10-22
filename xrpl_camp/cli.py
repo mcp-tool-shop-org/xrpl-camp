@@ -909,18 +909,7 @@ def proof_verify(
     from xrpl_camp.proof_pack import verify_proof_pack
 
     def reject(err: CampError) -> typer.Exit:
-        if json_output:
-            print(json_mod.dumps({
-                "valid": False,
-                "hash_match": False,
-                "recorded": False,
-                "file": str(file),
-                "code": err.code,
-                "message": err.message,
-                "hint": err.hint,
-            }, indent=2))
-            return typer.Exit(err.exit_code)
-        return _fail(err)
+        return _reject_proof_verify(err, file, json_output=json_output)
 
     if record and not online:
         raise reject(CampError(
@@ -1048,6 +1037,29 @@ def proof_verify(
         )
 
 
+def _reject_proof_verify(
+    err: CampError,
+    file: Path,
+    *,
+    json_output: bool,
+) -> typer.Exit:
+    """Emit a structured error for `proof verify` (single JSON doc when `--json`)."""
+    import json as json_mod
+
+    if json_output:
+        print(json_mod.dumps({
+            "valid": False,
+            "hash_match": False,
+            "recorded": False,
+            "file": str(file),
+            "code": err.code,
+            "message": err.message,
+            "hint": err.hint,
+        }, indent=2))
+        return typer.Exit(err.exit_code)
+    return _fail(err)
+
+
 def _online_skipped_for_dry_run(
     json_output: bool, offline: dict | None = None,
 ) -> typer.Exit:
@@ -1083,6 +1095,7 @@ def _verify_online(
     import json as json_mod
 
     from xrpl_camp.proof_pack import (
+        SUMMARY_CONFIRMED,
         SUMMARY_CONTRADICTED,
         build_verification_receipt,
         endpoint_claim,
@@ -1102,45 +1115,77 @@ def _verify_online(
     claim = endpoint_claim(pack, endpoint)
     results, summary = _online_check(pack, endpoint, quiet=json_output)
     code = online_exit_code(summary)
+    online_status = str(summary.get("status", ""))
 
     recorded = False
+    record_skipped = ""
     if record:
-        receipt = build_verification_receipt(endpoint, results, summary)
-        record_verification(pack, receipt)
-        try:
-            write_proof_pack_atomic(pack, file)
-            reloaded = json_mod.loads(file.read_text(encoding="utf-8"))
-        except CampFailure as exc:
-            raise _fail(exc.error) from None
-        except (json_mod.JSONDecodeError, ValueError, OSError) as exc:
-            raise _fail(CampError(
-                code="RECORD_VERIFY_FAILED",
-                message=f"Could not write or re-read verification receipt in {file}: {exc}",
-                hint="Restore the proof pack or regenerate it with 'xrpl-camp certificate'.",
-                exit_code=EXIT_RUNTIME,
-            )) from None
+        if online_status != SUMMARY_CONFIRMED:
+            record_skipped = online_status or "unconfirmed"
+        else:
+            receipt = build_verification_receipt(endpoint, results, summary)
+            record_verification(pack, receipt)
+            mem_valid, mem_message = verify_proof_pack(pack)
+            if not mem_valid:
+                raise _reject_proof_verify(
+                    CampError(
+                        code="RECORD_VERIFY_FAILED",
+                        message=f"Could not write or re-read the verification receipt in {file}.",
+                        hint="Regenerate the proof pack with 'xrpl-camp certificate'.",
+                        detail=mem_message,
+                        exit_code=EXIT_RUNTIME,
+                    ),
+                    file,
+                    json_output=json_output,
+                )
+            try:
+                write_proof_pack_atomic(pack, file)
+                reloaded = json_mod.loads(file.read_text(encoding="utf-8"))
+            except CampFailure as exc:
+                raise _reject_proof_verify(
+                    exc.error, file, json_output=json_output,
+                ) from None
+            except (json_mod.JSONDecodeError, ValueError, OSError) as exc:
+                raise _reject_proof_verify(
+                    CampError(
+                        code="RECORD_VERIFY_FAILED",
+                        message=f"Could not write or re-read the verification receipt in {file}.",
+                        hint=(
+                            "Restore the proof pack or regenerate it with "
+                            "'xrpl-camp certificate'."
+                        ),
+                        detail=f"{type(exc).__name__}: {exc}",
+                        exit_code=EXIT_RUNTIME,
+                    ),
+                    file,
+                    json_output=json_output,
+                ) from None
 
-        post_valid, post_message = verify_proof_pack(reloaded)
-        if not post_valid:
-            raise _fail(CampError(
-                code="RECORD_VERIFY_FAILED",
-                message=(
-                    f"Proof pack failed integrity verification after recording receipt: "
-                    f"{post_message}"
-                ),
-                hint="Regenerate the proof pack with 'xrpl-camp certificate'.",
-                exit_code=EXIT_RUNTIME,
-            ))
-        recorded = True
+            post_valid, post_message = verify_proof_pack(reloaded)
+            if not post_valid:
+                raise _reject_proof_verify(
+                    CampError(
+                        code="RECORD_VERIFY_FAILED",
+                        message=f"Could not write or re-read the verification receipt in {file}.",
+                        hint="Regenerate the proof pack with 'xrpl-camp certificate'.",
+                        detail=post_message,
+                        exit_code=EXIT_RUNTIME,
+                    ),
+                    file,
+                    json_output=json_output,
+                )
+            recorded = True
 
     if json_output:
         # One document: the hash result, then the ledger's. "valid" means the
         # pack holds up to every check that was run, so a pack the ledger
         # contradicts is not valid even though its hash matches (1.4.2).
         doc = dict(offline or {"file": str(file)})
-        if summary.get("status") == SUMMARY_CONTRADICTED:
+        if online_status == SUMMARY_CONTRADICTED:
             doc["valid"] = False
         doc["recorded"] = recorded
+        if record_skipped:
+            doc["record_skipped"] = record_skipped
         doc.update({"endpoint": endpoint, "online": summary, "lessons": results})
         print(json_mod.dumps(doc, indent=2, default=str))
         return typer.Exit(code)
@@ -1177,6 +1222,12 @@ def _verify_online(
         console.print(
             f"\n  [dim]Verification receipt added to {escape(str(file))} "
             f"(pack now holds {receipt_count} {word}; unsealed, self-reported log).[/dim]",
+        )
+    elif record_skipped:
+        console.print(
+            f"\n  [dim]No verification receipt added to {escape(str(file))}: "
+            f"ledger check status is '{escape(record_skipped)}' "
+            "(receipts are recorded only when the ledger confirms the pack).[/dim]",
         )
     console.print()
     return typer.Exit(code)

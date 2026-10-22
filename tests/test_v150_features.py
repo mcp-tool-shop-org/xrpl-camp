@@ -274,6 +274,7 @@ def test_reserve_json_prints_one_document(monkeypatch, capsys):
 
     assert code == 0
     doc = json.loads(captured.out)
+    assert doc["ok"] is True
     assert doc["simulated"] is False
     assert doc["address"] == SENDER
     assert len(doc["moves"]) == 2
@@ -287,6 +288,159 @@ def test_reserve_json_prints_one_document(monkeypatch, capsys):
     assert doc["net_balance_delta"] == -24
     # Progress went to stderr, not stdout.
     assert "Step 1" in captured.err
+
+
+def test_reserve_missing_wallet_with_json_emits_failure_document(capsys):
+    code = lessons.run_reserve(json_output=True)
+    captured = capsys.readouterr()
+
+    assert code == 1
+    doc = json.loads(captured.out)
+    assert doc["ok"] is False
+    assert doc["code"] == "WALLET_MISSING"
+    assert doc["leftover_burned"] == []
+    assert "mint" not in doc
+    assert "nftoken_id" not in doc
+    assert "WALLET_MISSING" in strip_ansi(captured.err)
+
+
+def test_reserve_burn_failure_with_json_includes_mint_and_nftoken_id(
+    monkeypatch, capsys,
+):
+    wallet.save_wallet(SENDER, "sEdV150ReserveTestSeed123456789")
+    mint_move, _ = _sample_moves()
+
+    monkeypatch.setattr(transport, "assert_safe_network", lambda url=None: 1)
+    monkeypatch.setattr(transport, "account_nfts", lambda address, url=None: [])
+    monkeypatch.setattr(
+        transport,
+        "mint_nft",
+        lambda seed, uri="xrpl-camp", url=None, *, taxon=0: mint_move,
+    )
+
+    def failing_burn(seed, nftoken_id, url=None):
+        raise transport.XRPLTransactionFailed("tefMAX_LEDGER")
+
+    monkeypatch.setattr(transport, "burn_nft", failing_burn)
+
+    code = lessons.run_reserve(json_output=True)
+    captured = capsys.readouterr()
+
+    assert code != 0
+    doc = json.loads(captured.out)
+    assert doc["ok"] is False
+    assert doc["code"] == "RESERVE_BURN_FAILED"
+    assert doc["nftoken_id"] == NFTOKEN_ID
+    assert doc["mint"]["txid"] == MINT_TXID
+    assert doc["leftover_burned"] == []
+
+
+def test_reserve_recovers_empty_mint_nftoken_id_from_account_nfts(monkeypatch):
+    wallet.save_wallet(SENDER, "sEdV150ReserveTestSeed123456789")
+    base_mint, burn_move = _sample_moves()
+    mint_without_id = transport.ReserveMove(
+        txid=base_mint.txid,
+        engine_result=base_mint.engine_result,
+        owner_count_before=base_mint.owner_count_before,
+        owner_count_after=base_mint.owner_count_after,
+        balance_before=base_mint.balance_before,
+        balance_after=base_mint.balance_after,
+        spendable_before=base_mint.spendable_before,
+        spendable_after=base_mint.spendable_after,
+        ledger_index=base_mint.ledger_index,
+        close_time_iso=base_mint.close_time_iso,
+        nftoken_id="",
+    )
+    nfts_calls = 0
+    burned_ids: list[str] = []
+
+    def fake_account_nfts(address, url=None):
+        nonlocal nfts_calls
+        nfts_calls += 1
+        if nfts_calls == 1:
+            return []
+        return [{"NFTokenID": NFTOKEN_ID, "URI": "xrpl-camp", "NFTokenTaxon": 0}]
+
+    monkeypatch.setattr(transport, "assert_safe_network", lambda url=None: 1)
+    monkeypatch.setattr(transport, "account_nfts", fake_account_nfts)
+    monkeypatch.setattr(
+        transport,
+        "mint_nft",
+        lambda seed, uri="xrpl-camp", url=None, *, taxon=0: mint_without_id,
+    )
+
+    def fake_burn(seed, nftoken_id, url=None):
+        burned_ids.append(nftoken_id)
+        return burn_move
+
+    monkeypatch.setattr(transport, "burn_nft", fake_burn)
+
+    result = runner.invoke(app, ["reserve"])
+    output = strip_ansi(result.output)
+
+    assert result.exit_code == 0, output
+    assert nfts_calls == 2
+    assert burned_ids == [NFTOKEN_ID]
+
+
+def test_reserve_zero_delta_explains_shared_nftoken_page(monkeypatch, capsys):
+    wallet.save_wallet(SENDER, "sEdV150ReserveTestSeed123456789")
+    mint_move = transport.ReserveMove(
+        txid=MINT_TXID,
+        engine_result="tesSUCCESS",
+        owner_count_before=1,
+        owner_count_after=1,
+        balance_before=100_000_000,
+        balance_after=99_999_990,
+        spendable_before=98_800_000,
+        spendable_after=98_799_990,
+        ledger_index=50001,
+        close_time_iso="2026-10-22T12:00:00Z",
+        nftoken_id=NFTOKEN_ID,
+    )
+    burn_move = transport.ReserveMove(
+        txid=BURN_TXID,
+        engine_result="tesSUCCESS",
+        owner_count_before=1,
+        owner_count_after=1,
+        balance_before=99_999_990,
+        balance_after=99_999_980,
+        spendable_before=98_799_990,
+        spendable_after=98_799_980,
+        ledger_index=50002,
+        close_time_iso="2026-10-22T12:00:04Z",
+        nftoken_id=NFTOKEN_ID,
+    )
+
+    monkeypatch.setattr(transport, "assert_safe_network", lambda url=None: 1)
+    monkeypatch.setattr(transport, "account_nfts", lambda address, url=None: [])
+    monkeypatch.setattr(
+        transport,
+        "mint_nft",
+        lambda seed, uri="xrpl-camp", url=None, *, taxon=0: mint_move,
+    )
+    monkeypatch.setattr(
+        transport,
+        "burn_nft",
+        lambda seed, nftoken_id, url=None: burn_move,
+    )
+
+    result = runner.invoke(app, ["reserve"])
+    output = " ".join(strip_ansi(result.output).split())
+
+    assert result.exit_code == 0, output
+    assert "NFT page" in output
+    assert "32 tokens" in output
+    assert "0-drop owner reserve was locked" not in output
+
+    # Also check --json carries reserve_note: "shared_nftoken_page".
+    capsys.readouterr()
+    code = lessons.run_reserve(json_output=True)
+    captured = capsys.readouterr()
+    assert code == 0
+    doc = json.loads(captured.out)
+    assert doc["ok"] is True
+    assert doc["reserve_note"] == "shared_nftoken_page"
 
 
 # ---------------------------------------------------------------------------
@@ -525,3 +679,129 @@ def test_record_refusals_folder_without_online_and_dry_run(tmp_path, monkeypatch
 
     # None of the three touched the file.
     assert path.read_bytes() == before
+
+
+def test_contradicted_pack_with_record_leaves_bytes_unchanged_and_exits_1(
+    tmp_path, monkeypatch,
+):
+    monkeypatch.setattr(
+        transport,
+        "lookup_tx",
+        lambda txid, url=None, dry_run=False, *, recorded_ledger_index=0: {
+            "found": True,
+            "hash": txid,
+            "account": "rSomeoneElseCompletely",
+            "destination": "rMailbox",
+            "amount": "1000000",
+            "delivered": "1000000",
+            "fee": "10",
+            "memo": "XRPLCAMP|L4|hello",
+            "ledger_index": 12345,
+            "close_time_iso": "2026-10-22T00:01:00Z",
+            "result": "tesSUCCESS",
+            "validated": True,
+        },
+    )
+    _pack, path = _write_valid_pack(tmp_path)
+    before = path.read_bytes()
+
+    result = runner.invoke(
+        app, ["proof", "verify", str(path), "--online", "--record", "--json"],
+    )
+
+    assert result.exit_code == 1, result.output
+    assert path.read_bytes() == before
+    doc = json.loads(result.stdout)
+    assert doc["valid"] is False
+    assert doc["recorded"] is False
+    assert doc["record_skipped"] == "contradicted"
+
+    # Also check human output mentions no receipt was added.
+    r_text = runner.invoke(
+        app, ["proof", "verify", str(path), "--online", "--record"],
+    )
+    assert r_text.exit_code == 1
+    assert path.read_bytes() == before
+    assert "No verification receipt added" in " ".join(strip_ansi(r_text.output).split())
+
+
+def test_unknown_pack_with_record_leaves_bytes_unchanged_and_exits_3(
+    tmp_path, monkeypatch,
+):
+    def unreachable_lookup(txid, url=None, dry_run=False, *, recorded_ledger_index=0):
+        raise transport.XRPLConnectionError("endpoint unreachable")
+
+    monkeypatch.setattr(transport, "lookup_tx", unreachable_lookup)
+    _pack, path = _write_valid_pack(tmp_path)
+    before = path.read_bytes()
+
+    result = runner.invoke(
+        app, ["proof", "verify", str(path), "--online", "--record", "--json"],
+    )
+
+    assert result.exit_code == 3, result.output
+    assert path.read_bytes() == before
+    doc = json.loads(result.stdout)
+    assert doc["recorded"] is False
+    assert doc["record_skipped"] == "unknown"
+
+
+def test_in_memory_verify_failure_aborts_before_writing_and_leaves_bytes_unchanged(
+    tmp_path, monkeypatch,
+):
+    from xrpl_camp import proof_pack as pp_mod
+
+    _mock_online_lookup_ok(monkeypatch)
+    _pack, path = _write_valid_pack(tmp_path)
+    before = path.read_bytes()
+
+    real_verify = pp_mod.verify_proof_pack
+    calls = 0
+
+    def fail_on_second_verify(pack):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            return real_verify(pack)
+        return False, "simulated in-memory verification failure"
+
+    monkeypatch.setattr(pp_mod, "verify_proof_pack", fail_on_second_verify)
+
+    result = runner.invoke(
+        app, ["proof", "verify", str(path), "--online", "--record"],
+    )
+
+    assert result.exit_code != 0
+    assert calls == 2
+    assert path.read_bytes() == before
+
+
+def test_record_write_failure_with_json_emits_single_json_error_document(
+    tmp_path, monkeypatch,
+):
+    from xrpl_camp import proof_pack as pp_mod
+    from xrpl_camp.certificate import ArtifactWriteError
+
+    _mock_online_lookup_ok(monkeypatch)
+    _pack, path = _write_valid_pack(tmp_path)
+    before = path.read_bytes()
+
+    def fail_write(pack, target):
+        raise ArtifactWriteError(str(target), "read-only filesystem")
+
+    monkeypatch.setattr(pp_mod, "write_proof_pack_atomic", fail_write)
+
+    result = runner.invoke(
+        app, ["proof", "verify", str(path), "--online", "--record", "--json"],
+    )
+
+    assert result.exit_code != 0
+    assert path.read_bytes() == before
+    doc = json.loads(result.stdout)
+    assert doc["valid"] is False
+    assert doc["hash_match"] is False
+    assert doc["recorded"] is False
+    assert doc["file"] == str(path)
+    assert doc["code"] == "ARTIFACT_WRITE_FAILED"
+    assert "read-only filesystem" in doc["message"]
+    assert doc["hint"]

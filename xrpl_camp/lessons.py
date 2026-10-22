@@ -2534,15 +2534,23 @@ def _camp_nftoken_id(nft: object) -> str:
 def _burn_failed_error(nftoken_id: str, exc: Exception) -> CampError:
     """Structured error when burning an NFT fails."""
     base = _classify(exc, send_error)
+    token_id = str(nftoken_id or "").strip()
+    if token_id:
+        message = f"Could not burn NFTokenID {token_id}: {base.message}"
+        hint = (
+            f"The token ({token_id}) is still on your account. "
+            "Running 'xrpl-camp reserve' again burns it and releases the reserve."
+        )
+    else:
+        message = f"Could not burn the minted xrpl-camp NFT: {base.message}"
+        hint = (
+            "The token could not be identified, and is still on your account. "
+            "Running 'xrpl-camp reserve' again finds and burns it to release the reserve."
+        )
     return CampError(
         code="RESERVE_BURN_FAILED",
-        message=(
-            f"Could not burn NFTokenID {nftoken_id}: {base.message}"
-        ),
-        hint=(
-            f"The token ({nftoken_id}) is still on your account. "
-            "Running 'xrpl-camp reserve' again burns it and releases the reserve."
-        ),
+        message=message,
+        hint=hint,
         retryable=True,
         detail=base.detail,
         exit_code=base.exit_code or EXIT_RUNTIME,
@@ -2666,6 +2674,7 @@ def _print_reserve_step(
     *,
     network: str,
     simulated: bool = False,
+    shared_page: bool = False,
 ) -> None:
     """Render one reserve step (mint or burn) with its table, reserve line, and link."""
     console.print()
@@ -2680,6 +2689,11 @@ def _print_reserve_step(
         console.print(
             f"  [bold]Reserve:[/bold] {_drops_line(abs(r_delta))} [green]released[/green] — "
             "back in your spendable XRP.",
+        )
+    elif shared_page:
+        console.print(
+            "  [bold]Reserve:[/bold] the token went into an NFT page your account "
+            "already had, so no new reserve was needed (a page holds up to 32 tokens).",
         )
     if not simulated and move.txid:
         console.print(f"  [bold]Transaction:[/bold] {escape(move.txid)}")
@@ -2713,6 +2727,26 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
     url = transport.get_rpc_url()
     network = transport.network_label_for_url(url)
 
+    burned_leftovers: list[str] = []
+    mint_dict: dict | None = None
+    minted_token_id = ""
+
+    def fail_reserve(err: CampError) -> int:
+        _report(err, command="reserve")
+        if json_output:
+            err_doc: dict = {
+                "ok": False,
+                "code": err.code,
+                "message": err.message,
+                "hint": err.hint,
+                "leftover_burned": list(burned_leftovers),
+            }
+            if mint_dict is not None:
+                err_doc["mint"] = mint_dict
+                err_doc["nftoken_id"] = minted_token_id
+            print(json_mod.dumps(err_doc, indent=2))
+        return err.exit_code
+
     if dry_run:
         _dry_run_banner()
         console.print(Panel(
@@ -2740,6 +2774,7 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         )
         if json_output:
             doc = {
+                "ok": True,
                 "simulated": True,
                 "address": _own_address(None) or "rSimulatedCampAccount",
                 "network": network,
@@ -2760,16 +2795,14 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
 
     w, err = _require_wallet()
     if err is not None:
-        _report(err, command="reserve")
-        return err.exit_code
+        return fail_reserve(err)
     address = str(w["address"])
     seed = str(w["seed"])
 
     _show_endpoint()
     endpoint_problem = check_endpoint()
     if endpoint_problem is not None:
-        _report(endpoint_problem, command="reserve")
-        return endpoint_problem.exit_code
+        return fail_reserve(endpoint_problem)
 
     console.print(Panel(
         "[bold]Watching the owner reserve lock and return[/bold]\n\n"
@@ -2790,12 +2823,10 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         err = unfunded_error(detail=f"{type(exc).__name__}: {exc}")
         if isinstance(exc, transport.XRPLUnfundedAccount) and str(exc):
             err.message = str(exc)
-        _report(err, command="reserve")
-        return err.exit_code
+        return fail_reserve(err)
     except Exception as exc:
         err = _classify(exc, lookup_error, account=address)
-        _report(err, command="reserve")
-        return err.exit_code
+        return fail_reserve(err)
 
     leftover_ids = [
         tid for tid in (_camp_nftoken_id(item) for item in (owned_nfts or [])) if tid
@@ -2810,8 +2841,8 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
                 transport.burn_nft(seed, leftover_id)
         except Exception as exc:
             err = _burn_failed_error(leftover_id, exc)
-            _report(err, command="reserve")
-            return err.exit_code
+            return fail_reserve(err)
+        burned_leftovers.append(leftover_id)
 
     # Step 1: Mint NFT
     console.print()
@@ -2827,19 +2858,57 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         err = unfunded_error(detail=f"{type(exc).__name__}: {exc}")
         if isinstance(exc, transport.XRPLUnfundedAccount) and str(exc):
             err.message = str(exc)
-        _report(err, command="reserve")
-        return err.exit_code
+        return fail_reserve(err)
     except Exception as exc:
         err = _classify(exc, send_error, account=address)
-        _report(err, command="reserve")
-        return err.exit_code
+        return fail_reserve(err)
 
+    shared_page = int(mint_move.reserve_delta) == 0
     _print_reserve_step(
-        "Step 1: Mint NFT (NFTokenMint)", mint_move, network=network, simulated=False,
+        "Step 1: Mint NFT (NFTokenMint)",
+        mint_move,
+        network=network,
+        simulated=False,
+        shared_page=shared_page,
     )
 
+    token_id = str(mint_move.nftoken_id or "").strip()
+    mint_dict = _reserve_move_to_dict(mint_move, network=network, simulated=False)
+    minted_token_id = token_id
+
+    if not token_id:
+        try:
+            post_mint_nfts = transport.account_nfts(address)
+        except Exception as exc:
+            err = _burn_failed_error("", exc)
+            return fail_reserve(err)
+        token_id = next(
+            (
+                tid
+                for tid in (_camp_nftoken_id(item) for item in (post_mint_nfts or []))
+                if tid
+            ),
+            "",
+        )
+        if not token_id:
+            err = CampError(
+                code="RESERVE_BURN_FAILED",
+                message=(
+                    "Minted the xrpl-camp NFT, but its NFTokenID could not "
+                    "be identified on the account."
+                ),
+                hint=(
+                    "The token could not be identified in this response. "
+                    "Running 'xrpl-camp reserve' again finds and burns it to release the reserve."
+                ),
+                retryable=True,
+                exit_code=EXIT_RUNTIME,
+            )
+            return fail_reserve(err)
+        minted_token_id = token_id
+        mint_dict["nftoken_id"] = token_id
+
     # Step 2: Burn that NFT
-    token_id = str(mint_move.nftoken_id or "")
     console.print()
     try:
         with _working(
@@ -2848,38 +2917,50 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         ):
             burn_move = transport.burn_nft(seed, token_id)
     except Exception as exc:
-        err = _burn_failed_error(token_id or "(unknown NFTokenID)", exc)
-        _report(err, command="reserve")
-        return err.exit_code
+        err = _burn_failed_error(token_id, exc)
+        return fail_reserve(err)
 
     _print_reserve_step(
-        "Step 2: Burn NFT (NFTokenBurn)", burn_move, network=network, simulated=False,
+        "Step 2: Burn NFT (NFTokenBurn)",
+        burn_move,
+        network=network,
+        simulated=False,
+        shared_page=shared_page,
     )
 
     total_fees = abs(mint_move.balance_delta + burn_move.balance_delta)
-    console.print(
-        f"\n  [green]✓ Reserve returned.[/green] Total cost: {total_fees:,} drops in fees. "
-        f"The {mint_move.reserve_delta:,}-drop owner reserve was locked on the mint "
-        "and released on the burn — never spent.",
-    )
+    if shared_page:
+        console.print(
+            "\n  [green]✓ Mint and burn complete.[/green] "
+            f"Total cost: {total_fees:,} drops in fees. "
+            "The token went into an NFT page your account already had, so no new "
+            "reserve was needed (a page holds up to 32 tokens).",
+        )
+    else:
+        console.print(
+            f"\n  [green]✓ Reserve returned.[/green] Total cost: {total_fees:,} drops in fees. "
+            f"The {mint_move.reserve_delta:,}-drop owner reserve was locked on the mint "
+            "and released on the burn — never spent.",
+        )
 
     if json_output:
-        doc = {
+        burn_dict = _reserve_move_to_dict(burn_move, network=network, simulated=False)
+        doc: dict = {
+            "ok": True,
             "simulated": False,
             "address": address,
             "network": network,
             "endpoint": url,
-            "leftover_burned": leftover_ids,
-            "mint": _reserve_move_to_dict(mint_move, network=network, simulated=False),
-            "burn": _reserve_move_to_dict(burn_move, network=network, simulated=False),
-            "moves": [
-                _reserve_move_to_dict(mint_move, network=network, simulated=False),
-                _reserve_move_to_dict(burn_move, network=network, simulated=False),
-            ],
+            "leftover_burned": list(burned_leftovers),
+            "mint": mint_dict,
+            "burn": burn_dict,
+            "moves": [mint_dict, burn_dict],
             "net_balance_delta": mint_move.balance_delta + burn_move.balance_delta,
             "net_spendable_delta": mint_move.spendable_delta + burn_move.spendable_delta,
             "net_reserve_delta": mint_move.reserve_delta + burn_move.reserve_delta,
         }
+        if shared_page:
+            doc["reserve_note"] = "shared_nftoken_page"
         print(json_mod.dumps(doc, indent=2))
     return EXIT_OK
 

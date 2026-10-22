@@ -28,15 +28,22 @@ dated verification receipts in proof packs.
   prints a plain-text copy-to-share block with the explorer link and `proof verify`
   command.
 - **`xrpl-camp proof verify <file> --online --record`** — appends a dated,
-  self-reported verification receipt to `pack["verifications"]` (outside the
-  SHA-256 seal, so the original `sha256` stays intact) and re-verifies the file
-  after writing. Refuses tampered packs without modifying the file, and refuses
-  `--record` without `--online`, on a folder, or under `--dry-run`.
+  self-reported verification receipt to `pack["verifications"]` when the ledger
+  confirms the pack (outside the SHA-256 seal, so the original `sha256` stays
+  intact) and re-verifies the file after writing. Refuses tampered packs without
+  modifying the file, and refuses `--record` without `--online`, on a folder, or
+  under `--dry-run`.
 
 ### Changed
 
 - `@mcptoolshop/npm-launcher` dependency range updated from `1.1.1` to
   `^1.2.0`, passing `--version` and `--help` through to the binary.
+- `XRPLUnfundedAccount` now exits `1` (a user error) rather than `2`, matching
+  `unfunded_error()` and the documented exit codes wherever an unfunded account
+  is reported (including Lesson 4's `send` and `reserve`).
+- `proof verify --online --record` appends a receipt only on a `confirmed`
+  ledger check; unconfirmed outcomes (`contradicted`, `unknown`,
+  `ledger_history_gone`, `nothing_to_check`) leave the pack untouched.
 
 ## [1.4.2] - 2026-10-22
 
