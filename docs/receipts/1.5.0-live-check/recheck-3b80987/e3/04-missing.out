@@ -1,0 +1,9 @@
+{
+  "valid": false,
+  "hash_match": null,
+  "recorded": false,
+  "file": "missing.json",
+  "code": "FILE_NOT_FOUND",
+  "message": "File not found: missing.json",
+  "hint": "Check the path. The proof pack is usually xrpl_camp_proof_pack.json."
+}

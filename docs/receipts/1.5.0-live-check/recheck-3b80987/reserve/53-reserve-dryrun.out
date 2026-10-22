@@ -1,0 +1,37 @@
+  [DRY RUN] No network calls will be made.
+
+┌──────────────────────────────────────────────────── XRPL Camp — reserve (simulated) ────────────────────────────────────────────────────┐
+│ Watching the owner reserve lock and return (simulated)                                                                                  │
+│                                                                                                                                         │
+│ Every object your account owns on the ledger locks an owner                                                                             │
+│ reserve increment. When the object is removed, that XRP comes                                                                           │
+│ straight back to your spendable balance.                                                                                                │
+│                                                                                                                                         │
+│ Simulated numbers: an owner reserve of 200,000 drops (0.2 XRP)                                                                          │
+│ and a 10-drop fee per transaction. Nothing is signed or sent.                                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+                                           Step 1: Mint NFT (NFTokenMint) (simulated)                                            
+┌───────────────┬────────────────────────────────────┬──────────────────────────────────┬───────────────────────────────────────┐
+│ Field         │                             Before │                            After │                                 Delta │
+├───────────────┼────────────────────────────────────┼──────────────────────────────────┼───────────────────────────────────────┤
+│ OwnerCount    │                                  0 │                                1 │                                    +1 │
+│ Balance       │ 100,000,000 drops (100.000000 XRP) │ 99,999,990 drops (99.999990 XRP) │             -10 drops (-0.000010 XRP) │
+│ Spendable     │   99,000,000 drops (99.000000 XRP) │ 98,799,990 drops (98.799990 XRP) │        -200,010 drops (-0.200010 XRP) │
+│ Owner reserve │                                  — │                                — │ +200,000 drops (+0.200000 XRP) locked │
+└───────────────┴────────────────────────────────────┴──────────────────────────────────┴───────────────────────────────────────┘
+  Reserve: 200,000 drops (0.200000 XRP) locked — held while you own the object, never spent.
+
+                                           Step 2: Burn NFT (NFTokenBurn) (simulated)                                            
+┌───────────────┬──────────────────────────────────┬──────────────────────────────────┬─────────────────────────────────────────┐
+│ Field         │                           Before │                            After │                                   Delta │
+├───────────────┼──────────────────────────────────┼──────────────────────────────────┼─────────────────────────────────────────┤
+│ OwnerCount    │                                1 │                                0 │                                      -1 │
+│ Balance       │ 99,999,990 drops (99.999990 XRP) │ 99,999,980 drops (99.999980 XRP) │               -10 drops (-0.000010 XRP) │
+│ Spendable     │ 98,799,990 drops (98.799990 XRP) │ 98,999,980 drops (98.999980 XRP) │          +199,990 drops (+0.199990 XRP) │
+│ Owner reserve │                                — │                                — │ -200,000 drops (-0.200000 XRP) released │
+└───────────────┴──────────────────────────────────┴──────────────────────────────────┴─────────────────────────────────────────┘
+  Reserve: 200,000 drops (0.200000 XRP) released — back in your spendable XRP.
+
+  Simulated: balance moved only by the two fees (20 drops), while 200,000 drops were locked on the mint and released on the burn. Nothing 
+was sent — dry run.

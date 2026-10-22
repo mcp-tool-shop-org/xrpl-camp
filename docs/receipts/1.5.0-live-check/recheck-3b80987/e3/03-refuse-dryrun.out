@@ -1,0 +1,9 @@
+{
+  "valid": false,
+  "hash_match": null,
+  "recorded": false,
+  "file": "valid.json",
+  "code": "RECORD_DRY_RUN",
+  "message": "Cannot --record in dry-run mode: no online check is run and dry-run never writes to disk.",
+  "hint": "Remove --dry-run to check the ledger and record a receipt, or remove --record."
+}

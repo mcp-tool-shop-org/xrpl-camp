@@ -1,0 +1,11 @@
+01-refuse-no-online          exit  1 | hash_match null   | valid false | recorded false | code RECORD_REQUIRES_ONLINE
+02-refuse-folder             exit  1 | hash_match null   | valid false | recorded false | code RECORD_FOLDER_UNSUPPORTED
+03-refuse-dryrun             exit  1 | hash_match null   | valid false | recorded false | code RECORD_DRY_RUN
+04-missing                   exit  1 | hash_match null   | valid false | recorded false | code FILE_NOT_FOUND
+05-invalid-notjson           exit  1 | hash_match null   | valid false | recorded false | code PACK_INVALID
+06-invalid-empty             exit  1 | hash_match null   | valid false | recorded false | code PACK_INVALID
+07-tampered                  exit  1 | hash_match false  | valid false | recorded false | code None
+08-tampered-online-record    exit  1 | hash_match false  | valid false | recorded false | code None
+09-record-write-fails        exit  2 | hash_match true   | valid false | recorded false | code ARTIFACT_WRITE_FAILED
+10-forged-online-record      exit  1 | hash_match true   | valid false | recorded false | code None
+11-valid-online-record       exit  0 | hash_match true   | valid true  | recorded true  | code None

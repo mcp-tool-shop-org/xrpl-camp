@@ -11,15 +11,57 @@ in three features: `xrpl-camp reserve`, `certificate --format text` with a share
   (`course/preflight.txt`).
 - **Checked against the ledger itself:** `harness/ledger_probe.py.txt` reads `account_info`, `server_state` and `tx`
   directly with xrpl-py, not through xrpl-camp.
-- **Redaction:** no seeds or wallet files are here. Paths read `<scratch>` or `<home>`. The five txids are in
-  `hashes.txt`.
+- **Redaction:** no seeds or wallet files are here. Paths read `<scratch>` or `<home>`. The seven txids (five on
+  `ae22f3b`, two on `3b80987`) are in `hashes.txt`.
 
 ## Verdict
 
 **PASS on all four items.** One step was blocked as expected: the 1.5.0 npm wrapper cannot fetch its binary until a
 v1.5.0 release exists. The 1.4.2 wrapper with launcher 1.2.0 shows the pass-through instead.
 
-Three minor defects, none blocking: two cosmetic, one in the JSON contract. See **Defects** at the end.
+Three minor defects, none blocking: two cosmetic, one in the JSON contract. See **Defects** at the end. **All three
+are fixed on the fixup-3 head `3b80987`**, as the re-check below shows.
+
+## Re-check on the fixup-3 head `3b80987` (`recheck-3b80987/`): E1–E3 fixed
+
+Fixup 3 (`3b80987`) addresses E1–E3. This re-check ran from the receipts branch with `3b80987` merged in. Its
+`xrpl_camp/`, `pyproject.toml`, `package.json` and `bin/` are identical to `3b80987` (`recheck-3b80987/code.txt`). The
+rest of this README describes `ae22f3b`.
+
+**One live `reserve` on the release head (`reserve/`):** exit 0, on the same wallet. The ledger agrees (`54-txs.json`):
+both transactions are `tesSUCCESS`, with a fee of 10 drops each.
+
+| Step | txid | OwnerCount | Balance (drops) | Spendable (drops) |
+|---|---|---|---|---|
+| NFTokenMint | `D7F6E4E4…65BFED19` | 0 → 1 | 98,999,950 → 98,999,940 | 97,999,950 → 97,799,940 (−200,010) |
+| NFTokenBurn | `29F14935…3875A9B5` | 1 → 0 | 98,999,940 → 98,999,930 | 97,799,940 → 97,999,930 (+199,990) |
+
+- **E1, fixed:** the mint's reserve cell reads `+200,000 drops (+0.200000 XRP) locked`, signed in both units, the same
+  as the burn's `-200,000 drops (-0.200000 XRP) released`.
+- **E2, fixed:** `reserve --dry-run` contains no `DEFAULT_RESERVE` text. Its panel reads "Simulated numbers: an owner
+  reserve of 200,000 drops (0.2 XRP) and a 10-drop fee per transaction."
+
+**E3, fixed (`e3/summary.txt`):** every call used `--json`, and every stdout parsed as one JSON document. `e3/00-setup.txt`
+describes the packs.
+
+| Case | Exit | `hash_match` | Code |
+|---|---|---|---|
+| `--record` without `--online` | 1 | **null** | `RECORD_REQUIRES_ONLINE` |
+| `--record` on a folder | 1 | **null** | `RECORD_FOLDER_UNSUPPORTED` |
+| `--dry-run … --online --record` | 1 | **null** | `RECORD_DRY_RUN` |
+| a missing file | 1 | **null** | `FILE_NOT_FOUND` |
+| a file that is not JSON | 1 | **null** | `PACK_INVALID` |
+| the JSON object `{}` | 1 | **null** | `PACK_INVALID` |
+| a tampered pack (memo edited, hash left alone) | 1 | **false** | — |
+| the same with `--online --record` | 1 | **false** | — (no receipt) |
+| `--record` whose write fails (the pack file is read-only) | 2 | **true** | `ARTIFACT_WRITE_FAILED` |
+| the forged, re-sealed pack, `--online --record` | 1 | true | — (`contradicted`, no receipt) |
+| the valid pack, `--online --record` | 0 | true | — (`recorded: true`) |
+
+- **The write failure:** the read-only pack's bytes are unchanged, it still holds 3 receipts, and no temporary file was
+  left behind (`e3/12-files-after.txt`).
+- **Noted, not a defect:** the write-failure hint ("Check that the path's parent directory is writable…") does not
+  mention that the file itself may be read-only.
 
 ## Item 1: `xrpl-camp reserve` (`reserve/`, `reserve-nowallet/`)
 
@@ -140,6 +182,8 @@ It reports "status is 'unknown'", adds no receipt, and leaves the file's bytes u
 
 ## Defects
 
+Found on `ae22f3b`. All three are fixed on `3b80987` (see the re-check above).
+
 | # | Class | Where | What |
 |---|---|---|---|
 | E1 | **cosmetic** | `reserve` mint table, `lessons.py` `_reserve_move_table` (`r_cell = f"+{_drops_line(r_delta)} locked"`) | The "Owner reserve" cell reads `+200,000 drops (0.200000 XRP) locked`. The XRP figure has no `+`, while every other delta is signed in both units, including the burn's `-200,000 drops (-0.200000 XRP) released`. |
@@ -152,7 +196,8 @@ It reports "status is 'unknown'", adds no receipt, and leaves the file's bytes u
 ## Files
 
 - `code.txt`: the commit and version tested.
-- `hashes.txt`: the five Testnet txids.
+- `hashes.txt`: the seven Testnet txids.
+- `recheck-3b80987/`: the fixup-3 re-check (`code.txt`, `reserve/` and `e3/`, with the extra packs in `e3/packs/`).
 - `course/`: `start`, the certificate runs and their file listings, plus `files/` (the `.txt` keepsake, the
   certificate JSON and the proof pack).
 - `reserve/`: the live runs and the dry runs with their traces and ledger probes. `reserve-nowallet/`: the empty state

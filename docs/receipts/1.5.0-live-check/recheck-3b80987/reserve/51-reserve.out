@@ -1,0 +1,47 @@
+  Endpoint: https://s.altnet.rippletest.net:51234/
+┌────────────────────────────────────────────────────────── XRPL Camp — reserve ──────────────────────────────────────────────────────────┐
+│ Watching the owner reserve lock and return                                                                                              │
+│                                                                                                                                         │
+│ Two real Testnet transactions from your wallet: an NFTokenMint,                                                                         │
+│ then an NFTokenBurn of that same token.                                                                                                 │
+│                                                                                                                                         │
+│ Watch the two columns: your balance moves only by the                                                                                   │
+│ fee (~10 drops each), while your spendable XRP drops by                                                                                 │
+│ the owner reserve increment on the mint and comes back on the burn.                                                                     │
+│ The reserve is held, then released, never spent.                                                                                        │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Step 1: Minting an xrpl-camp NFT (locking one owner reserve)... minted.
+
+                                                Step 1: Mint NFT (NFTokenMint)                                                 
+┌───────────────┬──────────────────────────────────┬──────────────────────────────────┬───────────────────────────────────────┐
+│ Field         │                           Before │                            After │                                 Delta │
+├───────────────┼──────────────────────────────────┼──────────────────────────────────┼───────────────────────────────────────┤
+│ OwnerCount    │                                0 │                                1 │                                    +1 │
+│ Balance       │ 98,999,950 drops (98.999950 XRP) │ 98,999,940 drops (98.999940 XRP) │             -10 drops (-0.000010 XRP) │
+│ Spendable     │ 97,999,950 drops (97.999950 XRP) │ 97,799,940 drops (97.799940 XRP) │        -200,010 drops (-0.200010 XRP) │
+│ Owner reserve │                                — │                                — │ +200,000 drops (+0.200000 XRP) locked │
+└───────────────┴──────────────────────────────────┴──────────────────────────────────┴───────────────────────────────────────┘
+  Reserve: 200,000 drops (0.200000 XRP) locked — held while you own the object, never spent.
+  Transaction: D7F6E4E4AE5083C4967D7F1DF0769070B4A2F828E98D86C78894604865BFED19
+  Explorer:
+  https://testnet.xrpl.org/transactions/D7F6E4E4AE5083C4967D7F1DF0769070B4A2F828E98D86C78894604865BFED19
+
+  Step 2: Burning that NFT (releasing the owner reserve)... burned.
+
+                                                 Step 2: Burn NFT (NFTokenBurn)                                                  
+┌───────────────┬──────────────────────────────────┬──────────────────────────────────┬─────────────────────────────────────────┐
+│ Field         │                           Before │                            After │                                   Delta │
+├───────────────┼──────────────────────────────────┼──────────────────────────────────┼─────────────────────────────────────────┤
+│ OwnerCount    │                                1 │                                0 │                                      -1 │
+│ Balance       │ 98,999,940 drops (98.999940 XRP) │ 98,999,930 drops (98.999930 XRP) │               -10 drops (-0.000010 XRP) │
+│ Spendable     │ 97,799,940 drops (97.799940 XRP) │ 97,999,930 drops (97.999930 XRP) │          +199,990 drops (+0.199990 XRP) │
+│ Owner reserve │                                — │                                — │ -200,000 drops (-0.200000 XRP) released │
+└───────────────┴──────────────────────────────────┴──────────────────────────────────┴─────────────────────────────────────────┘
+  Reserve: 200,000 drops (0.200000 XRP) released — back in your spendable XRP.
+  Transaction: 29F14935DEA4FEC00241C716044E934A7E572DE51F714CFA3024817E3875A9B5
+  Explorer:
+  https://testnet.xrpl.org/transactions/29F14935DEA4FEC00241C716044E934A7E572DE51F714CFA3024817E3875A9B5
+
+  ✓ Reserve returned. Total cost: 20 drops in fees. The 200,000-drop owner reserve was locked on the mint and released on the burn — never 
+spent.
