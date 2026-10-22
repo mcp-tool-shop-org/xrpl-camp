@@ -1,0 +1,11 @@
+  Asking the ledger... (reading a public account — no key, no login) read.
+
+  rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC — somebody else's public history. You needed no key and nobody's permission to read it.
+
+  21,727,377  2026-10-22T05:50:01Z  ← rJjHYTCPpNA3qAM8ZpCDtip3a8xg7B8PFo  100,000,000 drops
+  21,727,381  2026-10-22T05:50:20Z  → rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR  1,000,000 drops
+      "book keeper v1.4.1 live check"
+  21,727,400  2026-10-22T05:51:21Z  → rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR  1 drop
+      "book keeper send check"
+
+  3 transactions, 2 carrying words. None of this is stored here — it came back from the network.

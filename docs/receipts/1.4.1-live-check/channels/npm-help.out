@@ -1,0 +1,25 @@
+mcptoolshop-launch v1.1.1
+
+Generic GitHub-release binary launcher with cache + SHA256 verification.
+
+USAGE (direct):
+  mcptoolshop-launch [OPTIONS]
+
+USAGE (via wrapper):
+  Set MCPTOOLSHOP_LAUNCH_CONFIG as JSON, then run mcptoolshop-launch [-- args...]
+
+OPTIONS:
+  --version, -V          Print version and exit
+  --help, -h             Show this help and exit
+  --print-cache-path     Show cache directory for configured tool
+  --clear-cache          Remove cached binaries for configured tool
+
+CONFIG (via MCPTOOLSHOP_LAUNCH_CONFIG env var):
+  toolName  (required)   Binary base name, e.g. "sovereignty"
+  owner     (required)   GitHub org/user, e.g. "mcp-tool-shop-org"
+  repo      (required)   GitHub repo name
+  version   (required)   Semver without v prefix, e.g. "1.4.0"
+  tag       (optional)   Git tag, defaults to "v<version>"
+  quiet     (optional)   Suppress progress messages
+
+DOCS: https://github.com/mcp-tool-shop-org/npm-launcher

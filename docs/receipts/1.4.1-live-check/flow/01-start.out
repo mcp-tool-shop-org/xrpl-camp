@@ -1,0 +1,226 @@
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Welcome to XRPL Camp                                                                                                                    │
+│                                                                                                                                         │
+│ Six steps, about ten minutes. You'll make an account, fund it,                                                                          │
+│ write a permanent public sentence, and check that the ledger                                                                            │
+│ kept it — then walk out with a certificate anyone can verify.                                                                           │
+│                                                                                                                                         │
+│ No real money. No sign-ups. Just you and the ledger.                                                                                    │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 1: The Mental Model                                                                                                              │
+│                                                                                                                                         │
+│ The XRP Ledger is a public notebook. Every few seconds the whole                                                                        │
+│ network agrees on the next page and closes it, forever.                                                                                 │
+│                                                                                                                                         │
+│   Account     — your identity on it: an address anyone can look up                                                                      │
+│   Balance     — what it holds, in drops (1 XRP = 1,000,000 drops)                                                                       │
+│   Transaction — one line in the notebook, which cannot be erased                                                                        │
+│   Memo        — a note you attach to a transaction. Anything you like.                                                                  │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Right now it is on page 21,727,373, closed a moment ago.
+  Watching... asked again.
+
+  Page 21,727,375. 2 more closed while you watched — with or without you.
+
+  ✓ Foundation set. It is already running. You are about to join it.
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 2: Create a Wallet                                                                                                               │
+│                                                                                                                                         │
+│ A wallet is a pair of keys:                                                                                                             │
+│   Address — your public identity (safe to share)                                                                                        │
+│   Seed    — your private key (never share this)                                                                                         │
+│                                                                                                                                         │
+│ The seed proves you own the address, so anyone holding it can                                                                           │
+│ spend your funds. It stays on this machine; XRPL Camp never                                                                             │
+│ sends it anywhere.                                                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Creating wallet... done.
+
+  Address: rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC
+  Seed saved to .xrpl-camp/wallet.json
+
+  This is a Testnet wallet. Never use Testnet seeds on Mainnet.
+
+  ✓ Identity created. Nobody issued it to you — you generated it yourself.
+  Endpoint: https://s.altnet.rippletest.net:51234/
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 3: Fund Your Wallet                                                                                                              │
+│                                                                                                                                         │
+│ The XRPL Testnet has a faucet that gives free test XRP.                                                                                 │
+│ This is play money — no real value, nothing at risk.                                                                                    │
+│ But it behaves exactly like real XRP on the ledger.                                                                                     │
+│                                                                                                                                         │
+│ Usually about ten seconds, and up to a minute when the faucet is                                                                        │
+│ busy — a whole room asking it at once will do that.                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Requesting funds from the Testnet faucet... (usually about ten seconds) funded.
+
+  Balance:   100.00 XRP (100,000,000 drops)
+  Spendable: 99.00 XRP — the other 1.00 is the reserve, locked for as long as the account exists. The ledger charges rent for the space you
+take up.
+
+  ✓ Account funded. The network knows you exist now.
+  Endpoint: https://s.altnet.rippletest.net:51234/
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 4: Send a Payment                                                                                                                │
+│                                                                                                                                         │
+│ You're about to write something permanent on a public ledger.                                                                           │
+│ The payment goes to a second wallet you also own — your mailbox —                                                                       │
+│ so both ends of it are yours.                                                                                                           │
+│                                                                                                                                         │
+│ What matters is the memo: your message on the blockchain.                                                                               │
+│ It can be anything: your name, a date, a thought, a joke.                                                                               │
+│ Once submitted, anyone can read it and nobody can erase it.                                                                             │
+│                                                                                                                                         │
+│ Don't paste anything secret. This is public, forever.                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Checking your mailbox account rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR — does it exist on the ledger yet?
+  It doesn't. Asking the network what the base reserve is, so we send enough to bring it into existence...
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 4: Send a Payment                                                                                                                │
+│                                                                                                                                         │
+│ You're sending a real transaction to your mailbox — a second wallet                                                                     │
+│ whose keys are also yours.                                                                                                              │
+│                                                                                                                                         │
+│   Memo:    book keeper v1.4.1 live check                                                                                                │
+│   Encoded: 626f6f6b206b65657065722076312e342e31206c69766520636865636b                                                                   │
+│                                                                                                                                         │
+│   Your memo is converted to hex bytes for the ledger.                                                                                   │
+│                                                                                                                                         │
+│   To:      rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR                                                                                           │
+│   Amount:  1,000,000 drops (1.000000 XRP)                                                                                               │
+│   Fee:     a few drops, set by the network — and destroyed, not paid to anyone                                                          │
+│                                                                                                                                         │
+│   This one brings that account into existence, so it has to                                                                             │
+│   carry at least the network's base reserve.                                                                                            │
+│                                                                                                                                         │
+│ The amount is small on purpose: the point is the memo, not the value.                                                                   │
+│ The fee is not our charge, and it does not go to a miner or a validator                                                                 │
+│ either — that XRP simply stops existing. Nobody profits from your                                                                       │
+│ transaction; it just makes XRP very slightly scarcer.                                                                                   │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Submitting transaction... (waiting for validators to agree — usually a few seconds) confirmed.
+
+  Transaction: 2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4
+  Delivered:   1,000,000 drops (1.000000 XRP)
+  Fee paid:    10 drops
+  Ledger:      21,727,381
+  3 ledgers closed while you waited. The network does that every few seconds, with or without you.
+  Explorer:
+  https://testnet.xrpl.org/transactions/2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4
+┌──────────────────────────────────────────────────────────── Account created ────────────────────────────────────────────────────────────┐
+│ You just created an account on a public ledger.                                                                                         │
+│                                                                                                                                         │
+│ rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR                                                                                                      │
+│                                                                                                                                         │
+│ That address did not exist a moment ago. Your payment brought it                                                                        │
+│ into being, and you hold its keys — they are in                                                                                         │
+│ .xrpl-camp/mailbox.json, next to your own.                                                                                              │
+│                                                                                                                                         │
+│ Nobody approved this. Nobody could have stopped it.                                                                                     │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  ✓ Written to the ledger. Your memo is permanent and public — no one can erase it.
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 5: Verify a Transaction                                                                                                          │
+│                                                                                                                                         │
+│ Anyone can look up any transaction on the XRPL.                                                                                         │
+│ No login needed. No API key. Just the transaction hash.                                                                                 │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+  Endpoint: https://s.altnet.rippletest.net:51234/
+
+  Looking up transaction... (asking the ledger what it recorded) found.
+
+                                 Transaction Details                                  
+┌─────────────────┬──────────────────────────────────────────────────────────────────┐
+│ Field           │ Value                                                            │
+├─────────────────┼──────────────────────────────────────────────────────────────────┤
+│ Hash            │ 2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4 │
+│ From            │ rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC                               │
+│ To              │ rao31kqKinmnBVrmeWdt3qgRCfJTcfBcQR                               │
+│ Amount          │ 1000000 drops                                                    │
+│ Delivered       │ 1000000 drops                                                    │
+│ Fee             │ 10 drops                                                         │
+│ Memo (readback) │ book keeper v1.4.1 live check                                    │
+│ Ledger          │ 21727381                                                         │
+│ Time            │ 2026-10-22T05:50:20Z                                             │
+│ Result          │ tesSUCCESS                                                       │
+│ Validated       │ True                                                             │
+└─────────────────┴──────────────────────────────────────────────────────────────────┘
+
+  You wrote:        book keeper v1.4.1 live check
+  Ledger returned:  book keeper v1.4.1 live check
+  Identical. Not our copy of it — the ledger's.
+
+  You don't have to trust this tool.
+  Verify it yourself — this is the full hash:
+  2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4
+  and this is where to look it up:
+  https://testnet.xrpl.org/transactions/2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4
+
+  ✓ Independently verified. No login, no API key — just the hash and the open ledger.
+┌─────────────────────────────────────────────────────────────── XRPL Camp ───────────────────────────────────────────────────────────────┐
+│ Lesson 6: Your Certificate                                                                                                              │
+│                                                                                                                                         │
+│ It records what you did: the lessons you finished, what you                                                                             │
+│ sent, your public address, and the words you wrote. No seed,                                                                            │
+│ nothing private. Safe to share.                                                                                                         │
+│                                                                                                                                         │
+│ The proof pack adds a SHA-256 hash, so an edit shows up. But                                                                            │
+│ the hash is not what makes it trustworthy — anyone can                                                                                  │
+│ recompute one. What nobody can fake is the transaction: the                                                                             │
+│ pack names a hash on a public ledger, and that either exists                                                                            │
+│ or it doesn't.                                                                                                                          │
+│                                                                                                                                         │
+│ Testnet is reset from time to time and this copy goes with it.                                                                          │
+│ The mechanism is real; this particular record is not forever.                                                                           │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+┌───────────────────────────────────────────────────────── XRPL Camp — Complete ──────────────────────────────────────────────────────────┐
+│ Your completion bundle:                                                                                                                 │
+│                                                                                                                                         │
+│   Certificate:                                                                                                                          │
+│ <scratch>/camp\flow-v141-20261022T0549Z\c │
+│ wd\xrpl_camp_certificate.json                                                                                                           │
+│   Proof pack:                                                                                                                           │
+│ <scratch>/camp\flow-v141-20261022T0549Z\c │
+│ wd\xrpl_camp_proof_pack.json                                                                                                            │
+│                                                                                                                                         │
+│   Address:      rp6xWefaU8zKjNqUQpsMp15WRDTYyFq6QC                                                                                      │
+│   Lessons:      6                                                                                                                       │
+│   Duration:     29s                                                                                                                     │
+│   SHA-256:      sha256:714084646f6aca7e12f6c0a02e816328fa58a9e214fe9695e21ed41f7de70d95                                                 │
+│                                                                                                                                         │
+│   Verify your proof pack anytime:                                                                                                       │
+│   xrpl-camp proof verify xrpl_camp_proof_pack.json                                                                                      │
+└─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+  Your transaction on the public ledger:
+  https://testnet.xrpl.org/transactions/2B7CF0F5679F06DF3BE55313E932AC415AB59FBC6484B447A3B1B0922EC8D2F4
+
+  ✓ Record sealed. This is yours to keep — and anyone can check it against the ledger.
+
+  You did it. In a few minutes you:
+  ✓ Created a cryptographic identity
+  ✓ Funded it on a public network
+  ✓ Wrote permanent words to the ledger
+  ✓ Verified everything independently
+
+  Total time: 29s
+
+  The ledger is still running, and you are on it.
+    xrpl-camp read                     your entries, read back off the ledger
+    xrpl-camp read <address>           what somebody else wrote — no key needed
+    xrpl-camp try                      make it fail on purpose. Costs nothing.
+
+  Check your proof pack any time: xrpl-camp proof verify xrpl_camp_proof_pack.json
+
+  If you liked this, Sovereignty is the same idea at book length — a
+  text game about running your own keys:
+  pipx install sovereignty-game && sov tutorial
+

@@ -34,102 +34,59 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 0,
-      "changed": 3,
+      "added": 178,
+      "changed": 2,
       "moved": 0,
       "parts": 2,
       "removed": 0
     },
     "items": [
       {
-        "kind": "door",
-        "sentence": "CI's pull request trigger no longer names `.github/workflows/**`, `atlas/**`, `bin/**`, `codecov.yml`, `package.json`, `pyproject.toml`, `scripts/**`, `site/astro.config.mjs`, `site/package-lock.json`, `site/package.json`, `tests/**` and `xrpl_camp/**`.",
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.4.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          ".github/workflows/ci.yml"
+          "docs/receipts/1.4.1-live-check/README.md"
         ]
       },
       {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.4.1-live-check/account_checks.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.4.1-live-check/account_checks.txt"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "And 175 more new files that belong to no part.",
+        "subjects": []
+      },
+      {
         "kind": "counts",
-        "sentence": "3 files changed content, across 2 parts.",
+        "sentence": "178 files added and 2 changed content, across 2 parts.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "8796d1cc8fd67396b6e0a35726f619f03f805e54",
-      "generatedAt": "2026-10-01T01:32:51.598Z"
+      "commit": "1763b68e5bf565abc6bdce9e6858e7f91de6901e",
+      "generatedAt": "2026-10-01T02:14:40.457Z"
     },
     "unchanged": false
   },
-  "changesTogether": [
-    {
-      "a": "xrpl_camp/cli.py",
-      "b": "xrpl_camp/lessons.py",
-      "either": 9,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 6
-    },
-    {
-      "a": "xrpl_camp/__init__.py",
-      "b": "xrpl_camp/lessons.py",
-      "either": 9,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 5
-    },
-    {
-      "a": "xrpl_camp/__init__.py",
-      "b": "xrpl_camp/cli.py",
-      "either": 10,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 5
-    },
-    {
-      "a": "xrpl_camp/lessons.py",
-      "b": "xrpl_camp/models.py",
-      "either": 8,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 4
-    }
-  ],
+  "changesTogether": [],
   "changesTogetherNote": [
-    "Confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.",
     "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "1763b68e5bf565abc6bdce9e6858e7f91de6901e",
+  "commit": "d8d4e84b6174d78ad40385aff554144ce29c1b02",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly Python (31 files), shell (5), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
+  "derived": "7 parts, mostly Python (31 files), shell (6), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
     {
       "checks": [
@@ -406,12 +363,13 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-01T02:14:40.457Z",
+  "generatedAt": "2026-10-22T07:04:23.116Z",
   "limits": [
     "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
     "6 reads use paths built at run time and are not named here.",
     "4 writes and 9 reads go to a path their caller passes, not to this repository.",
     "1 write goes to a temporary directory, not to this repository.",
+    "178 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 175 more.",
     "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions."
   ],
   "mainDoor": ".github/workflows/ci.yml",

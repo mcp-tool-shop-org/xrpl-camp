@@ -1,0 +1,9 @@
+  Asking the ledger... (reading a public account — no key, no login) read.
+
+  rfPZMN7bH5FLfZZoyjo9xzK1yWDpbsvyEP — your entries, read back off the ledger, not off this machine.
+
+  21,727,525  2026-10-22T05:58:21Z  ← rJjHYTCPpNA3qAM8ZpCDtip3a8xg7B8PFo  100,000,000 drops
+  21,727,537  2026-10-22T05:59:00Z  → rEk8XVc1Ern3vRzfysvZQTa5YQNjHUQwyq  1,000,000 drops
+      "resume check in flight"
+
+  2 transactions, 1 carrying words. None of this is stored here — it came back from the network.
