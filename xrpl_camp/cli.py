@@ -1042,7 +1042,7 @@ def _reject_proof_verify(
     file: Path,
     *,
     json_output: bool,
-    hash_match: bool = False,
+    hash_match: bool | None = None,
 ) -> typer.Exit:
     """Emit a structured error for `proof verify` (single JSON doc when `--json`)."""
     import json as json_mod
