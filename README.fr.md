@@ -76,15 +76,16 @@ Six leçons, dans l’ordre, reprenant si vous redémarrez :
 | `xrpl-camp read <address>` | Ce que quelqu’un d’autre a écrit. Pas de clé, pas de connexion, pas d’autorisation. |
 | `xrpl-camp read <hash>` | Une transaction, dans son intégralité. |
 | `xrpl-camp try` | Provoquer intentionnellement des problèmes sur le réseau en direct. Ne signe rien, ne coûte rien. |
+| `xrpl-camp reserve` | Créez et « brûlez » un NFT pour permettre au propriétaire de réserver et de récupérer l’objet. |
 | `xrpl-camp status` | Liste de contrôle des progrès, avec les temps. |
 | `xrpl-camp status --detail` | Vue du facilitateur : portefeuille, point de terminaison, répertoire d’état, prochaine étape. |
 | `xrpl-camp wallet create` / `show` | Créer ou afficher votre portefeuille Testnet. |
 | `xrpl-camp fund` | Alimenter votre portefeuille via le robinet Testnet. |
 | `xrpl-camp send --memo "hello"` | Envoyer un paiement de mémorandum à votre boîte de réception. |
 | `xrpl-camp verify --tx <hash>` | Vérifier une transaction **que vous** avez envoyée. |
-| `xrpl-camp certificate` | Générer le certificat + le paquet de preuves. |
+| `xrpl-camp certificate` | Générez le certificat et le paquet de preuves (`--format text` ajoute un souvenir `.txt`). |
 | `xrpl-camp proof verify <file>` | Vérifier le hachage d’un paquet de preuves. Entièrement hors ligne. |
-| `xrpl-camp proof verify <file> --online` | Demander également au registre si les transactions ont réellement eu lieu. |
+| `xrpl-camp proof verify <file> --online` | Demandez également au registre si les transactions ont réellement eu lieu (`--record` ajoute un reçu daté). |
 | `xrpl-camp proof verify <folder>` | Vérifier chaque paquet dans un dossier, pour les facilitateurs. |
 | `xrpl-camp reset` | Effacer tout l’état (nécessite de taper `RESET`). |
 | `xrpl-camp self-check` | Diagnostiquer votre environnement **et** votre connexion au registre. |
@@ -141,7 +142,7 @@ Par défaut, l’état est stocké dans `./.xrpl-camp` ; une session appartient 
 
 Votre clé privée est stockée localement dans `.xrpl-camp/wallet.json` (accessible uniquement au propriétaire sur POSIX) et n’est jamais incluse dans le certificat ou le paquet de preuves ; la génération refuse d’écrire un artefact qui en contiendrait une.
 
-Par défaut, cet outil utilise le XRPL Testnet, où les XRP de test n’ont aucune valeur réelle, et il refuse les points de terminaison qui ne sont pas du Testnet, à moins que vous ne désactiviez explicitement cette option. Pas de télémétrie, pas d’analyse, pas de communication vers un serveur distant.
+**Par défaut**, cet outil utilise le XRPL Testnet, où les XRP de test n’ont aucune valeur réelle, et il refuse les points de terminaison qui ne sont pas du Testnet, à moins que vous ne désactiviez explicitement cette option. Pas de télémétrie, pas d’analyse, pas de communication vers un serveur distant.
 
 Voir [SECURITY.md](SECURITY.md).
 
@@ -149,7 +150,7 @@ Voir [SECURITY.md](SECURITY.md).
 
 | Menace | Atténuation |
 |--------|-----------|
-| Clé privée divulguée dans un artefact | La génération effectue une vérification de la clé privée basée sur `decode_seed` de xrpl-py et refuse d’écrire le fichier si cette vérification échoue. |
+| Clé privée divulguée dans un artefact | La génération effectue une vérification de la clé privée basée sur `decode_seed` de xrpl-py et **refuse d’écrire le fichier** si cette vérification échoue. |
 | Clé privée enregistrée dans git | `.xrpl-camp/` est ignoré par git *dans ce dépôt* ; l’état est écrit dans votre répertoire de travail, vous pouvez donc l’ajouter à votre propre `.gitignore`. |
 | Clé privée accessible par d’autres utilisateurs | Fichier de portefeuille 0600, répertoire d’état 0700 sur POSIX |
 | Un utilisateur copie un secret dans un mémo public | Le texte du mémo est analysé pour détecter les chaînes de caractères ressemblant à une clé privée et est refusé avant la soumission. |

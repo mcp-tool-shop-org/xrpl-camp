@@ -76,15 +76,16 @@ Seis lições, em ordem, retomando se você reiniciar:
 | `xrpl-camp read <address>` | O que outra pessoa escreveu. Sem chave, sem login, sem permissão |
 | `xrpl-camp read <hash>` | Uma transação, completa |
 | `xrpl-camp try` | Cause falha intencionalmente na rede ativa. Não assina nada, não custa nada |
+| `xrpl-camp reserve` | Crie e «queime» um NFT para que o proprietário possa ativar o bloqueio de reserva e devolvê-lo. |
 | `xrpl-camp status` | Lista de verificação de progresso, com tempos |
 | `xrpl-camp status --detail` | Visualização do facilitador: carteira, endpoint, diretório de estado, próxima etapa |
 | `xrpl-camp wallet create` / `show` | Crie ou exiba sua carteira Testnet |
 | `xrpl-camp fund` | Adicione fundos à sua carteira por meio do faucet Testnet |
 | `xrpl-camp send --memo "hello"` | Envie um pagamento de mensagem para sua caixa de entrada |
 | `xrpl-camp verify --tx <hash>` | Verifique uma transação **que você** enviou |
-| `xrpl-camp certificate` | Gere o certificado + pacote de prova |
+| `xrpl-camp certificate` | Gere o certificado e o pacote de comprovativos (`--format text` adiciona uma lembrança `.txt`). |
 | `xrpl-camp proof verify <file>` | Verifique o hash de um pacote de prova. Totalmente offline |
-| `xrpl-camp proof verify <file> --online` | Pergunte também ao livro-razão se as transações realmente ocorreram |
+| `xrpl-camp proof verify <file> --online` | Pergunte também ao livro-razão se as transações realmente ocorreram (`--record` anexa um recibo com data). |
 | `xrpl-camp proof verify <folder>` | Verifique todos os pacotes em uma pasta — para facilitadores |
 | `xrpl-camp reset` | Limpe todo o estado (requer digitar `RESET`) |
 | `xrpl-camp self-check` | Diagnostique seu ambiente **e** sua conexão com o livro-razão |
@@ -102,7 +103,7 @@ Flags globais: `--version`, `--dry-run`, `--yes` (não interativo), `--verbose` 
 
 ## Sobre essa prova
 
-O pacote de prova carrega um hash SHA-256. Esse hash detecta uma edição acidental. Não é uma assinatura e, por si só, não prova que o pacote é genuíno — qualquer pessoa pode alterar um campo e recalcular o hash com a mesma função pública que esta ferramenta usa.
+O pacote de prova carrega um hash SHA-256. Esse hash detecta uma edição acidental. **Não** é uma assinatura e, por si só, não prova que o pacote é genuíno — qualquer pessoa pode alterar um campo e recalcular o hash com a mesma função pública que esta ferramenta usa.
 
 O que não pode ser falsificado é o livro-razão:
 
@@ -141,7 +142,7 @@ O estado é armazenado em `./.xrpl-camp` por padrão — uma sessão pertence à
 
 A sua chave privada é armazenada localmente em `.xrpl-camp/wallet.json` (apenas para o proprietário em POSIX) e nunca é incluída no certificado ou no pacote de prova — a geração recusa-se a escrever um artefato que contenha uma.
 
-Esta ferramenta, por padrão, utiliza a XRPL Testnet, onde o XRP de teste não tem valor real, e rejeita pontos de extremidade que não sejam da Testnet, a menos que você opte explicitamente por não o fazer. Sem telemetria, sem análise, sem comunicação com um servidor central.
+Esta ferramenta **utiliza por padrão** a XRPL Testnet, onde o XRP de teste não tem valor real, e rejeita pontos de extremidade que não sejam da Testnet, a menos que você opte explicitamente por não o fazer. Sem telemetria, sem análise, sem comunicação com um servidor central.
 
 Consulte [SECURITY.md](SECURITY.md).
 

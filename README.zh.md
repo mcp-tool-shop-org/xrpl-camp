@@ -76,15 +76,16 @@ xrpl-camp start
 | `xrpl-camp read <address>` | 其他人写入的内容。没有密钥，没有登录，没有权限 |
 | `xrpl-camp read <hash>` | 一笔完整的交易 |
 | `xrpl-camp try` | 故意在实时网络上破坏某些功能。不签名，不产生任何费用 |
+| `xrpl-camp reserve` | 铸造并销毁一个 NFT，以查看所有者是否保留了锁定状态并进行了归还。 |
 | `xrpl-camp status` | 进度检查表，带有时间戳 |
 | `xrpl-camp status --detail` | 指导者视图：钱包、端点、状态目录、下一步 |
 | `xrpl-camp wallet create` / `show` | 创建或显示你的测试网钱包 |
 | `xrpl-camp fund` | 通过测试网水龙头为你的钱包充值 |
 | `xrpl-camp send --memo "hello"` | 向你的邮箱发送备忘录付款 |
 | `xrpl-camp verify --tx <hash>` | 验证你**发送的**交易 |
-| `xrpl-camp certificate` | 生成证书 + 证明包 |
+| `xrpl-camp certificate` | 生成证书 + 证明包（`--format text` 添加一个 `.txt` 纪念品）。 |
 | `xrpl-camp proof verify <file>` | 检查证明包的哈希值。完全离线 |
-| `xrpl-camp proof verify <file> --online` | 同时询问账本这些交易是否真的发生了 |
+| `xrpl-camp proof verify <file> --online` | 同时询问账本，以确认这些交易是否真的发生了（`--record` 附加一份带有日期的收据）。 |
 | `xrpl-camp proof verify <folder>` | 验证文件夹中的每个包——供指导者使用 |
 | `xrpl-camp reset` | 清除所有状态（需要输入 `RESET`） |
 | `xrpl-camp self-check` | 诊断你的环境**以及**你与账本的连接 |

@@ -76,15 +76,16 @@ Seis lecciones, en orden, que se reanudan si reinicia:
 | `xrpl-camp read <address>` | Lo que otra persona escribió. Sin clave, sin inicio de sesión, sin permiso |
 | `xrpl-camp read <hash>` | Una transacción completa |
 | `xrpl-camp try` | Provocar un fallo a propósito en la red activa. No firma nada, no cuesta nada |
+| `xrpl-camp reserve` | Crea y destruye un NFT para que el propietario pueda ver el bloqueo de reserva y el proceso de devolución. |
 | `xrpl-camp status` | Lista de verificación del progreso, con tiempos |
 | `xrpl-camp status --detail` | Vista del facilitador: billetera, punto final, directorio de estado, siguiente paso |
 | `xrpl-camp wallet create` / `show` | Crear o mostrar su billetera de Testnet |
 | `xrpl-camp fund` | Financiar su billetera a través del grifo de Testnet |
 | `xrpl-camp send --memo "hello"` | Enviar un pago de nota a su buzón |
 | `xrpl-camp verify --tx <hash>` | Verificar una transacción que **usted** envió |
-| `xrpl-camp certificate` | Generar el certificado + paquete de prueba |
+| `xrpl-camp certificate` | Genera el certificado y el paquete de prueba (`--format text` añade un recuerdo `.txt`). |
 | `xrpl-camp proof verify <file>` | Verificar el hash de un paquete de prueba. Completamente fuera de línea |
-| `xrpl-camp proof verify <file> --online` | También preguntar al libro mayor si las transacciones realmente ocurrieron |
+| `xrpl-camp proof verify <file> --online` | También pregunta al libro de contabilidad si las transacciones realmente se llevaron a cabo (`--record` añade un recibo con fecha). |
 | `xrpl-camp proof verify <folder>` | Verificar cada paquete en una carpeta, para facilitadores |
 | `xrpl-camp reset` | Borrar todo el estado (requiere escribir `RESET`) |
 | `xrpl-camp self-check` | Diagnosticar su entorno **y** su conexión con el libro mayor |
@@ -141,7 +142,7 @@ El estado se guarda de forma predeterminada en `./.xrpl-camp`; una sesión perte
 
 Su semilla se guarda localmente en `.xrpl-camp/wallet.json` (solo para el propietario en POSIX) y nunca se incluye en el certificado o en el paquete de prueba; la generación se niega a escribir un artefacto que contenga una.
 
-De forma predeterminada, esta herramienta utiliza la red de prueba XRPL, donde las XRP de prueba no tienen valor real, y rechaza los puntos finales que no son de la red de prueba a menos que se desactive explícitamente. No hay telemetría, ni análisis, ni comunicación con un servidor central.
+**De forma predeterminada**, esta herramienta utiliza la red de prueba XRPL, donde las XRP de prueba no tienen valor real, y rechaza los puntos finales que no son de la red de prueba a menos que se desactive explícitamente. No hay telemetría, ni análisis, ni comunicación con un servidor central.
 
 Consulte [SECURITY.md](SECURITY.md).
 
