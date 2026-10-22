@@ -1042,6 +1042,7 @@ def _reject_proof_verify(
     file: Path,
     *,
     json_output: bool,
+    hash_match: bool = False,
 ) -> typer.Exit:
     """Emit a structured error for `proof verify` (single JSON doc when `--json`)."""
     import json as json_mod
@@ -1049,7 +1050,7 @@ def _reject_proof_verify(
     if json_output:
         print(json_mod.dumps({
             "valid": False,
-            "hash_match": False,
+            "hash_match": hash_match,
             "recorded": False,
             "file": str(file),
             "code": err.code,
@@ -1130,20 +1131,24 @@ def _verify_online(
                 raise _reject_proof_verify(
                     CampError(
                         code="RECORD_VERIFY_FAILED",
-                        message=f"Could not write or re-read the verification receipt in {file}.",
+                        message=f"Proof pack failed integrity verification before writing {file}.",
                         hint="Regenerate the proof pack with 'xrpl-camp certificate'.",
                         detail=mem_message,
                         exit_code=EXIT_RUNTIME,
                     ),
                     file,
                     json_output=json_output,
+                    hash_match=True,
                 )
             try:
                 write_proof_pack_atomic(pack, file)
                 reloaded = json_mod.loads(file.read_text(encoding="utf-8"))
             except CampFailure as exc:
                 raise _reject_proof_verify(
-                    exc.error, file, json_output=json_output,
+                    exc.error,
+                    file,
+                    json_output=json_output,
+                    hash_match=True,
                 ) from None
             except (json_mod.JSONDecodeError, ValueError, OSError) as exc:
                 raise _reject_proof_verify(
@@ -1159,6 +1164,7 @@ def _verify_online(
                     ),
                     file,
                     json_output=json_output,
+                    hash_match=True,
                 ) from None
 
             post_valid, post_message = verify_proof_pack(reloaded)
@@ -1166,13 +1172,17 @@ def _verify_online(
                 raise _reject_proof_verify(
                     CampError(
                         code="RECORD_VERIFY_FAILED",
-                        message=f"Could not write or re-read the verification receipt in {file}.",
+                        message=(
+                            "Proof pack failed integrity verification after "
+                            f"recording the receipt in {file}."
+                        ),
                         hint="Regenerate the proof pack with 'xrpl-camp certificate'.",
                         detail=post_message,
                         exit_code=EXIT_RUNTIME,
                     ),
                     file,
                     json_output=json_output,
+                    hash_match=True,
                 )
             recorded = True
 

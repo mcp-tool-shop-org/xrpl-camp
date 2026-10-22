@@ -443,6 +443,69 @@ def test_reserve_zero_delta_explains_shared_nftoken_page(monkeypatch, capsys):
     assert doc["reserve_note"] == "shared_nftoken_page"
 
 
+def test_reserve_stale_read_reports_not_yet_visible(monkeypatch, capsys):
+    wallet.save_wallet(SENDER, "sEdV150ReserveTestSeed123456789")
+    stale_mint = transport.ReserveMove(
+        txid=MINT_TXID,
+        engine_result="tesSUCCESS",
+        owner_count_before=0,
+        owner_count_after=0,
+        balance_before=100_000_000,
+        balance_after=100_000_000,
+        spendable_before=99_000_000,
+        spendable_after=99_000_000,
+        ledger_index=50001,
+        close_time_iso="2026-10-22T12:00:00Z",
+        nftoken_id=NFTOKEN_ID,
+    )
+    stale_burn = transport.ReserveMove(
+        txid=BURN_TXID,
+        engine_result="tesSUCCESS",
+        owner_count_before=0,
+        owner_count_after=0,
+        balance_before=100_000_000,
+        balance_after=100_000_000,
+        spendable_before=99_000_000,
+        spendable_after=99_000_000,
+        ledger_index=50002,
+        close_time_iso="2026-10-22T12:00:04Z",
+        nftoken_id=NFTOKEN_ID,
+    )
+
+    monkeypatch.setattr(transport, "assert_safe_network", lambda url=None: 1)
+    monkeypatch.setattr(transport, "account_nfts", lambda address, url=None: [])
+    monkeypatch.setattr(
+        transport,
+        "mint_nft",
+        lambda seed, uri="xrpl-camp", url=None, *, taxon=0: stale_mint,
+    )
+    monkeypatch.setattr(
+        transport,
+        "burn_nft",
+        lambda seed, nftoken_id, url=None: stale_burn,
+    )
+
+    result = runner.invoke(app, ["reserve"])
+    output = " ".join(strip_ansi(result.output).split())
+
+    assert result.exit_code == 0, output
+    after_mint = output[output.index("Step 1: Mint NFT"):]
+    assert "ledger read after the mint did not show it yet" in after_mint
+    assert "NFT page" not in after_mint
+    assert "32 tokens" not in after_mint
+    assert "0-drop owner reserve was locked" not in after_mint
+    assert "locked" not in after_mint
+    assert "released" not in after_mint
+
+    capsys.readouterr()
+    code = lessons.run_reserve(json_output=True)
+    captured = capsys.readouterr()
+    assert code == 0
+    doc = json.loads(captured.out)
+    assert doc["ok"] is True
+    assert doc["reserve_note"] == "not_yet_visible"
+
+
 # ---------------------------------------------------------------------------
 # 2. `certificate --format json|text` and the share line
 # ---------------------------------------------------------------------------
@@ -770,10 +833,12 @@ def test_in_memory_verify_failure_aborts_before_writing_and_leaves_bytes_unchang
     result = runner.invoke(
         app, ["proof", "verify", str(path), "--online", "--record"],
     )
+    output = " ".join(strip_ansi(result.output).split())
 
     assert result.exit_code != 0
     assert calls == 2
     assert path.read_bytes() == before
+    assert "Proof pack failed integrity verification before writing" in output
 
 
 def test_record_write_failure_with_json_emits_single_json_error_document(
@@ -799,7 +864,7 @@ def test_record_write_failure_with_json_emits_single_json_error_document(
     assert path.read_bytes() == before
     doc = json.loads(result.stdout)
     assert doc["valid"] is False
-    assert doc["hash_match"] is False
+    assert doc["hash_match"] is True
     assert doc["recorded"] is False
     assert doc["file"] == str(path)
     assert doc["code"] == "ARTIFACT_WRITE_FAILED"

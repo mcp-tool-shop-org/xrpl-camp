@@ -2675,26 +2675,28 @@ def _print_reserve_step(
     network: str,
     simulated: bool = False,
     shared_page: bool = False,
+    not_yet_visible: bool = False,
 ) -> None:
     """Render one reserve step (mint or burn) with its table, reserve line, and link."""
     console.print()
     console.print(_reserve_move_table(step_title, move, simulated=simulated))
     r_delta = int(move.reserve_delta)
-    if r_delta > 0:
-        console.print(
-            f"  [bold]Reserve:[/bold] {_drops_line(r_delta)} [yellow]locked[/yellow] — "
-            "held while you own the object, never spent.",
-        )
-    elif r_delta < 0:
-        console.print(
-            f"  [bold]Reserve:[/bold] {_drops_line(abs(r_delta))} [green]released[/green] — "
-            "back in your spendable XRP.",
-        )
-    elif shared_page:
-        console.print(
-            "  [bold]Reserve:[/bold] the token went into an NFT page your account "
-            "already had, so no new reserve was needed (a page holds up to 32 tokens).",
-        )
+    if not not_yet_visible:
+        if r_delta > 0:
+            console.print(
+                f"  [bold]Reserve:[/bold] {_drops_line(r_delta)} [yellow]locked[/yellow] — "
+                "held while you own the object, never spent.",
+            )
+        elif r_delta < 0:
+            console.print(
+                f"  [bold]Reserve:[/bold] {_drops_line(abs(r_delta))} [green]released[/green] — "
+                "back in your spendable XRP.",
+            )
+        elif shared_page:
+            console.print(
+                "  [bold]Reserve:[/bold] the token went into an NFT page your account "
+                "already had, so no new reserve was needed (a page holds up to 32 tokens).",
+            )
     if not simulated and move.txid:
         console.print(f"  [bold]Transaction:[/bold] {escape(move.txid)}")
         link = transport.explorer_url_for_network(move.txid, network)
@@ -2863,13 +2865,20 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         err = _classify(exc, send_error, account=address)
         return fail_reserve(err)
 
-    shared_page = int(mint_move.reserve_delta) == 0
+    shared_page = (
+        int(mint_move.reserve_delta) == 0
+        and int(mint_move.owner_count_delta) == 0
+        and int(mint_move.owner_count_before) > 0
+        and int(mint_move.balance_delta) < 0
+    )
+    not_yet_visible = int(mint_move.reserve_delta) == 0 and not shared_page
     _print_reserve_step(
         "Step 1: Mint NFT (NFTokenMint)",
         mint_move,
         network=network,
         simulated=False,
         shared_page=shared_page,
+        not_yet_visible=not_yet_visible,
     )
 
     token_id = str(mint_move.nftoken_id or "").strip()
@@ -2926,6 +2935,7 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         network=network,
         simulated=False,
         shared_page=shared_page,
+        not_yet_visible=not_yet_visible,
     )
 
     total_fees = abs(mint_move.balance_delta + burn_move.balance_delta)
@@ -2935,6 +2945,12 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
             f"Total cost: {total_fees:,} drops in fees. "
             "The token went into an NFT page your account already had, so no new "
             "reserve was needed (a page holds up to 32 tokens).",
+        )
+    elif not_yet_visible:
+        console.print(
+            "\n  [yellow]Note:[/yellow] The ledger read after the mint did not show it "
+            "yet, so the reserve change could not be measured; the transaction link "
+            "shows what happened.",
         )
     else:
         console.print(
@@ -2961,6 +2977,8 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         }
         if shared_page:
             doc["reserve_note"] = "shared_nftoken_page"
+        elif not_yet_visible:
+            doc["reserve_note"] = "not_yet_visible"
         print(json_mod.dumps(doc, indent=2))
     return EXIT_OK
 
