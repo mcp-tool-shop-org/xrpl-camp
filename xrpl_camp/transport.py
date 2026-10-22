@@ -277,6 +277,7 @@ class XRPLUnfundedAccount(XRPLTransportError):
         "Sending less than you hold in reserve is not possible."
     )
     default_retryable = False
+    default_exit_code = EXIT_USER
 
 
 class XRPLTransactionFailed(XRPLTransportError):

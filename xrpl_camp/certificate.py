@@ -17,6 +17,7 @@ from xrpl_camp.transport import (
 )
 
 CERTIFICATE_FILE = "xrpl_camp_certificate.json"
+CERTIFICATE_TEXT_FILE = "xrpl_camp_certificate.txt"
 
 #: The formats `generate_certificate`'s output can be rendered in. "json" is
 #: the artifact written to disk and the one anything machine-readable should
@@ -378,6 +379,28 @@ def save_certificate(cert: dict, path: str = CERTIFICATE_FILE) -> Path:
         raise SeedLeakDetected(str(path))
     filepath = Path(path)
     _write_artifact(filepath, json.dumps(cert, indent=2))
+    return filepath
+
+
+def save_certificate_text(
+    cert: dict,
+    path: str = CERTIFICATE_TEXT_FILE,
+    *,
+    pack_file: str = "xrpl_camp_proof_pack.json",
+) -> Path:
+    """Write the plain-text keepsake certificate to disk. Returns file path.
+
+    Renders via `render_certificate_text`, checks both the certificate dict and
+    the rendered text for XRPL seeds (`_contains_xrpl_seed`), and writes
+    through `_write_artifact` (atomic temp-file write and unique `.bak` backup).
+    """
+    if certificate_has_seed(cert):
+        raise SeedLeakDetected(str(path))
+    rendered = render_certificate_text(cert, pack_file=pack_file)
+    if _contains_xrpl_seed(rendered):
+        raise SeedLeakDetected(str(path))
+    filepath = Path(path)
+    _write_artifact(filepath, rendered)
     return filepath
 
 

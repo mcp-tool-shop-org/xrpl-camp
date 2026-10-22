@@ -27,12 +27,17 @@ from rich.table import Table
 from xrpl_camp import transport, wallet
 from xrpl_camp.certificate import (
     CERTIFICATE_FILE,
+    CERTIFICATE_FORMATS,
+    CERTIFICATE_TEXT_FILE,
     generate_certificate,
     save_certificate,
+    save_certificate_text,
+    share_text,
 )
 from xrpl_camp.errors import (
     ALLOW_ANY_NETWORK_ENV,
     EXIT_OK,
+    EXIT_RUNTIME,
     EXIT_USER,
     VERBOSE_POINTER,
     CampError,
@@ -1853,6 +1858,7 @@ def lesson_6_certificate(
     dry_run: bool = False,
     assume_complete: Iterable[int] = (),
     out_dir: str = "",
+    fmt: str = "json",
 ) -> LessonResult:
     """Lesson 6: Generate a completion certificate and proof pack.
 
@@ -1861,6 +1867,15 @@ def lesson_6_certificate(
     that is only ever the dry-run flow, where nothing is written anyway.
     """
     ts, t0 = _start_timer()
+
+    fmt_norm = str(fmt or "json").strip().lower()
+    if fmt_norm not in CERTIFICATE_FORMATS:
+        return _fail(6, CampError(
+            code="BAD_FORMAT",
+            message=f"Unknown certificate format '{fmt}'.",
+            hint="Use --format json (default) or --format text.",
+            exit_code=EXIT_USER,
+        ))
 
     proven = set(assume_complete)
     missing = [n for n in range(1, 6) if not session.is_complete(n) and n not in proven]
@@ -1891,7 +1906,7 @@ def lesson_6_certificate(
     if dry_run:
         console.print(
             "\n  [bold yellow]⚠ SIMULATION[/bold yellow] — "
-            "No artifacts generated in dry-run mode.",
+            "No artifacts generated in dry-run mode. Nothing was written.",
         )
         console.print(
             "  [dim]Run without --dry-run to generate your certificate "
@@ -1904,6 +1919,7 @@ def lesson_6_certificate(
     session.mark_complete(6, LESSON_NAMES[6], started_at=ts, duration_seconds=_elapsed(t0))
 
     folder = Path(out_dir).expanduser() if out_dir else None
+    text_path: Path | None = None
     try:
         if folder is not None:
             folder.mkdir(parents=True, exist_ok=True)
@@ -1915,6 +1931,12 @@ def lesson_6_certificate(
         pack_path = save_proof_pack(
             pack, str(folder / PROOF_PACK_FILE) if folder else PROOF_PACK_FILE,
         )
+        if fmt_norm == "text":
+            text_path = save_certificate_text(
+                cert,
+                str(folder / CERTIFICATE_TEXT_FILE) if folder else CERTIFICATE_TEXT_FILE,
+                pack_file=Path(pack_path).name,
+            )
     except OSError as exc:
         return _fail(6, write_error(
             str(folder) if folder else "your certificate and proof pack",
@@ -1936,18 +1958,24 @@ def lesson_6_certificate(
     # window, and nothing else in the CLI could answer "where did it go".
     cert_path = Path(cert_path).resolve()
     pack_path = Path(pack_path).resolve()
+    if text_path is not None:
+        text_path = Path(text_path).resolve()
 
     lines = [
         "[bold]Your completion bundle:[/bold]\n",
         f"  Certificate:  {escape(str(cert_path))}",
         f"  Proof pack:   {escape(str(pack_path))}",
+    ]
+    if text_path is not None:
+        lines.append(f"  Keepsake:     {escape(str(text_path))}")
+    lines.extend([
         f"\n  Address:      {escape(str(cert['address']))}",
         f"  Lessons:      {len(cert['completed'])}",
         f"  Duration:     {duration_str}",
         f"  SHA-256:      {escape(str(pack['sha256']))}",
         "\n  [dim]Verify your proof pack anytime:[/dim]"
         f"\n  [dim]xrpl-camp proof verify {escape(pack_path.name)}[/dim]",
-    ]
+    ])
 
     console.print(Panel(
         "\n".join(lines),
@@ -1961,9 +1989,21 @@ def lesson_6_certificate(
         console.print("\n  [dim]Your transaction on the public ledger:[/dim]")
         _copyable(explorer)
 
+    console.print("\n  [dim]Copy to share:[/dim]")
+    console.print(
+        share_text(cert, pack_file=pack_path.name),
+        markup=False,
+        highlight=False,
+        soft_wrap=True,
+    )
+
     console.print(
         "\n  [green]✓ Record sealed.[/green] "
         "This is yours to keep — and anyone can check it against the ledger.",
+    )
+    console.print(
+        "  [dim]A next step after camp: xrpl-camp reserve — "
+        "watch the owner reserve lock and come back.[/dim]",
     )
     return LessonResult(lesson=6, ok=True)
 
@@ -2452,6 +2492,396 @@ def _try_receipt(outcomes: list[TryOutcome]) -> None:
     console.print(Panel(
         "\n".join(lines), title="The receipt", border_style="green",
     ))
+
+
+# ---------------------------------------------------------------------------
+# reserve - watch the owner reserve lock and come back
+# ---------------------------------------------------------------------------
+
+RESERVE_NFT_URI = "xrpl-camp"
+RESERVE_NFT_URI_HEX = RESERVE_NFT_URI.encode("utf-8").hex().upper()
+RESERVE_NFT_TAXON = 0
+DRY_RUN_NFTOKEN_ID = "00080000" + "0" * 56
+
+
+def _signed_drops_line(drops: int) -> str:
+    """'+200,000 drops (+0.200000 XRP)' / '-10 drops (-0.000010 XRP)'."""
+    unit = "drop" if abs(drops) == 1 else "drops"
+    sign = "+" if drops > 0 else ""
+    return f"{sign}{drops:,} {unit} ({sign}{drops / 1_000_000:.6f} XRP)"
+
+
+def _camp_nftoken_id(nft: object) -> str:
+    """Return the NFTokenID if `nft` is an xrpl-camp reserve token (uri 'xrpl-camp', taxon 0)."""
+    if not isinstance(nft, dict):
+        return ""
+    token_id = str(nft.get("NFTokenID") or nft.get("nftoken_id") or "").strip()
+    if not token_id:
+        return ""
+    raw_taxon = nft.get("NFTokenTaxon", nft.get("nftoken_taxon", nft.get("taxon", 0)))
+    try:
+        taxon = int(raw_taxon if raw_taxon is not None else 0)
+    except (TypeError, ValueError):
+        return ""
+    if taxon != RESERVE_NFT_TAXON:
+        return ""
+    raw_uri = str(nft.get("URI") if "URI" in nft else nft.get("uri", "") or "").strip()
+    if raw_uri == RESERVE_NFT_URI or raw_uri.upper() == RESERVE_NFT_URI_HEX:
+        return token_id
+    return ""
+
+
+def _burn_failed_error(nftoken_id: str, exc: Exception) -> CampError:
+    """Structured error when burning an NFT fails."""
+    base = _classify(exc, send_error)
+    return CampError(
+        code="RESERVE_BURN_FAILED",
+        message=(
+            f"Could not burn NFTokenID {nftoken_id}: {base.message}"
+        ),
+        hint=(
+            f"The token ({nftoken_id}) is still on your account. "
+            "Running 'xrpl-camp reserve' again burns it and releases the reserve."
+        ),
+        retryable=True,
+        detail=base.detail,
+        exit_code=base.exit_code or EXIT_RUNTIME,
+    )
+
+
+def _simulated_reserve_moves() -> tuple[transport.ReserveMove, transport.ReserveMove]:
+    """Simulated mint and burn moves for `reserve --dry-run`. No network calls."""
+    inc = int(transport.DEFAULT_RESERVE_INC_DROPS)
+    fee = int(LEDGER_COST_DROPS)
+    bal0 = int(transport.DRY_RUN_BALANCE_DROPS)
+    spend0 = bal0 - int(transport.DEFAULT_RESERVE_BASE_DROPS)
+
+    bal1 = bal0 - fee
+    spend1 = spend0 - inc - fee
+    mint_move = transport.ReserveMove(
+        txid=transport.DRY_RUN_TXID,
+        engine_result="tesSUCCESS (simulated)",
+        owner_count_before=0,
+        owner_count_after=1,
+        balance_before=bal0,
+        balance_after=bal1,
+        spendable_before=spend0,
+        spendable_after=spend1,
+        ledger_index=0,
+        close_time_iso="",
+        nftoken_id=DRY_RUN_NFTOKEN_ID,
+    )
+
+    bal2 = bal1 - fee
+    spend2 = spend1 + inc - fee
+    burn_move = transport.ReserveMove(
+        txid=transport.DRY_RUN_TXID,
+        engine_result="tesSUCCESS (simulated)",
+        owner_count_before=1,
+        owner_count_after=0,
+        balance_before=bal1,
+        balance_after=bal2,
+        spendable_before=spend1,
+        spendable_after=spend2,
+        ledger_index=0,
+        close_time_iso="",
+        nftoken_id=DRY_RUN_NFTOKEN_ID,
+    )
+    return mint_move, burn_move
+
+
+def _reserve_move_to_dict(
+    move: transport.ReserveMove, *, network: str, simulated: bool = False,
+) -> dict:
+    """Serialize a ReserveMove (including computed deltas) for `--json`."""
+    delta = int(move.reserve_delta)
+    status = "locked" if delta > 0 else ("released" if delta < 0 else "unchanged")
+    return {
+        "txid": move.txid,
+        "engine_result": move.engine_result,
+        "owner_count_before": move.owner_count_before,
+        "owner_count_after": move.owner_count_after,
+        "owner_count_delta": move.owner_count_delta,
+        "balance_before": move.balance_before,
+        "balance_after": move.balance_after,
+        "balance_delta": move.balance_delta,
+        "spendable_before": move.spendable_before,
+        "spendable_after": move.spendable_after,
+        "spendable_delta": move.spendable_delta,
+        "reserve_delta": delta,
+        "reserve_status": status,
+        "ledger_index": move.ledger_index,
+        "close_time_iso": move.close_time_iso,
+        "nftoken_id": move.nftoken_id,
+        "explorer_url": (
+            "" if simulated
+            else transport.explorer_url_for_network(move.txid, network)
+        ),
+    }
+
+
+def _reserve_move_table(
+    step_title: str, move: transport.ReserveMove, *, simulated: bool = False,
+) -> Table:
+    """Table showing OwnerCount, balance, and spendable XRP before/after with deltas."""
+    tag = " (simulated)" if simulated else ""
+    table = Table(title=f"{step_title}{tag}")
+    table.add_column("Field", style="bold")
+    table.add_column("Before", justify="right")
+    table.add_column("After", justify="right")
+    table.add_column("Delta", justify="right")
+
+    table.add_row(
+        "OwnerCount",
+        f"{move.owner_count_before}",
+        f"{move.owner_count_after}",
+        f"{move.owner_count_delta:+d}",
+    )
+    table.add_row(
+        "Balance",
+        escape(_drops_line(move.balance_before)),
+        escape(_drops_line(move.balance_after)),
+        escape(_signed_drops_line(move.balance_delta)),
+    )
+    table.add_row(
+        "Spendable",
+        escape(_drops_line(move.spendable_before)),
+        escape(_drops_line(move.spendable_after)),
+        escape(_signed_drops_line(move.spendable_delta)),
+    )
+    r_delta = int(move.reserve_delta)
+    if r_delta > 0:
+        r_cell = f"+{_drops_line(r_delta)} locked"
+    elif r_delta < 0:
+        r_cell = f"{_signed_drops_line(r_delta)} released"
+    else:
+        r_cell = "0 drops (unchanged)"
+    table.add_row("Owner reserve", "—", "—", escape(r_cell))
+    return table
+
+
+def _print_reserve_step(
+    step_title: str,
+    move: transport.ReserveMove,
+    *,
+    network: str,
+    simulated: bool = False,
+) -> None:
+    """Render one reserve step (mint or burn) with its table, reserve line, and link."""
+    console.print()
+    console.print(_reserve_move_table(step_title, move, simulated=simulated))
+    r_delta = int(move.reserve_delta)
+    if r_delta > 0:
+        console.print(
+            f"  [bold]Reserve:[/bold] {_drops_line(r_delta)} [yellow]locked[/yellow] — "
+            "held while you own the object, never spent.",
+        )
+    elif r_delta < 0:
+        console.print(
+            f"  [bold]Reserve:[/bold] {_drops_line(abs(r_delta))} [green]released[/green] — "
+            "back in your spendable XRP.",
+        )
+    if not simulated and move.txid:
+        console.print(f"  [bold]Transaction:[/bold] {escape(move.txid)}")
+        link = transport.explorer_url_for_network(move.txid, network)
+        if link:
+            console.print("  [dim]Explorer:[/dim]")
+            _copyable(link, style="dim")
+
+
+@_honours_dry_run
+def run_reserve(*, dry_run: bool = False, json_output: bool = False) -> int:
+    """`xrpl-camp reserve` — mint an NFT, then burn it, and watch the reserve return."""
+    global console
+
+    previous_console = console
+    if json_output:
+        console = Console(stderr=True)
+    try:
+        return _run_reserve_inner(
+            dry_run=bool(dry_run or is_dry_run()),
+            json_output=json_output,
+        )
+    finally:
+        if json_output:
+            console = previous_console
+
+
+def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
+    import json as json_mod
+
+    url = transport.get_rpc_url()
+    network = transport.network_label_for_url(url)
+
+    if dry_run:
+        _dry_run_banner()
+        console.print(Panel(
+            "[bold]Watching the owner reserve lock and return (simulated)[/bold]\n\n"
+            "Every object your account owns on the ledger locks an owner\n"
+            "reserve increment. When the object is removed, that XRP comes\n"
+            "straight back to your spendable balance.\n\n"
+            "[dim]Simulated numbers: DEFAULT_RESERVE_INC_DROPS (200,000 drops)\n"
+            "and a 10-drop fee per transaction. Nothing is signed or sent.[/dim]",
+            title="XRPL Camp — reserve (simulated)",
+            border_style="yellow",
+        ))
+        mint_move, burn_move = _simulated_reserve_moves()
+        _print_reserve_step(
+            "Step 1: Mint NFT (NFTokenMint)", mint_move, network=network, simulated=True,
+        )
+        _print_reserve_step(
+            "Step 2: Burn NFT (NFTokenBurn)", burn_move, network=network, simulated=True,
+        )
+        total_fees = abs(mint_move.balance_delta + burn_move.balance_delta)
+        console.print(
+            f"\n  [bold yellow]Simulated:[/bold yellow] balance moved only by the two "
+            f"fees ({total_fees:,} drops), while {mint_move.reserve_delta:,} drops were "
+            "locked on the mint and released on the burn. Nothing was sent — dry run.",
+        )
+        if json_output:
+            doc = {
+                "simulated": True,
+                "address": _own_address(None) or "rSimulatedCampAccount",
+                "network": network,
+                "endpoint": url,
+                "leftover_burned": [],
+                "mint": _reserve_move_to_dict(mint_move, network=network, simulated=True),
+                "burn": _reserve_move_to_dict(burn_move, network=network, simulated=True),
+                "moves": [
+                    _reserve_move_to_dict(mint_move, network=network, simulated=True),
+                    _reserve_move_to_dict(burn_move, network=network, simulated=True),
+                ],
+                "net_balance_delta": mint_move.balance_delta + burn_move.balance_delta,
+                "net_spendable_delta": mint_move.spendable_delta + burn_move.spendable_delta,
+                "net_reserve_delta": mint_move.reserve_delta + burn_move.reserve_delta,
+            }
+            print(json_mod.dumps(doc, indent=2))
+        return EXIT_OK
+
+    w, err = _require_wallet()
+    if err is not None:
+        _report(err, command="reserve")
+        return err.exit_code
+    address = str(w["address"])
+    seed = str(w["seed"])
+
+    _show_endpoint()
+    endpoint_problem = check_endpoint()
+    if endpoint_problem is not None:
+        _report(endpoint_problem, command="reserve")
+        return endpoint_problem.exit_code
+
+    console.print(Panel(
+        "[bold]Watching the owner reserve lock and return[/bold]\n\n"
+        "Two real Testnet transactions from your wallet: an NFTokenMint,\n"
+        "then an NFTokenBurn of that same token.\n\n"
+        "Watch the two columns: your [bold]balance[/bold] moves only by the\n"
+        "fee (~10 drops each), while your [bold]spendable[/bold] XRP drops by\n"
+        "the owner reserve increment on the mint and comes back on the burn.\n"
+        "The reserve is held, then released, never spent.",
+        title="XRPL Camp — reserve",
+        border_style="blue",
+    ))
+
+    # Before minting, check for any leftover xrpl-camp token from an interrupted run.
+    try:
+        owned_nfts = transport.account_nfts(address)
+    except (transport.XRPLUnfundedAccount, transport.XRPLAccountNotFound) as exc:
+        err = unfunded_error(detail=f"{type(exc).__name__}: {exc}")
+        if isinstance(exc, transport.XRPLUnfundedAccount) and str(exc):
+            err.message = str(exc)
+        _report(err, command="reserve")
+        return err.exit_code
+    except Exception as exc:
+        err = _classify(exc, lookup_error, account=address)
+        _report(err, command="reserve")
+        return err.exit_code
+
+    leftover_ids = [
+        tid for tid in (_camp_nftoken_id(item) for item in (owned_nfts or [])) if tid
+    ]
+    for leftover_id in leftover_ids:
+        console.print(
+            f"\n  [yellow]Leftover xrpl-camp token from an earlier reserve run found "
+            f"({escape(leftover_id)}); burning it first...[/yellow]",
+        )
+        try:
+            with _working("Burning leftover NFT...", done="burned."):
+                transport.burn_nft(seed, leftover_id)
+        except Exception as exc:
+            err = _burn_failed_error(leftover_id, exc)
+            _report(err, command="reserve")
+            return err.exit_code
+
+    # Step 1: Mint NFT
+    console.print()
+    try:
+        with _working(
+            "Step 1: Minting an xrpl-camp NFT (locking one owner reserve)...",
+            done="minted.",
+        ):
+            mint_move = transport.mint_nft(
+                seed, uri=RESERVE_NFT_URI, taxon=RESERVE_NFT_TAXON,
+            )
+    except (transport.XRPLUnfundedAccount, transport.XRPLAccountNotFound) as exc:
+        err = unfunded_error(detail=f"{type(exc).__name__}: {exc}")
+        if isinstance(exc, transport.XRPLUnfundedAccount) and str(exc):
+            err.message = str(exc)
+        _report(err, command="reserve")
+        return err.exit_code
+    except Exception as exc:
+        err = _classify(exc, send_error, account=address)
+        _report(err, command="reserve")
+        return err.exit_code
+
+    _print_reserve_step(
+        "Step 1: Mint NFT (NFTokenMint)", mint_move, network=network, simulated=False,
+    )
+
+    # Step 2: Burn that NFT
+    token_id = str(mint_move.nftoken_id or "")
+    console.print()
+    try:
+        with _working(
+            "Step 2: Burning that NFT (releasing the owner reserve)...",
+            done="burned.",
+        ):
+            burn_move = transport.burn_nft(seed, token_id)
+    except Exception as exc:
+        err = _burn_failed_error(token_id or "(unknown NFTokenID)", exc)
+        _report(err, command="reserve")
+        return err.exit_code
+
+    _print_reserve_step(
+        "Step 2: Burn NFT (NFTokenBurn)", burn_move, network=network, simulated=False,
+    )
+
+    total_fees = abs(mint_move.balance_delta + burn_move.balance_delta)
+    console.print(
+        f"\n  [green]✓ Reserve returned.[/green] Total cost: {total_fees:,} drops in fees. "
+        f"The {mint_move.reserve_delta:,}-drop owner reserve was locked on the mint "
+        "and released on the burn — never spent.",
+    )
+
+    if json_output:
+        doc = {
+            "simulated": False,
+            "address": address,
+            "network": network,
+            "endpoint": url,
+            "leftover_burned": leftover_ids,
+            "mint": _reserve_move_to_dict(mint_move, network=network, simulated=False),
+            "burn": _reserve_move_to_dict(burn_move, network=network, simulated=False),
+            "moves": [
+                _reserve_move_to_dict(mint_move, network=network, simulated=False),
+                _reserve_move_to_dict(burn_move, network=network, simulated=False),
+            ],
+            "net_balance_delta": mint_move.balance_delta + burn_move.balance_delta,
+            "net_spendable_delta": mint_move.spendable_delta + burn_move.spendable_delta,
+            "net_reserve_delta": mint_move.reserve_delta + burn_move.reserve_delta,
+        }
+        print(json_mod.dumps(doc, indent=2))
+    return EXIT_OK
 
 
 # ---------------------------------------------------------------------------

@@ -20,6 +20,7 @@ from xrpl_camp.certificate import (
     _attested_network,
     _contains_xrpl_seed,
     _write_artifact,
+    _write_through_tempfile,
 )
 from xrpl_camp.errors import EXIT_OK, EXIT_PARTIAL, EXIT_USER
 from xrpl_camp.models import Session
@@ -59,6 +60,7 @@ __all__ = [
     "save_proof_pack",
     "summarize_online",
     "verify_proof_pack",
+    "write_proof_pack_atomic",
 ]
 
 PROOF_PACK_FILE = "xrpl_camp_proof_pack.json"
@@ -299,6 +301,27 @@ def save_proof_pack(pack: dict, path: str = PROOF_PACK_FILE) -> Path:
         raise SeedLeakDetected(str(path))
     filepath = Path(path)
     _write_artifact(filepath, canonical_json(pack))
+    return filepath
+
+
+def write_proof_pack_atomic(pack: dict, path: str | Path) -> Path:
+    """Write `pack` to `path` atomically in place via a temp file + os.replace.
+
+    Used by `proof verify --online --record` to append a verification receipt
+    with `sha256` unchanged. Runs the seed guard before touching disk and
+    wraps any OSError in ArtifactWriteError.
+    """
+    if proof_pack_has_seed(pack):
+        raise SeedLeakDetected(str(path))
+    filepath = Path(path)
+    try:
+        if filepath.is_dir():
+            raise OSError(f"{filepath} is a directory, not a file")
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        _write_through_tempfile(filepath, canonical_json(pack))
+    except OSError as e:
+        reason = str(e).rstrip(".") + "."
+        raise ArtifactWriteError(str(filepath), reason) from e
     return filepath
 
 
