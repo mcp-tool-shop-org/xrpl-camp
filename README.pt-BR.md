@@ -10,13 +10,14 @@
   <a href="https://github.com/mcp-tool-shop-org/xrpl-camp/actions/workflows/ci.yml"><img src="https://github.com/mcp-tool-shop-org/xrpl-camp/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://pypi.org/project/xrpl-camp/"><img src="https://img.shields.io/pypi/v/xrpl-camp?label=PyPI" alt="PyPI version"></a>
   <a href="https://www.npmjs.com/package/@mcptoolshop/xrpl-camp"><img src="https://img.shields.io/npm/v/@mcptoolshop/xrpl-camp?label=npm" alt="npm version"></a>
+  <a href="https://codecov.io/gh/mcp-tool-shop-org/xrpl-camp"><img src="https://codecov.io/gh/mcp-tool-shop-org/xrpl-camp/branch/main/graph/badge.svg" alt="Coverage"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License"></a>
   <a href="https://mcp-tool-shop-org.github.io/xrpl-camp/"><img src="https://img.shields.io/badge/Landing_Page-live-blue" alt="Landing Page"></a>
 </p>
 
 Aprenda sobre o XRP Ledger em uma única sessão. Sem contas. Sem dinheiro real. Apenas você e o livro-razão.
 
-A maioria dos tutoriais sobre blockchain ensina conceitos. O XRPL Camp faz com que você os _pratique_ — crie uma carteira, adicione fundos a ela, escreva uma mensagem permanente em um livro-razão público, verifique-a de forma independente e saia com um registro que qualquer pessoa pode verificar em relação ao próprio livro-razão. Todo o processo leva cerca de dez minutos.
+A maioria dos tutoriais de blockchain ensina conceitos. O XRPL Camp faz com que você os _pratique_ — crie uma carteira, adicione fundos a ela, escreva uma mensagem permanente em um livro-razão público, verifique-a de forma independente e saia com um registro que qualquer pessoa pode verificar no próprio livro-razão. Todo o processo leva cerca de dez minutos.
 
 Criado para workshops, salas de aula e estudo individual. O fluxo guiado retoma de onde você parou, uma lição com falha interrompe a execução em vez de fingir que tudo está bem, e nada afirma que algo aconteceu que não aconteceu.
 
@@ -36,7 +37,7 @@ Criado para workshops, salas de aula e estudo individual. O fluxo guiado retoma 
 npx @mcptoolshop/xrpl-camp start
 ```
 
-Com Python:
+Com Python (3.11, 3.12 ou 3.13):
 
 ```bash
 pipx install xrpl-camp
@@ -60,7 +61,7 @@ Seis lições, em ordem, retomando se você reiniciar:
 
 1. **Modelo Mental** — o que é o XRPL, perguntado à rede ativa em vez de apenas afirmado
 2. **Criar Carteira** — gere um par de chaves Testnet; a chave privada permanece na sua máquina
-3. **Adicionar Fundos à Carteira** — XRP de teste gratuito do faucet, e por que parte dele não pode ser gasto
+3. **Adicionar Fundos à Carteira** — XRP de teste gratuito do faucet, e por que parte dele não pode ser gasta
 4. **Enviar Pagamento** — escreva sua mensagem no livro-razão, em um pagamento que cria uma conta
 5. **Verificar Transação** — procure o que você escreveu e compare com o que digitou
 6. **Certificado** — um registro que você guarda e pode comprovar
@@ -74,7 +75,7 @@ Seis lições, em ordem, retomando se você reiniciar:
 | `xrpl-camp read` | Suas entradas, lidas **do livro-razão** — não desta máquina |
 | `xrpl-camp read <address>` | O que outra pessoa escreveu. Sem chave, sem login, sem permissão |
 | `xrpl-camp read <hash>` | Uma transação, completa |
-| `xrpl-camp try` | Cause uma falha intencionalmente na rede ativa. Não assina nada, não custa nada |
+| `xrpl-camp try` | Cause falha intencionalmente na rede ativa. Não assina nada, não custa nada |
 | `xrpl-camp status` | Lista de verificação de progresso, com tempos |
 | `xrpl-camp status --detail` | Visualização do facilitador: carteira, endpoint, diretório de estado, próxima etapa |
 | `xrpl-camp wallet create` / `show` | Crie ou exiba sua carteira Testnet |
@@ -93,15 +94,15 @@ Flags globais: `--version`, `--dry-run`, `--yes` (não interativo), `--verbose` 
 
 ## O que você terá no final
 
-- Uma carteira Testnet com fundos, local e ignorada pelo Git
-- Uma **segunda conta que não existia até que seu pagamento a criasse** — e cujas chaves também são suas
+- Uma carteira Testnet financiada, local e ignorada pelo Git
+- **Uma segunda conta que não existia até que seu pagamento a criasse** — e cujas chaves também são suas
 - Uma mensagem que você escolheu, registrada permanentemente e legível de forma independente
 - Um certificado (`xrpl_camp_certificate.json`) — seguro para compartilhar, sem chaves privadas
 - Um pacote de prova (`xrpl_camp_proof_pack.json`) — listando transações reais que qualquer pessoa pode resolver
 
 ## Sobre essa prova
 
-O pacote de prova contém um hash SHA-256. Esse hash detecta uma edição acidental. Não é uma assinatura e, por si só, não prova que o pacote é genuíno — qualquer pessoa pode alterar um campo e recalcular o hash com a mesma função pública que esta ferramenta usa.
+O pacote de prova carrega um hash SHA-256. Esse hash detecta uma edição acidental. Não é uma assinatura e, por si só, não prova que o pacote é genuíno — qualquer pessoa pode alterar um campo e recalcular o hash com a mesma função pública que esta ferramenta usa.
 
 O que não pode ser falsificado é o livro-razão:
 
@@ -132,9 +133,9 @@ Sem chamadas de rede, sem gravações em disco e sem saída enganosa — a liç�
 export XRPL_CAMP_RPC_URL="https://your-node:51234/"
 ```
 
-A ferramenta rejeita os pontos de extremidade que não consegue confirmar serem da Testnet, antes de assinar qualquer coisa. Defina `XRPL_CAMP_ALLOW_ANY_NETWORK=1` apenas se souber para onde está a apontar.
+A ferramenta rejeita os pontos de extremidade que não consegue confirmar serem da Testnet, antes de assinar qualquer coisa. Defina `XRPL_CAMP_ALLOW_ANY_NETWORK=1` apenas se souber para onde está a apontá-lo.
 
-O estado é armazenado por padrão em `./.xrpl-camp` — uma sessão pertence à pasta onde foi executada. `XRPL_CAMP_HOME` substitui isso, e `xrpl-camp status --detail` imprime o caminho absoluto resolvido.
+O estado é armazenado em `./.xrpl-camp` por padrão — uma sessão pertence à pasta onde foi executada. `XRPL_CAMP_HOME` substitui isso, e `xrpl-camp status --detail` imprime o caminho absoluto resolvido.
 
 ## Segurança
 
@@ -148,22 +149,22 @@ Consulte [SECURITY.md](SECURITY.md).
 
 | Ameaça | Mitigação |
 |--------|-----------|
-| Chave privada divulgada em um artefato | A geração executa uma verificação da chave privada, baseada no `decode_seed` do xrpl-py, e **recusa-se a escrever o arquivo** se a verificação falhar. |
+| Chave privada divulgada em um artefato | A geração executa uma verificação da chave privada, baseada no `decode_seed` do xrpl-py, e **recusa-se a escrever o arquivo** se detectar um problema. |
 | Chave privada enviada para o Git | `.xrpl-camp/` é ignorado pelo Git *neste repositório*; o estado é escrito no seu diretório de trabalho, portanto, adicione-o ao seu próprio `.gitignore`. |
 | Chave privada legível por outros usuários | Arquivo da carteira com permissão 0600, diretório de estado com permissão 0700 no POSIX. |
-| Um usuário insere uma chave privada em um memorando público | O texto do memorando é verificado para identificar sequências que se assemelham a uma chave privada e é rejeitado antes do envio. |
+| Um usuário insere uma chave privada em um memorando público | O texto do memorando é verificado para detectar sequências que se assemelham a uma chave privada e é rejeitado antes do envio. |
 | Chave privada da Testnet reutilizada na Mainnet | Aviso no momento da criação da carteira; a ferramenta rejeita pontos de extremidade que não sejam da Testnet por padrão. |
 | Manipulação do pacote de prova | SHA-256 detecta edições simples; `--online` detecta uma falsificação re-selada, consultando o livro-razão. |
-| Verificação em relação ao ponto de extremidade de um invasor | `--online` nunca usa o ponto de extremidade especificado no pacote que está sendo testado. |
-| Diagnósticos que revelam sua identidade | `support-bundle` remove o diretório inicial e o nome da conta. |
+| Verificação em relação ao ponto de extremidade de um atacante | `--online` nunca usa o ponto de extremidade especificado no pacote que está sendo testado. |
+| Diagnósticos que revelam sua identidade | `support-bundle` remove o diretório pessoal e o nome da conta. |
 
 ## Para workshops e salas de aula
 
 - **Um comando por aluno.** `npx`, `pipx` ou o contêiner — sem configuração compartilhada.
-- **O fracasso é gratuito.** `xrpl-camp try` ensina os modos de falha sem gastar nada, então um aluno que quebra algo intencionalmente aprende mais do que um que não o faz.
-- **Triagem do facilitador.** `status --detail` mostra a carteira, o ponto de extremidade e o diretório de estado. `self-check` verifica a conexão real, em vez de relatar um "OK" otimista.
+- **O fracasso é gratuito.** `xrpl-camp try` ensina os modos de falha sem gastar nada, portanto, um aluno que quebra algo intencionalmente aprende mais do que um que não o faz.
+- **Triagem do facilitador.** `status --detail` mostra a carteira, o ponto de extremidade e o diretório de estado. `self-check` verifica a conexão real, em vez de relatar um "OK" esperançoso.
 - **Verifique toda a sala de uma vez.** `proof verify <folder> --online` verifica o pacote de cada aluno em relação ao livro-razão.
-- **Os limites de taxa são reais.** Trinta pessoas acessando um único faucet atingirão o limite; a ferramenta tenta novamente com um atraso e informa isso, em vez de culpar sua conexão Wi-Fi.
+- **Os limites de taxa são reais.** Trinta pessoas acessando um único ponto de distribuição atingirão o limite; a ferramenta tenta novamente com recuo e informa isso, em vez de culpar sua conexão Wi-Fi.
 
 ## Desenvolvimento
 

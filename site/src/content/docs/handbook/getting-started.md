@@ -15,7 +15,7 @@ No Python required — downloads a prebuilt binary:
 npx @mcptoolshop/xrpl-camp start
 ```
 
-Or install with Python:
+Or install with Python (3.11, 3.12 or 3.13):
 
 ```bash
 pipx install xrpl-camp
