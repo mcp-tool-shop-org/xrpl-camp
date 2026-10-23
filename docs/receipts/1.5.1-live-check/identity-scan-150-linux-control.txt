@@ -1,0 +1,12 @@
+HIT gmail <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!carchive/base_library.zip/io.pyc:@0x847
+HIT home-path <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!carchive/base_library.zip/ntpath.pyc:@0x1976
+HIT home-path <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!carchive/libpython3.12.so.1.0:@0x58857c
+HIT gmail <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!carchive/libpython3.12.so.1.0:@0x578467
+HIT build-record <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!carchive/xrpl_camp-1.5.0.dist-info/direct_url.json
+HIT gmail <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!pyz/PYZ.pyz/bz2.pyc-body:@0x1b9
+HIT home-path <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!pyz/PYZ.pyz/_sysconfigdata__linux_x86_64-linux-gnu.pyc-body:@0x32be
+HIT gmail <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!pyz/PYZ.pyz/httpx/_urls.pyc-body:@0x320a
+HIT gmail <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!pyz/PYZ.pyz/pygments/lexers/gdscript.pyc-body:@0x111
+HIT gmail <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.0-linux-x64!pyz/PYZ.pyz/rich/_spinners.pyc-body:@0x448
+RESULT HIT 10
+exit 1

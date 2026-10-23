@@ -11236,8 +11236,8 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "208cbc6f6c54d5ce700b6b60db1cfce57c4bb9a6",
-    "tracked": 728
+    "commit": "d80aeff0034a6d8915815e4024ff3d4595d44800",
+    "tracked": 765
   },
   "landings": [
     {
@@ -11314,6 +11314,11 @@
     {
       "readers": [
         {
+          "by": "docs/receipts/1.5.1-live-check/harness/_run_151.sh",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
           "by": "scripts/check-freshness.sh",
           "call": "literal",
           "confidence": "text"
@@ -11341,6 +11346,11 @@
     },
     {
       "readers": [
+        {
+          "by": "docs/receipts/1.5.1-live-check/harness/linux_build_151.sh",
+          "call": "literal",
+          "confidence": "text"
+        },
         {
           "by": "tests/test_check_bundle.py",
           "call": "literal",
@@ -11388,6 +11398,17 @@
         }
       ],
       "target": "xrpl_camp/__init__.py",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
+          "by": "docs/receipts/1.5.1-live-check/harness/linux_build_151.sh",
+          "call": "literal",
+          "confidence": "text"
+        }
+      ],
+      "target": "xrpl_camp/__main__.py",
       "writers": []
     }
   ],
@@ -13967,6 +13988,154 @@
     {
       "hash": "c89a7c471a6d30f4b09653249e0e3da4bd85dc4f3aa27c4570ba36776816a73d",
       "path": "docs/receipts/1.5.0-live-check/reserve/39-control-read.trace"
+    },
+    {
+      "hash": "b44c36d77fa2a3fee084f89da52baf835a764a3b214ef02e900aad96cb1a098d",
+      "path": "docs/receipts/1.5.1-live-check/README.md"
+    },
+    {
+      "hash": "c08ea693a441b9975fef46f70ee298fe39c631f2c47425fce2f1077dd30c31a0",
+      "path": "docs/receipts/1.5.1-live-check/dist-info-uv-files.txt"
+    },
+    {
+      "hash": "56b87961d70e5c9f554255992ccab4ea409147b3718030fc5ce17deabf621c04",
+      "path": "docs/receipts/1.5.1-live-check/harness/_run_151.sh"
+    },
+    {
+      "hash": "e0f9c0ff7e24bab62cc99f69b61e3e7c1d9d2f7ccb60d1f23ce29cffb5c6f75b",
+      "path": "docs/receipts/1.5.1-live-check/harness/hit_context_scan.py.txt"
+    },
+    {
+      "hash": "409a104807eb8fa95b497d7fe386f0bf569d65618682cac5a58925b72c0da5da",
+      "path": "docs/receipts/1.5.1-live-check/harness/linux_build_151.sh"
+    },
+    {
+      "hash": "654002f7d1ebd468a21e9246bd672fcf1416b5d06e65a71dad6f79076e9b3c4c",
+      "path": "docs/receipts/1.5.1-live-check/harness/unpack_pyinstaller.py.txt"
+    },
+    {
+      "hash": "154bedd5bb7dad2e0cb58cc312beaa9edb9abd30cd6deed2323b7d4ea8383a71",
+      "path": "docs/receipts/1.5.1-live-check/identity-scan-150-linux-control.txt"
+    },
+    {
+      "hash": "c09a62f92a2c4b2529f981b5cdee753561ef7f7cdf5f5ce33b0748e8bcaab440",
+      "path": "docs/receipts/1.5.1-live-check/identity-scan-151-linux.txt"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/01-python-install.exit"
+    },
+    {
+      "hash": "17367a0432771ab628ed9f4a6d2d90969056d85780ca454aba971cb7e04f4713",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/01-python-install.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/02-venv.exit"
+    },
+    {
+      "hash": "85e3055bf573800772749181b0943e57b6be8603543341a3685ead7325b1c315",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/02-venv.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/03-install.exit"
+    },
+    {
+      "hash": "9ebfaeaf7326ffb33a94b134f537be8e3857589c86741d0ccdbaa046bcc12cbb",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/03-install.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/04-remove-direct-url.exit"
+    },
+    {
+      "hash": "8cc3fc4704a052f1aa9d50526c8b4f564978cee6a39ca4923fbe4495c69b295e",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/04-remove-direct-url.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/05-pyinstaller.exit"
+    },
+    {
+      "hash": "f51e4ab9199648eca491619adddc9874e36437c83fc2579ace0cc9f0477ffaa2",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/05-pyinstaller.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/06-rename.exit"
+    },
+    {
+      "hash": "40ab88d99eec664eac8868060595fd79e32692b1682e2476ebcd9a26584134fd",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/06-rename.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/07-check-bundle.exit"
+    },
+    {
+      "hash": "362da367333029ba3d1b0ed73c3d8c44d5151c7f7364df23624f4fd0639d2dc9",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/07-check-bundle.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/08-check-bundle-list.exit"
+    },
+    {
+      "hash": "7d0bb91b10cb64c3948411436e9aa07b5d42434c59735f67d47961b82b64876b",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/08-check-bundle-list.log"
+    },
+    {
+      "hash": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/09-neg-control-150.exit"
+    },
+    {
+      "hash": "44ed8bb710bcd3d25fe5d5a3d94fa15f56dfef7039dd92624106d8c1bfe5105a",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/09-neg-control-150.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/10-version.exit"
+    },
+    {
+      "hash": "c50d7deaf03d84935d92cf561d7355f14fb9c91afec4d8815976a02eedcdf9bd",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/10-version.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/11-self-check.exit"
+    },
+    {
+      "hash": "d454d21f315a70aa8590760a84a07226c44c477a0384d0ee5df8254ee498ffc8",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/11-self-check.log"
+    },
+    {
+      "hash": "5c2d75316bceb6e48c846e68b3e539a80c09cda955aad1e9f77d170ecff6cd52",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/dist-sha256.txt"
+    },
+    {
+      "hash": "d9b4fdf0ec6f682af341d7a354cb36e5a86e7e055b0a8468a714903d79ed09cd",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/file.txt"
+    },
+    {
+      "hash": "c172f8605791e9a14ca27ddc945e7772408522a6aedfa228a084096ea076dea1",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/head.txt"
+    },
+    {
+      "hash": "955220a170abfdb92797ea211d67d04b78e48cb4c49a63a46af946e7348bed6b",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/neg-control-150-sha256.txt"
+    },
+    {
+      "hash": "88f304400f025f23d2685cc077bc4f42eb79982be86cb81c5273fb1498601374",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/uv-version.txt"
+    },
+    {
+      "hash": "c35b56d8e792ddfe358abad610c97d61dd2696b8cbcf8a13a5b76881f6b7bea4",
+      "path": "docs/receipts/1.5.1-live-check/linux-build/versions.txt"
+    },
+    {
+      "hash": "28ae3bce2e9569c61aeb0d8fb8d053f835999162b1aff4a6da477c4d01669c15",
+      "path": "docs/receipts/1.5.1-live-check/sysconfigdata-home-paths.txt"
     }
   ]
 }
