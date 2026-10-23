@@ -25,7 +25,7 @@
           "path": ".github/workflows/pages.yml"
         },
         {
-          "hash": "46642d32f34021ce15c513a79a622e51b7192fc81e7a4b0de741ea6062bab844",
+          "hash": "20fc2bd1b488dbad6e5ea5ed73a6403124a4044eee7cd9b8e6efdec236cf2994",
           "path": ".github/workflows/publish.yml"
         },
         {
@@ -89,7 +89,7 @@
           "path": "BUILD.md"
         },
         {
-          "hash": "ef6023b6bf1cbac4a5fab9efa329d52b4214ee695cfbf42e42e36b9a650f7f65",
+          "hash": "4f09400faf8cd1e433161a78a32afc8525ce473898e41008d0b2f9ecfceac2f8",
           "path": "CHANGELOG.md"
         },
         {
@@ -153,11 +153,11 @@
           "path": "docker-entrypoint.sh"
         },
         {
-          "hash": "5fe702cfe1502a209b0659b9e4b12b21d158eb423c2110848aff44679d5ad349",
+          "hash": "3f250907242d06392cde4120edc6ebcb05e2ee0ee4aa60c7464822dca8516699",
           "path": "package.json"
         },
         {
-          "hash": "f2a31f16c8b3ee582401c311c9d00826b0fdad7b18fcca9eaea1ce661a0a8d64",
+          "hash": "c7d5c3981a96a5dbda204662cd89cc87c77a02d7fac067cd03bcf142dacf7d11",
           "path": "pyproject.toml"
         }
       ],
@@ -188,6 +188,33 @@
           "path": "scripts/check-versions.sh"
         },
         {
+          "entry": "main",
+          "entryRule": 1,
+          "exports": [
+            "check_bundle_no_direct_url",
+            "main"
+          ],
+          "failurePaths": [
+            {
+              "in": "check_bundle_no_direct_url",
+              "kind": "raise",
+              "line": 36
+            },
+            {
+              "in": "main",
+              "kind": "except",
+              "line": 63
+            },
+            {
+              "kind": "raise",
+              "line": 78
+            }
+          ],
+          "hash": "2c13e21c4c2559bb55ff90a988bb29cbc81760b9454bafd7aa1602812dfffe3a",
+          "path": "scripts/check_bundle.py",
+          "sequences": []
+        },
+        {
           "hash": "d650438572fa04df05a48e4343348225bb4da45c22f6cac2d40efe88c8bd79a3",
           "path": "scripts/verify-pypi-publish.sh"
         },
@@ -203,7 +230,7 @@
       "name": "scripts",
       "origin": "authored",
       "role": "config",
-      "testedBy": 0,
+      "testedBy": 1,
       "unresolvedSites": 0
     },
     {
@@ -405,6 +432,19 @@
             "xrpl_camp/models.py"
           ],
           "path": "tests/test_certificate.py"
+        },
+        {
+          "exports": [
+            "test_check_bundle_cli_with_mocked_carchivereader",
+            "test_check_bundle_fails_when_direct_url_present",
+            "test_check_bundle_passes_when_no_direct_url_present"
+          ],
+          "hash": "27983287ead23514fbf6051c9aa8f07e404fa81c796a90e9104b62bfb18797df",
+          "importsFiles": [
+            "scripts/check_bundle.py"
+          ],
+          "path": "tests/test_check_bundle.py",
+          "testFramework": "pytest"
         },
         {
           "exports": [
@@ -1166,7 +1206,7 @@
               "line": 53
             }
           ],
-          "hash": "99928158681ed2b512c07cdf3df744342c307cc31433c8a9e2174cada26a395c",
+          "hash": "e7f56ebf59c5f757aea2c3c75ab0ac327f24def29c0ac1eb7254bb00be3b89ce",
           "path": "xrpl_camp/__init__.py",
           "sequences": []
         },
@@ -9884,7 +9924,7 @@
   ],
   "doors": [
     {
-      "checksCount": 3,
+      "checksCount": 4,
       "commands": [
         {
           "dir": "",
@@ -10102,12 +10142,12 @@
         {
           "boundary": "scripts",
           "depth": 0,
-          "files": 2
+          "files": 3
         },
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 24
+          "files": 25
         },
         {
           "boundary": "xrpl_camp",
@@ -10121,6 +10161,14 @@
           "job": "npm-check",
           "path": "bin/xrpl-camp.js",
           "runKind": "checks"
+        },
+        {
+          "directory": true,
+          "job": "lint-and-test",
+          "matched": true,
+          "path": "scripts/",
+          "runKind": "checks",
+          "via": "scripts/verify.sh → ruff"
         },
         {
           "job": "npm-check",
@@ -10148,7 +10196,7 @@
           "via": "scripts/verify.sh → build pyproject.toml"
         }
       ],
-      "runsCount": 5,
+      "runsCount": 6,
       "secrets": [],
       "sends": {
         "deploysPages": false,
@@ -10512,11 +10560,27 @@
           "dir": "",
           "job": "build-binaries",
           "programs": [
+            "uv"
+          ],
+          "step": "Remove PEP 610 direct_url.json build record from venv"
+        },
+        {
+          "dir": "",
+          "job": "build-binaries",
+          "programs": [
             "echo",
             "mv",
             "uv"
           ],
           "step": "Build binary"
+        },
+        {
+          "dir": "",
+          "job": "build-binaries",
+          "programs": [
+            "uv"
+          ],
+          "step": "Check bundle archive for direct_url.json"
         },
         {
           "dir": "",
@@ -10734,7 +10798,7 @@
         {
           "boundary": "scripts",
           "depth": 0,
-          "files": 1
+          "files": 2
         },
         {
           "boundary": "xrpl_camp",
@@ -10782,6 +10846,15 @@
           "path": "pyproject.toml",
           "runKind": "checks",
           "via": "docker build Dockerfile",
+          "when": {
+            "event": "push",
+            "tags": true
+          }
+        },
+        {
+          "job": "build-binaries",
+          "path": "scripts/check_bundle.py",
+          "runKind": "executes",
           "when": {
             "event": "push",
             "tags": true
@@ -10840,7 +10913,7 @@
           }
         }
       ],
-      "runsCount": 8,
+      "runsCount": 9,
       "secrets": [
         "GITHUB_TOKEN"
       ],
@@ -11152,13 +11225,19 @@
       "from": "tests",
       "fromTests": true,
       "kind": "file",
+      "to": "scripts"
+    },
+    {
+      "from": "tests",
+      "fromTests": true,
+      "kind": "file",
       "to": "xrpl_camp"
     }
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "b74ffff5bb9f5a0096c3675327dd1ddd9caaf2f5",
-    "tracked": 726
+    "commit": "208cbc6f6c54d5ce700b6b60db1cfce57c4bb9a6",
+    "tracked": 728
   },
   "landings": [
     {
@@ -11263,6 +11342,18 @@
     {
       "readers": [
         {
+          "by": "tests/test_check_bundle.py",
+          "call": "literal",
+          "confidence": "ast",
+          "fromTests": true
+        }
+      ],
+      "target": "scripts/check_bundle.py",
+      "writers": []
+    },
+    {
+      "readers": [
+        {
           "by": "site/astro.config.mjs",
           "call": "content-collection",
           "confidence": "ast"
@@ -11303,9 +11394,10 @@
   "overlaps": [],
   "submodules": [],
   "symlinks": [],
-  "testFiles": 32,
+  "testFiles": 33,
   "testsNotRun": [
     "tests/test_certificate.py",
+    "tests/test_check_bundle.py",
     "tests/test_cli.py",
     "tests/test_cli_behaviour.py",
     "tests/test_dry_run.py",

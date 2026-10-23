@@ -58,14 +58,16 @@
         "collapsed": false,
         "confidence": "low",
         "importsAndCoChanges": [],
-        "importsOnly": []
+        "importsOnly": [
+          "tests"
+        ]
       },
       "cohesion": null,
       "cohesionDropped": false,
       "confidence": "low",
       "highWater": null,
       "name": "scripts",
-      "qualifyingSourceCommits": 0,
+      "qualifyingSourceCommits": 1,
       "rebaseline": null
     },
     {
@@ -97,7 +99,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "tests",
-      "qualifyingSourceCommits": 6,
+      "qualifyingSourceCommits": 7,
       "rebaseline": null
     },
     {
@@ -115,7 +117,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "xrpl_camp",
-      "qualifyingSourceCommits": 8,
+      "qualifyingSourceCommits": 9,
       "rebaseline": null
     }
   ],
@@ -148,8 +150,8 @@
         "path": ".github/workflows/pages.yml"
       },
       {
-        "commits": 8,
-        "lines": 639,
+        "commits": 9,
+        "lines": 659,
         "path": ".github/workflows/publish.yml"
       },
       {
@@ -173,8 +175,8 @@
         "path": "BUILD.md"
       },
       {
-        "commits": 5,
-        "lines": 332,
+        "commits": 6,
+        "lines": 344,
         "path": "CHANGELOG.md"
       },
       {
@@ -238,8 +240,8 @@
         "path": "SHIP_GATE.md"
       },
       {
-        "commits": 11,
-        "lines": 439,
+        "commits": 12,
+        "lines": 465,
         "path": "atlas/README.md"
       },
       {
@@ -248,18 +250,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 11,
-        "lines": 1875,
+        "commits": 12,
+        "lines": 1932,
         "path": "atlas/page.json"
       },
       {
-        "commits": 11,
-        "lines": 6856,
+        "commits": 12,
+        "lines": 7314,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 11,
-        "lines": 34351,
+        "commits": 12,
+        "lines": 34599,
         "path": "atlas/structure.json"
       },
       {
@@ -3608,13 +3610,13 @@
         "path": "package-lock.json"
       },
       {
-        "commits": 7,
-        "lines": 44,
+        "commits": 8,
+        "lines": 46,
         "path": "package.json"
       },
       {
-        "commits": 10,
-        "lines": 76,
+        "commits": 11,
+        "lines": 78,
         "path": "pyproject.toml"
       },
       {
@@ -3626,6 +3628,11 @@
         "commits": 3,
         "lines": 84,
         "path": "scripts/check-versions.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 78,
+        "path": "scripts/check_bundle.py"
       },
       {
         "commits": 3,
@@ -3733,6 +3740,11 @@
         "path": "tests/helpers.py"
       },
       {
+        "commits": 1,
+        "lines": 89,
+        "path": "tests/test_check_bundle.py"
+      },
+      {
         "commits": 2,
         "lines": 128,
         "path": "tests/test_cli.py"
@@ -3823,8 +3835,8 @@
         "path": "tests/test_xrpl_models.py"
       },
       {
-        "commits": 7,
-        "lines": 186,
+        "commits": 8,
+        "lines": 188,
         "path": "xrpl_camp/__init__.py"
       },
       {
@@ -3878,11 +3890,40 @@
     "level": "low",
     "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
   },
-  "generatedAt": "2026-10-23T00:36:51.171Z",
+  "generatedAt": "2026-10-23T02:54:16.163Z",
   "generatedFrom": {
-    "commit": "b74ffff5bb9f5a0096c3675327dd1ddd9caaf2f5"
+    "commit": "208cbc6f6c54d5ce700b6b60db1cfce57c4bb9a6"
   },
-  "pairs": [],
+  "pairs": [
+    {
+      "a": ".github/workflows/publish.yml",
+      "b": "package.json",
+      "either": 8,
+      "shared": 4,
+      "strength": 0.5
+    },
+    {
+      "a": "package.json",
+      "b": "pyproject.toml",
+      "either": 7,
+      "shared": 5,
+      "strength": 0.714286
+    },
+    {
+      "a": "package.json",
+      "b": "xrpl_camp/__init__.py",
+      "either": 6,
+      "shared": 4,
+      "strength": 0.666667
+    },
+    {
+      "a": "pyproject.toml",
+      "b": "xrpl_camp/__init__.py",
+      "either": 7,
+      "shared": 5,
+      "strength": 0.714286
+    }
+  ],
   "parameters": {
     "appliedChangesetLimit": 50,
     "changeset": 50,
@@ -3893,16 +3934,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "both",
-    "headDate": "2026-10-22T20:36:33-04:00",
-    "inScopeFiles": 731,
+    "headDate": "2026-10-22T22:54:10-04:00",
+    "inScopeFiles": 733,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 27,
+    "qualifyingCommits": 28,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-26T00:36:33.000Z",
+    "since": "2026-04-26T02:54:10.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
