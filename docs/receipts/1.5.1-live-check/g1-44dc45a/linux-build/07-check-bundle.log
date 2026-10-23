@@ -1,0 +1,2 @@
++ uv run --no-sync python scripts/check_bundle.py dist/xrpl-camp-1.5.1-linux-x64
+[bundle-check] Verified 97 archive entries in dist/xrpl-camp-1.5.1-linux-x64: no direct_url.json or _sysconfigdata home path present

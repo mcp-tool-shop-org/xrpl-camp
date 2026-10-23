@@ -1,4 +1,4 @@
-# 1.5.1 Linux build check on `854c31f`
+# 1.5.1 Linux build check on `854c31f`, then the G1 re-check on `44dc45a`
 
 This is the check the Editor asked for on **`854c31f`** (PR #25, `fix/1.5.1-build-record` → `main`). 1.5.1 removes
 the PEP 610 `direct_url.json` build record from the build venv before PyInstaller runs, and adds
@@ -28,9 +28,15 @@ the PEP 610 `direct_url.json` build record from the build venv before PyInstalle
 - `--version` prints `xrpl-camp 1.5.1`.
 - The identity scan on the unpacked binary has **no `build-record`**, and the same scan of the 1.5.0 asset has one.
 
-**G1 is open.** The unpacked Linux check found the build machine's (on CI, the runner's) Python install prefix in
-`_sysconfigdata`, and the PASS above doesn't cover it. It is being fixed on `fix/1.5.1-build-record` before
-release: the Publisher ruled to fix it, with no exception.
+**G1 was open at `854c31f`.** The unpacked Linux check found the build machine's (on CI, the runner's) Python
+install prefix in `_sysconfigdata`, and the PASS above doesn't cover it. The Publisher ruled to fix it, with no
+exception.
+
+**G1 is fixed at `44dc45a`** (the "G1 re-check" section below). A Linux build that follows `publish.yml`, with its new
+`UV_PYTHON_INSTALL_DIR=/opt/uv-python` step, bundles a `_sysconfigdata` with no home path.
+- The unpacked identity scan is the 8 third-party hits alone, with no `_sysconfigdata` hit and no build record.
+- `check_bundle.py` passes it, and fails both the 1.5.0 release asset (naming `direct_url.json` and
+  `_sysconfigdata`) and the `854c31f` binary.
 
 The scan still reports 9 hits. 8 are third party. **1 is not: the build machine's home path inside `_sysconfigdata`
 (G1 below).** The released 1.5.0 Linux asset carries the same `_sysconfigdata` path, as
@@ -105,6 +111,58 @@ The scanner's bundle-only `/home/<account>` check reports it as `home-path`. The
 touch it, so the CI-built 1.5.1 binary will carry `/home/runner/…` there. The escape-the-valley 1.3.1 final
 candidate has the same hit (its PR #29, item 9). I haven't tested a fix.
 
+## G1 re-check on `44dc45a` — PASS, G1 closed (`g1-44dc45a/`)
+
+The Editor asked for this on **`44dc45a`**: `db6d63e` (the G1 fix) plus its atlas map, on top of the merged
+`854c31f` receipts (`e968ddf`). The fix has two parts:
+- a `publish.yml` step that sets `UV_PYTHON_INSTALL_DIR` to `/opt/uv-python` (or `C:\uv-python` on Windows)
+  before `uv python install 3.12`;
+- a `check_bundle.py` that also fails on a home path in the bundled `_sysconfigdata`.
+
+It ran in WSL in a fresh clone at `44dc45a`, CPU only, with uv's concurrency capped at 12.
+`harness/linux_build_151_g1.sh` is the `854c31f` script with one line added,
+`export UV_PYTHON_INSTALL_DIR=/opt/uv-python`.
+- **The `sudo` lines were skipped.** The workflow's step runs `sudo mkdir -p /opt/uv-python` and `sudo chown`
+  unconditionally, and `sudo` here needs a password. The folder already existed and was writable
+  (`00-uv-python-dir-before.txt`).
+- **Python:** `uv python install 3.12` found the 3.12.13 install already in `/opt/uv-python` and used it. The venv
+  reads `Using CPython 3.12.13`, and the install log has the same harmless `~/.local/bin/python3.12` warning as the
+  ETV run.
+
+`xrpl-camp-1.5.1-linux-x64` is an ELF x86-64, **19,273,240 bytes**, sha256
+`979bd82108c6c24a046ef54c43df18c8051650290cfc4f1dff0e5d4b0896f9b3`. Python 3.12.13, PyInstaller 6.22.3.
+
+| Check | Result |
+|---|---|
+| `scripts/check_bundle.py dist/xrpl-camp-1.5.1-linux-x64` | **exit 0**: `[bundle-check] Verified 97 archive entries in dist/xrpl-camp-1.5.1-linux-x64: no direct_url.json or _sysconfigdata home path present` |
+| `scripts/check_bundle.py --list …` | **exit 0**, the 97 entries, then the same line (`08-check-bundle-list.log`) |
+| `--version` | exit 0: `xrpl-camp 1.5.1` |
+| `self-check` | exit 0 |
+| The bundled `_sysconfigdata` (unpacked) | **0 `/home/` strings**, 20 under `/opt/uv-python/cpython-3.12.13-linux-x86_64-gnu`. The `854c31f` binary has 20 under `<home>/…`, and the 1.5.0 asset 20 under `/home/runner/…` (`sysconfigdata-prefix.txt`) |
+| `identity-scan.py` on the binary | `RESULT HIT 8`, exit 1: the 8 third-party hits from `854c31f`, at the same offsets, with **no `_sysconfigdata` hit and no `build-record`** |
+| **Negative control:** `check_bundle.py` on the v1.5.0 linux release asset (sha256 `12259e59…`) | **exit 1**, naming both: `BUNDLE CHECK FAILED: Bundled PEP 610 direct_url.json build record found in …: xrpl_camp-1.5.0.dist-info/direct_url.json; Home path found in bundled _sysconfigdata module in …: PYZ.pyz:_sysconfigdata__linux_x86_64-linux-gnu (20 hits, e.g. /home/runner/)` |
+| **Negative control:** `check_bundle.py` on the `854c31f` binary built here (sha256 `f0efbc2a…`) | **exit 1**: `Home path found in bundled _sysconfigdata module in …: PYZ.pyz:_sysconfigdata__linux_x86_64-linux-gnu (20 hits, e.g. <home>/)` |
+
+**The identity scan, verbatim** (`g1-44dc45a/identity-scan-151-g1-linux.txt`; paths read `<scratch>`):
+
+```
+HIT gmail <scratch>/1.5.1-g1-44dc45a/linux/xrpl-camp-1.5.1-linux-x64!carchive/base_library.zip/io.pyc:@0x847
+HIT home-path <scratch>/1.5.1-g1-44dc45a/linux/xrpl-camp-1.5.1-linux-x64!carchive/base_library.zip/ntpath.pyc:@0x1976
+HIT home-path <scratch>/1.5.1-g1-44dc45a/linux/xrpl-camp-1.5.1-linux-x64!carchive/libpython3.12.so.1.0:@0xe73c8c
+HIT gmail <scratch>/1.5.1-g1-44dc45a/linux/xrpl-camp-1.5.1-linux-x64!carchive/libpython3.12.so.1.0:@0xe63b77
+HIT gmail <scratch>/1.5.1-g1-44dc45a/linux/xrpl-camp-1.5.1-linux-x64!pyz/PYZ.pyz/bz2.pyc-body:@0x1b9
+HIT gmail <scratch>/1.5.1-g1-44dc45a/linux/xrpl-camp-1.5.1-linux-x64!pyz/PYZ.pyz/httpx/_urls.pyc-body:@0x320a
+HIT gmail <scratch>/1.5.1-g1-44dc45a/linux/xrpl-camp-1.5.1-linux-x64!pyz/PYZ.pyz/pygments/lexers/gdscript.pyc-body:@0x111
+HIT gmail <scratch>/1.5.1-g1-44dc45a/linux/xrpl-camp-1.5.1-linux-x64!pyz/PYZ.pyz/rich/_spinners.pyc-body:@0x448
+RESULT HIT 8
+```
+
+They are the third-party lines in the table above: CPython's `io` and `bz2` author lines and `splitroot()`
+docstring, plus the httpx, pygments and rich lines. Under the Director's ruling, a release with third-party hits
+still needs his written exception naming them.
+
+**What the re-check doesn't cover:** the macOS and Windows legs, and the workflow's `sudo mkdir` / `chown` lines.
+
 ## What this doesn't cover
 
 - macOS (darwin-arm64) didn't run. Its `_sysconfigdata` would hold the macOS runner's home path, but that is
@@ -118,5 +176,8 @@ candidate has the same hit (its PR #29, item 9). I haven't tested a fix.
   `dist-sha256.txt`, `file.txt` and `neg-control-150-sha256.txt`.
 - `identity-scan-151-linux.txt`, `identity-scan-150-linux-control.txt`, `sysconfigdata-home-paths.txt`,
   `dist-info-uv-files.txt`.
-- `harness/`: `linux_build_151.sh` and `_run_151.sh` (the build and the 1.5.0 download), plus
+- `g1-44dc45a/`: `linux-build/` (each step's `.log` and `.exit` 01–12, the two negative controls and their hashes,
+  `00-uv-python-dir-before.txt`, the binary's hash, `file` type and versions), `identity-scan-151-g1-linux.txt` and
+  `sysconfigdata-prefix.txt`.
+- `harness/`: `linux_build_151_g1.sh` and `_run_151_g1.sh` (the G1 re-check), `linux_build_151.sh` and `_run_151.sh` (the build and the 1.5.0 download), plus
   `unpack_pyinstaller` and `hit_context_scan` as `.py.txt`, which keeps them out of `ruff check .`.
