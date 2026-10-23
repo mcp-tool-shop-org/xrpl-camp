@@ -1,14 +1,20 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-23 from commit db6d63e by Atlas 1.24.0.
+Mapped at 2026-10-23 from commit 99efab6 by Atlas 1.24.0.
 
 ## What this is
 
-7 parts, mostly Python (36 files), shell (13), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (36 files), shell (15), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-23 (d80aeff)
+## What changed since 2026-10-23 (db6d63e)
 
-Nothing structural changed since 2026-10-23; 4 files changed content.
+- scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/harness/_run_151_g1.sh and docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh.
+- xrpl_camp/__main__.py is now also read by docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh.
+- docs/receipts/1.5.1-live-check/g1-44dc45a/identity-scan-151-g1-linux.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/00-uv-python-dir-before.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/01-python-install.exit is new and belongs to no part, so atlas check fails on it against the previous map.
+- And 32 more new files that belong to no part.
+- 35 files added and 1 changed content.
 
 ## What comes in
 
@@ -87,7 +93,7 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 - 6 reads use paths built at run time and are not named here.
 - 4 writes and 10 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
-- 674 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 671 more.
+- 709 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 706 more.
 - Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.
