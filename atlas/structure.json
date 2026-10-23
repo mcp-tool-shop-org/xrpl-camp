@@ -145,7 +145,7 @@
           "path": "SECURITY.md"
         },
         {
-          "hash": "b6581b02266b6b550771c806acc80226145a7a6a2551b8fbf3f517d85bd641ba",
+          "hash": "561db07ef3121687f39f88d10f57ec8e9eb34942a38092a00a3091ee3fb4d97f",
           "path": "SHIP_GATE.md"
         },
         {
@@ -343,7 +343,7 @@
           "path": "site/src/content/docs/handbook/proof-pack.md"
         },
         {
-          "hash": "e63806072b5d29d8a05783785a7e77e9049a60e52353789ee757a89d4bb86200",
+          "hash": "f2b6467460ce38016dfc113fa6267c49ef9f6eea8594ed0fdb85f4ff0c261b31",
           "path": "site/src/content/docs/handbook/reference.md"
         },
         {
@@ -1186,7 +1186,7 @@
             "test_submit_signed_empty_result_resolves_validated_tes_success_via_lookup",
             "test_submit_signed_empty_result_with_no_hash_raises_unresolved"
           ],
-          "hash": "8c4f4f320f4fcba37aa0a11d10e54f2d58f9fd629a9eb12278827bcfe0878b45",
+          "hash": "3b8430b3634f7fa4bb6a322731ec3118c08e043ca0c5ef5a3700a7fd1d0fbda3",
           "importOrder": [
             "tests/helpers.py",
             "xrpl_camp/__init__.py",
@@ -11440,8 +11440,8 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "aa6856a96fa4edac5feb9fab4d63897eb10f7954",
-    "tracked": 932
+    "commit": "f33e1f2ffd7595dcf0f4f7a85045a3a8aa6f9f57",
+    "tracked": 1006
   },
   "landings": [
     {
@@ -11572,6 +11572,11 @@
         },
         {
           "by": "docs/receipts/1.5.2-live-check/harness/linux_build_152.sh",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
+          "by": "docs/receipts/1.5.2-live-check/npm-release/harness/_run_npm152_linux.sh",
           "call": "literal",
           "confidence": "text"
         },
@@ -14919,6 +14924,302 @@
     {
       "hash": "c35b56d8e792ddfe358abad610c97d61dd2696b8cbcf8a13a5b76881f6b7bea4",
       "path": "docs/receipts/1.5.2-live-check/linux-build/versions.txt"
+    },
+    {
+      "hash": "8f619ecbce2ce60e2efe30e63e4cd197de6c4b24794f167f577c9b19e284886e",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/README.md"
+    },
+    {
+      "hash": "e41fbf7a08c486a595212775efc5c2238c3e3d39cefe79d3fce2bbd64932f371",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/checksums-1.5.2.txt"
+    },
+    {
+      "hash": "f594f33405b1376083fcfe02c1a6961dde76bbbe189dc6ef92a53972817d1f0f",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/harness/_run_npm152_linux.sh"
+    },
+    {
+      "hash": "3ab73946bcc2576b1f9d4dbe50c4d7a81167cfa2a9447055b6fe254b8753e003",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/harness/npm_release_check.sh"
+    },
+    {
+      "hash": "1c3a8f67675295d89489809f6f1d58a683ae9f79e2a7db9c107555b286167e00",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/harness/npm_release_check_win.sh"
+    },
+    {
+      "hash": "3ec83005cd5acbca63f98bc04cb1be3a340cc7b84463c4214f42028d8ce8df39",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/harness/npx_camp_win.sh"
+    },
+    {
+      "hash": "84292f35ba1f0f4d9924120123082d89ef43da049298a4861db9b6176431d166",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/identity-scan-release-linux.txt"
+    },
+    {
+      "hash": "d6e7c478652317dddc0a06728c63526107451fa43ba7f807c4967d7fcfaa57ae",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/01-version.cmd"
+    },
+    {
+      "hash": "0bb6e6cdfe9a2e8da5f4318ec6c289146cca6d0f394be44cc73d014701ac3187",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/01-version.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/01-version.exit"
+    },
+    {
+      "hash": "122d4dd14972af827268ffbcc1f1b5ad5edf3c0f3471f8d0c623976154a95100",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/01-version.out"
+    },
+    {
+      "hash": "43957362794a4d8161c5de9303c0695d637a8278a7c56a141a0ff4d94de9e2de",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/02-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/02-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/02-help.exit"
+    },
+    {
+      "hash": "b9f12d1779ce6dafed7e34f4230ac2d725b864f9787b39887fd8e3a8647a84de",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/02-help.out"
+    },
+    {
+      "hash": "16b730a40222e85f23cdfddaa98d1e21b47793a702a2426df7b5d0bd455d7ba5",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/03-reserve-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/03-reserve-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/03-reserve-help.exit"
+    },
+    {
+      "hash": "32747e14703171b7acce6abe1fb3dfa3ce4d0cb4568bf3e2d6ba19bcba805ca3",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/03-reserve-help.out"
+    },
+    {
+      "hash": "03981d907bcff23d30f942def2582774e8f368bf9bcdeb3006997bacf2a7af41",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/04-certificate-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/04-certificate-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/04-certificate-help.exit"
+    },
+    {
+      "hash": "1a1295e6aa39bcb59194d15f03515bfbc2eec8cadac41e40e4aff52138315c24",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/04-certificate-help.out"
+    },
+    {
+      "hash": "b3b7e72ec953f280c7ae30418b2c28d6ea8cbd9666901c19ade5c719c0370665",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/05-proof-verify-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/05-proof-verify-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/05-proof-verify-help.exit"
+    },
+    {
+      "hash": "004c3df4e0c57ecfd569b617378a4e00efd7b719f49766258f065f771b352813",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/05-proof-verify-help.out"
+    },
+    {
+      "hash": "ff2c90337cc53aca0cd8490996be75cff37c25ab63a9b5420b4b93914f09359a",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/06-cache-files.txt"
+    },
+    {
+      "hash": "b9b0e61474a074c3e362ffe09f3fbc737cdea108c702c196f16f28c7cddef57e",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/06-cached-sha256.txt"
+    },
+    {
+      "hash": "238f96660ee9e482b1c65d84da61661049b51d9a390a00a9bc2de9fc03a3e654",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/07-direct-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/07-direct-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/07-direct-help.exit"
+    },
+    {
+      "hash": "1beb305fa89af975c4b4b1bd5ceea51374133825485e6797a596c440fb5e9ac2",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/07-direct-help.out"
+    },
+    {
+      "hash": "b9b0e61474a074c3e362ffe09f3fbc737cdea108c702c196f16f28c7cddef57e",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/08-release-asset-sha256.txt"
+    },
+    {
+      "hash": "7a3e40a2ed639377906b1d756e190f52ef6b9b2c7b3ce1ce602dcc63f1e2d7cb",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/08-tag-head.txt"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/09-check-bundle-release-asset.exit"
+    },
+    {
+      "hash": "2e2097816d6fb0fd463c9a3bbb06c0a07ed46b29b87b90f17166d1bb625f1329",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/09-check-bundle-release-asset.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/10-check-bundle-launcher-cache.exit"
+    },
+    {
+      "hash": "7be9909345315f2ee39339d53596d0b211281bd72cc9652b1ecd0cc6a2230295",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/10-check-bundle-launcher-cache.log"
+    },
+    {
+      "hash": "611e51f25229c6db9528de96e72f56c3ecd2994e0e355b5597ac1fe87bbabab6",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/linux/node-version.txt"
+    },
+    {
+      "hash": "93e96621daf0fcde32a56513978147624b4e2b61bbf42eed4cd26c0f3927edba",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/reserve/01-self-check.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/reserve/01-self-check.err"
+    },
+    {
+      "hash": "af3e3d35849f893dadbbbcd3b10527b17151d3dc686ae74ad8fa4437a4fc0102",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/reserve/01-self-check.out"
+    },
+    {
+      "hash": "9c1b77745fcd0ecd3d32af6c700146f2128ec8b7229ba105a4667f6d96e9666a",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/reserve/02-reserve-json.cmd"
+    },
+    {
+      "hash": "f84ffb46a540ffba6110a51a2f07381a9178c7bbfcbab249cf05ab2caaf9d1d5",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/reserve/02-reserve-json.err"
+    },
+    {
+      "hash": "c87e4a29943e0a024526aa1c48b72308ceb4bc70f2d54b3b83647815c67415d4",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/reserve/02-reserve-json.out"
+    },
+    {
+      "hash": "5d14c4607268595a426b1ec51b6c4cf1db1fea5dfbc7c24fe84a9894a971f372",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/reserve/03-parse-check.txt"
+    },
+    {
+      "hash": "3b70715dda235d9410163a0e77f87647dd23089933edf3925e26a7559f7b2d39",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/01-version.cmd"
+    },
+    {
+      "hash": "d6144a4bff3a8afa324a0b72c6f7f03a624780ba0d0814e6793f198aea46e186",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/01-version.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/01-version.exit"
+    },
+    {
+      "hash": "122d4dd14972af827268ffbcc1f1b5ad5edf3c0f3471f8d0c623976154a95100",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/01-version.out"
+    },
+    {
+      "hash": "aa38b7c915b69134469b37f0454f0b12029de4fcaf29884c7ecf6e727926a1cf",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/02-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/02-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/02-help.exit"
+    },
+    {
+      "hash": "3f2167a9fff560cb1ac905c1d8b6c9454b9742c76f9b3382e013f2ddab59d46c",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/02-help.out"
+    },
+    {
+      "hash": "7e4c51785721854be39ea6ddfe4103048cb7ade822cbefe70d9479caa0cf48d6",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/03-reserve-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/03-reserve-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/03-reserve-help.exit"
+    },
+    {
+      "hash": "6b029ecc4a5276aba6712187e6278bd7a83bdfaaa383f5feb994d0a50f7dac70",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/03-reserve-help.out"
+    },
+    {
+      "hash": "28493bcc183d4b0269cd139a3643f7aa35a231af240f3cc7e7efbc96eb2f732b",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/04-certificate-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/04-certificate-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/04-certificate-help.exit"
+    },
+    {
+      "hash": "dd04090829c380cf392421293b578b24fcf49ab0b73eb1d02f22d94ee3dd4087",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/04-certificate-help.out"
+    },
+    {
+      "hash": "f65710b449ece4ca4d8dc3665c9928f79e5ebb42619ad1aac518c5907f371af7",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/05-proof-verify-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/05-proof-verify-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/05-proof-verify-help.exit"
+    },
+    {
+      "hash": "bd1c28c923d001989628d11007c1adbd1de0b93b6a9e0243ea421872c3420b7b",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/05-proof-verify-help.out"
+    },
+    {
+      "hash": "cb91113aa4bed86a9c41655984ec36013c00258506a32ad4ee3de4b51ab17e73",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/06-cache-files.txt"
+    },
+    {
+      "hash": "d18e06f4961f86db70ac05c5da41263e724d89d0fc40410e0e341a1805ff9866",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/06-cached-sha256.txt"
+    },
+    {
+      "hash": "238f96660ee9e482b1c65d84da61661049b51d9a390a00a9bc2de9fc03a3e654",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/07-direct-help.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/07-direct-help.err"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/07-direct-help.exit"
+    },
+    {
+      "hash": "82750b34b0eceb0c71d18358de429f3fc5400df0b616a961be6cfebcd2d49a62",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/07-direct-help.out"
+    },
+    {
+      "hash": "70d4e59c912dfedf6399814f79e41b7aa1f51bfa62cd580fa7213be5602ffa64",
+      "path": "docs/receipts/1.5.2-live-check/npm-release/win/node-version.txt"
     },
     {
       "hash": "816783d61d78893f06b85e0f72e7887c99f24fbc6fefe1f2ed80e9ec420d9279",

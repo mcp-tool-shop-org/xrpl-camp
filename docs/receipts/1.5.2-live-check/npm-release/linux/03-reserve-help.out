@@ -1,0 +1,18 @@
+                                                                                
+ Usage: xrpl-camp reserve [OPTIONS]                                             
+                                                                                
+ Mint an NFT, then burn it, and watch the owner reserve lock and come back.     
+                                                                                
+ Signs two Testnet transactions from your wallet: an NFTokenMint, then an       
+ NFTokenBurn of that token. The balance moves only by the fee (~20 drops        
+ total), while spendable XRP moves by the owner reserve increment — held on     
+ the mint, released on the burn, never spent.                                   
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --dry-run          Show simulated reserve numbers without network calls or   │
+│                    state changes                                             │
+│ --json             Emit one JSON document with both reserve moves (progress  │
+│                    to stderr)                                                │
+│ --help             Show this message and exit.                               │
+╰──────────────────────────────────────────────────────────────────────────────╯
+

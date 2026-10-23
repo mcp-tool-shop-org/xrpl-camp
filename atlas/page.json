@@ -36,50 +36,67 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 0,
-      "changed": 4,
+      "added": 74,
+      "changed": 3,
       "moved": 0,
       "parts": 3,
       "removed": 0
     },
     "items": [
       {
+        "kind": "landing",
+        "sentence": "scripts/check_bundle.py is now also read by docs/receipts/1.5.2-live-check/npm-release/harness/_run_npm152_linux.sh.",
+        "subjects": [
+          "scripts/check_bundle.py",
+          "docs/receipts/1.5.2-live-check/npm-release/harness/_run_npm152_linux.sh"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.2-live-check/npm-release/README.md is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.2-live-check/npm-release/README.md"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.2-live-check/npm-release/checksums-1.5.2.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.2-live-check/npm-release/checksums-1.5.2.txt"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.2-live-check/npm-release/harness/_run_npm152_linux.sh is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.2-live-check/npm-release/harness/_run_npm152_linux.sh"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "And 71 more new files that belong to no part.",
+        "subjects": []
+      },
+      {
         "kind": "counts",
-        "sentence": "Nothing structural changed since 2026-10-23; 4 files changed content.",
+        "sentence": "74 files added and 3 changed content, across 3 parts.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "bc289d9751079362e6a4c0fe7cb27e98f35596cf",
-      "generatedAt": "2026-10-23T06:57:41.961Z"
+      "commit": "aa6856a96fa4edac5feb9fab4d63897eb10f7954",
+      "generatedAt": "2026-10-23T07:17:54.781Z"
     },
-    "unchanged": true
+    "unchanged": false
   },
-  "changesTogether": [
-    {
-      "a": "xrpl_camp/cli.py",
-      "b": "xrpl_camp/lessons.py",
-      "either": 6,
-      "partLabels": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "parts": [
-        "xrpl_camp",
-        "xrpl_camp"
-      ],
-      "relation": "inside",
-      "shared": 4
-    }
-  ],
+  "changesTogether": [],
   "changesTogetherNote": [
-    "Confidence is low: fewer than 25 source files reach 10 revisions in the window.",
-    "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
+    "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "aa6856a96fa4edac5feb9fab4d63897eb10f7954",
+  "commit": "f33e1f2ffd7595dcf0f4f7a85045a3a8aa6f9f57",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly Python (37 files), shell (22), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
+  "derived": "7 parts, mostly Python (37 files), shell (26), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
     {
       "checks": [
@@ -358,14 +375,14 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-23T07:17:54.781Z",
+  "generatedAt": "2026-10-23T07:42:22.756Z",
   "limits": [
     "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
     "6 reads use paths built at run time and are not named here.",
     "4 writes and 10 reads go to a path their caller passes, not to this repository.",
     "1 write goes to a temporary directory, not to this repository.",
-    "839 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 836 more.",
-    "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
+    "913 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 910 more.",
+    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions."
   ],
   "mainDoor": ".github/workflows/ci.yml",
   "partLabels": {

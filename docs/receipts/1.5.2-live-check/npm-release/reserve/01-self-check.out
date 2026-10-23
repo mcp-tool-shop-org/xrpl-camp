@@ -1,0 +1,15 @@
+
+  OK  Version  1.5.2
+  OK  Platform  Windows AMD64 · Python 3.12.13
+  OK  Console encoding  utf-8
+  OK  Rich rendering  Table renders correctly
+  OK  Filesystem write  Temp write succeeded
+  OK  State directory  3 file(s) in 
+<scratch>/home152
+  --  xrpl  -- (imported; version not reported)
+  --  typer  -- (imported; version not reported)
+  --  rich  -- (imported; version not reported)
+  OK  Endpoint  https://s.altnet.rippletest.net:51234/  (testnet)
+  OK  Endpoint reachable  yes, 390 ms to open a connection
+  OK  Ledger round-trip  network_id 1 (Testnet)
+
