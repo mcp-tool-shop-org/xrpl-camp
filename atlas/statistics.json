@@ -245,8 +245,8 @@
         "path": "SHIP_GATE.md"
       },
       {
-        "commits": 14,
-        "lines": 524,
+        "commits": 15,
+        "lines": 543,
         "path": "atlas/README.md"
       },
       {
@@ -255,18 +255,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 14,
-        "lines": 2058,
+        "commits": 15,
+        "lines": 2139,
         "path": "atlas/page.json"
       },
       {
-        "commits": 14,
-        "lines": 8264,
+        "commits": 15,
+        "lines": 8397,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 14,
-        "lines": 35401,
+        "commits": 15,
+        "lines": 35960,
         "path": "atlas/structure.json"
       },
       {
@@ -4165,6 +4165,326 @@
         "path": "docs/receipts/1.5.1-live-check/sysconfigdata-home-paths.txt"
       },
       {
+        "commits": 1,
+        "lines": 110,
+        "path": "docs/receipts/1.5.2-live-check/README.md"
+      },
+      {
+        "commits": 1,
+        "lines": 8,
+        "path": "docs/receipts/1.5.2-live-check/harness/_run_152.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 25,
+        "path": "docs/receipts/1.5.2-live-check/harness/camp_run.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 27,
+        "path": "docs/receipts/1.5.2-live-check/harness/forge_pack.py.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 38,
+        "path": "docs/receipts/1.5.2-live-check/harness/linux_build_152.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 14,
+        "path": "docs/receipts/1.5.2-live-check/harness/parse_verify_152.py.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 10,
+        "path": "docs/receipts/1.5.2-live-check/identity-scan-152-linux.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 4,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/00-uv-python-dir-before.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/01-python-install.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/01-python-install.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/02-venv.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 4,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/02-venv.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/03-install.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 34,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/03-install.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/04-remove-direct-url.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 11,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/04-remove-direct-url.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/05-pyinstaller.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 96,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/05-pyinstaller.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/06-rename.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/06-rename.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/07-check-bundle.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/07-check-bundle.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/08-check-bundle-list.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 99,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/08-check-bundle-list.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/09-neg-control-150.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/09-neg-control-150.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/10-version.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/10-version.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/11-self-check.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 16,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/11-self-check.log"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/dist-sha256.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/file.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/head.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/neg-control-sha256.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/uv-version.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/linux-build/versions.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/testnet/code.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.err"
+      },
+      {
+        "commits": 1,
+        "lines": 229,
+        "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.out"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.5.2-live-check/testnet/course/preflight.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 7,
+        "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-parse-check.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 47,
+        "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 90,
+        "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/00-forge.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 64,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 144,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 148,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 13,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.err"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.out"
+      },
+      {
+        "commits": 1,
+        "lines": 25,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/30-parse-check.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/packs/forged.json"
+      },
+      {
+        "commits": 1,
+        "lines": 49,
+        "path": "docs/receipts/1.5.2-live-check/testnet/verify/packs/honest.json"
+      },
+      {
         "commits": 2,
         "lines": 32,
         "path": "node_modules/.bin/mcptoolshop-launch"
@@ -4588,11 +4908,11 @@
   },
   "confidence": {
     "level": "low",
-    "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
+    "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-10-23T06:44:03.864Z",
+  "generatedAt": "2026-10-23T06:57:41.961Z",
   "generatedFrom": {
-    "commit": "d02a4894e8cd3d6debd8ac9fbe941a031611987d"
+    "commit": "bc289d9751079362e6a4c0fe7cb27e98f35596cf"
   },
   "pairs": [
     {
@@ -4601,6 +4921,48 @@
       "either": 8,
       "shared": 4,
       "strength": 0.5
+    },
+    {
+      "a": "atlas/README.md",
+      "b": "atlas/page.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/README.md",
+      "b": "atlas/statistics.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/README.md",
+      "b": "atlas/structure.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/page.json",
+      "b": "atlas/statistics.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/page.json",
+      "b": "atlas/structure.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
+    },
+    {
+      "a": "atlas/statistics.json",
+      "b": "atlas/structure.json",
+      "either": 5,
+      "shared": 5,
+      "strength": 1
     },
     {
       "a": "package.json",
@@ -4647,17 +5009,17 @@
     "fallenShared": 3,
     "floor": "fallen",
     "floorHeld": false,
-    "floorTrigger": "both",
-    "headDate": "2026-10-23T02:43:58-04:00",
-    "inScopeFiles": 873,
+    "floorTrigger": "revision-depth",
+    "headDate": "2026-10-23T02:57:26-04:00",
+    "inScopeFiles": 937,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 29,
+    "qualifyingCommits": 30,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-26T06:43:58.000Z",
+    "since": "2026-04-26T06:57:26.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
