@@ -67,7 +67,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "scripts",
-      "qualifyingSourceCommits": 1,
+      "qualifyingSourceCommits": 2,
       "rebaseline": null
     },
     {
@@ -99,7 +99,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "tests",
-      "qualifyingSourceCommits": 7,
+      "qualifyingSourceCommits": 8,
       "rebaseline": null
     },
     {
@@ -150,8 +150,8 @@
         "path": ".github/workflows/pages.yml"
       },
       {
-        "commits": 9,
-        "lines": 659,
+        "commits": 10,
+        "lines": 673,
         "path": ".github/workflows/publish.yml"
       },
       {
@@ -240,8 +240,8 @@
         "path": "SHIP_GATE.md"
       },
       {
-        "commits": 13,
-        "lines": 491,
+        "commits": 14,
+        "lines": 516,
         "path": "atlas/README.md"
       },
       {
@@ -250,18 +250,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 13,
-        "lines": 2000,
+        "commits": 14,
+        "lines": 2074,
         "path": "atlas/page.json"
       },
       {
-        "commits": 13,
-        "lines": 7413,
+        "commits": 14,
+        "lines": 7672,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 13,
-        "lines": 34721,
+        "commits": 14,
+        "lines": 34894,
         "path": "atlas/structure.json"
       },
       {
@@ -3471,7 +3471,7 @@
       },
       {
         "commits": 1,
-        "lines": 116,
+        "lines": 122,
         "path": "docs/receipts/1.5.1-live-check/README.md"
       },
       {
@@ -3815,8 +3815,8 @@
         "path": "scripts/check-versions.sh"
       },
       {
-        "commits": 1,
-        "lines": 78,
+        "commits": 2,
+        "lines": 170,
         "path": "scripts/check_bundle.py"
       },
       {
@@ -3925,8 +3925,8 @@
         "path": "tests/helpers.py"
       },
       {
-        "commits": 1,
-        "lines": 89,
+        "commits": 2,
+        "lines": 290,
         "path": "tests/test_check_bundle.py"
       },
       {
@@ -4075,58 +4075,51 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-10-23T03:17:25.069Z",
+  "generatedAt": "2026-10-23T03:52:09.272Z",
   "generatedFrom": {
-    "commit": "d80aeff0034a6d8915815e4024ff3d4595d44800"
+    "commit": "db6d63e8e524e68caf54d04c88bd0d0325f9801e"
   },
   "pairs": [
     {
-      "a": ".github/workflows/publish.yml",
-      "b": "package.json",
-      "either": 8,
-      "shared": 4,
-      "strength": 0.5
-    },
-    {
       "a": "atlas/README.md",
       "b": "atlas/page.json",
-      "either": 5,
-      "shared": 5,
+      "either": 6,
+      "shared": 6,
       "strength": 1
     },
     {
       "a": "atlas/README.md",
       "b": "atlas/statistics.json",
-      "either": 5,
-      "shared": 5,
+      "either": 6,
+      "shared": 6,
       "strength": 1
     },
     {
       "a": "atlas/README.md",
       "b": "atlas/structure.json",
-      "either": 5,
-      "shared": 5,
+      "either": 6,
+      "shared": 6,
       "strength": 1
     },
     {
       "a": "atlas/page.json",
       "b": "atlas/statistics.json",
-      "either": 5,
-      "shared": 5,
+      "either": 6,
+      "shared": 6,
       "strength": 1
     },
     {
       "a": "atlas/page.json",
       "b": "atlas/structure.json",
-      "either": 5,
-      "shared": 5,
+      "either": 6,
+      "shared": 6,
       "strength": 1
     },
     {
       "a": "atlas/statistics.json",
       "b": "atlas/structure.json",
-      "either": 5,
-      "shared": 5,
+      "either": 6,
+      "shared": 6,
       "strength": 1
     },
     {
@@ -4161,16 +4154,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-10-22T23:17:09-04:00",
+    "headDate": "2026-10-22T23:51:44-04:00",
     "inScopeFiles": 770,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 30,
+    "qualifyingCommits": 31,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-26T03:17:09.000Z",
+    "since": "2026-04-26T03:51:44.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

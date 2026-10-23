@@ -25,7 +25,7 @@
           "path": ".github/workflows/pages.yml"
         },
         {
-          "hash": "20fc2bd1b488dbad6e5ea5ed73a6403124a4044eee7cd9b8e6efdec236cf2994",
+          "hash": "15bcfece7ffb7ea6119add877c496e70cf4bfd8a902b5a3e72a767610f628f02",
           "path": ".github/workflows/publish.yml"
         },
         {
@@ -192,27 +192,87 @@
           "entryRule": 1,
           "exports": [
             "check_bundle_no_direct_url",
+            "find_sysconfigdata_home_paths",
             "main"
           ],
           "failurePaths": [
             {
               "in": "check_bundle_no_direct_url",
               "kind": "raise",
-              "line": 36
+              "line": 114
             },
             {
               "in": "main",
               "kind": "except",
-              "line": 63
+              "line": 139
             },
             {
               "kind": "raise",
-              "line": 78
+              "line": 154
             }
           ],
-          "hash": "2c13e21c4c2559bb55ff90a988bb29cbc81760b9454bafd7aa1602812dfffe3a",
+          "hash": "8b13ee4a75ad8b9d119bbe34007bad932d21dceef896c0b0ab819735746f9151",
           "path": "scripts/check_bundle.py",
-          "sequences": []
+          "sequences": [
+            {
+              "calls": [
+                {
+                  "line": 51,
+                  "name": "open_embedded_archive",
+                  "target": null
+                },
+                {
+                  "line": 59,
+                  "name": "extract",
+                  "target": null
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_extract_sysconfigdata_blobs"
+            },
+            {
+              "calls": [
+                {
+                  "line": 51,
+                  "name": "open_embedded_archive",
+                  "target": null,
+                  "via": "_extract_sysconfigdata_blobs"
+                },
+                {
+                  "line": 59,
+                  "name": "extract",
+                  "target": null,
+                  "via": "_extract_sysconfigdata_blobs"
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "check_bundle_no_direct_url"
+            },
+            {
+              "calls": [
+                {
+                  "line": 51,
+                  "name": "open_embedded_archive",
+                  "target": null,
+                  "via": "_extract_sysconfigdata_blobs"
+                },
+                {
+                  "line": 59,
+                  "name": "extract",
+                  "target": null,
+                  "via": "_extract_sysconfigdata_blobs"
+                }
+              ],
+              "exported": true,
+              "invokedAtTopLevel": true,
+              "isDefaultExport": false,
+              "name": "main"
+            }
+          ]
         },
         {
           "hash": "d650438572fa04df05a48e4343348225bb4da45c22f6cac2d40efe88c8bd79a3",
@@ -435,13 +495,18 @@
         },
         {
           "exports": [
-            "test_check_bundle_cli_with_mocked_carchivereader",
+            "test_check_bundle_cli_with_mocked_carchivereader_and_pyz",
             "test_check_bundle_fails_when_direct_url_present",
-            "test_check_bundle_passes_when_no_direct_url_present"
+            "test_check_bundle_fails_when_sysconfigdata_contains_home_path",
+            "test_check_bundle_passes_when_no_direct_url_present",
+            "test_check_bundle_passes_when_sysconfigdata_has_neutral_prefix"
           ],
-          "hash": "27983287ead23514fbf6051c9aa8f07e404fa81c796a90e9104b62bfb18797df",
+          "hash": "db0bf193218e1c6bd199c5590b89092bb44eebdacbe291a43901e3a6452cab77",
           "importsFiles": [
             "scripts/check_bundle.py"
+          ],
+          "names": [
+            "xrpl_camp/__main__.py"
           ],
           "path": "tests/test_check_bundle.py",
           "testFramework": "pytest"
@@ -10536,9 +10601,11 @@
           "dir": "",
           "job": "build-binaries",
           "programs": [
-            "uv"
+            "echo",
+            "mkdir",
+            "sudo"
           ],
-          "step": "2"
+          "step": "Set neutral UV_PYTHON_INSTALL_DIR outside user home"
         },
         {
           "dir": "",
@@ -10547,6 +10614,14 @@
             "uv"
           ],
           "step": "3"
+        },
+        {
+          "dir": "",
+          "job": "build-binaries",
+          "programs": [
+            "uv"
+          ],
+          "step": "4"
         },
         {
           "dir": "",
@@ -10580,7 +10655,7 @@
           "programs": [
             "uv"
           ],
-          "step": "Check bundle archive for direct_url.json"
+          "step": "Check bundle archive for direct_url.json and _sysconfigdata home paths"
         },
         {
           "dir": "",
@@ -11236,7 +11311,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "d80aeff0034a6d8915815e4024ff3d4595d44800",
+    "commit": "db6d63e8e524e68caf54d04c88bd0d0325f9801e",
     "tracked": 765
   },
   "landings": [
@@ -13990,7 +14065,7 @@
       "path": "docs/receipts/1.5.0-live-check/reserve/39-control-read.trace"
     },
     {
-      "hash": "b44c36d77fa2a3fee084f89da52baf835a764a3b214ef02e900aad96cb1a098d",
+      "hash": "77eabd80143c47662f1e60a71473e2bf7d664197f3d3fc82b28847f7c7cc06f5",
       "path": "docs/receipts/1.5.1-live-check/README.md"
     },
     {

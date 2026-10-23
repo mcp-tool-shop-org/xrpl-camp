@@ -1,21 +1,14 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-23 from commit d80aeff by Atlas 1.24.0.
+Mapped at 2026-10-23 from commit db6d63e by Atlas 1.24.0.
 
 ## What this is
 
 7 parts, mostly Python (36 files), shell (13), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-23 (208cbc6)
+## What changed since 2026-10-23 (d80aeff)
 
-- pyproject.toml is now also read by docs/receipts/1.5.1-live-check/harness/_run_151.sh.
-- scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/harness/linux_build_151.sh.
-- xrpl_camp/__main__.py is now read by docs/receipts/1.5.1-live-check/harness/linux_build_151.sh.
-- docs/receipts/1.5.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.5.1-live-check/dist-info-uv-files.txt is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.5.1-live-check/harness/_run_151.sh is new and belongs to no part, so atlas check fails on it against the previous map.
-- And 34 more new files that belong to no part.
-- 37 files added.
+Nothing structural changed since 2026-10-23; 4 files changed content.
 
 ## What comes in
 
