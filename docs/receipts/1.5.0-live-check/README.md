@@ -22,6 +22,42 @@ v1.5.0 release exists. The 1.4.2 wrapper with launcher 1.2.0 shows the pass-thro
 Three minor defects, none blocking: two cosmetic, one in the JSON contract. See **Defects** at the end. **All three
 are fixed on the fixup-3 head `3b80987`**, as the re-check below shows.
 
+**The blocked step is now closed:** the released npm package passes on Windows and Linux. See the next section.
+
+## The released npm package, `@mcptoolshop/xrpl-camp@1.5.0` (`npm-release/`): PASS
+
+This ran after the release: tag `v1.5.0` on `363a2ef`, npm `@mcptoolshop/xrpl-camp@1.5.0` with
+`@mcptoolshop/npm-launcher ^1.2.0`.
+- **The command:** `npx --yes @mcptoolshop/xrpl-camp@1.5.0 <args>`, from an empty folder.
+- **Fresh state:** a fresh npm cache (`npm_config_cache`), a fresh npm prefix (`npm_config_prefix`), and a fresh
+  launcher binary cache: `LOCALAPPDATA` on Windows, `XDG_CACHE_HOME` on Linux. So each platform downloaded and
+  verified its binary from the GitHub release on the first call.
+- **Node:** Node 22.22.3 and npm 10.9.8 on both.
+  - **Windows:** run natively.
+  - **Linux:** WSL Ubuntu, with the official Node tarball checked against nodejs.org's `SHASUMS256.txt`
+    (`harness/wsl_node.sh`). WSL's own PATH only reaches the Windows npm, which would have run the Windows binary.
+
+| Command | Windows | Linux |
+|---|---|---|
+| `--version` (first call: downloads) | exit 0, `xrpl-camp 1.5.0` | exit 0, `xrpl-camp 1.5.0` |
+| `--help` | exit 0; `Usage: xrpl-camp [OPTIONS] COMMAND [ARGS]...`; lists `reserve`, `certificate` and `proof` | the same |
+| `reserve --help` | exit 0, `Usage: xrpl-camp reserve [OPTIONS]` | the same |
+| `certificate --help` | exit 0, `Usage: xrpl-camp certificate [OPTIONS]`; `--format`: "json (default) or text" | the same |
+| `proof verify --help` | exit 0, `Usage: xrpl-camp proof verify [OPTIONS] {file}`; `--online`; `--record` "(requires --online)" | the same |
+
+- **The first call's stderr** is the launcher's own lines: `Fetching checksums from mcp-tool-shop-org/xrpl-camp@v1.5.0...`,
+  `Downloading xrpl-camp-1.5.0-<os>-x64...`, `Verifying SHA256...`, `Ready.` After them come npm's update notice
+  and nothing else.
+- **The cached binary matches the release checksums:**
+  - win-x64 `92fc064c3bea4b980642d0007f7efd175e52b9d5b0b34816e45314b83bc0c221`;
+  - linux-x64 `12259e59ad9d3fe86b4201ce65bc9df18016fda99aa11c9a5379b664badd424b`;
+  - `win/06-*`, `linux/06-*`.
+- **argv[0]: the launcher's name, not the file's.** Run directly, the same cached binary prints
+  `Usage: xrpl-camp-1.5.0-win-x64.exe [OPTIONS] COMMAND [ARGS]...` on Windows and
+  `Usage: xrpl-camp-1.5.0-linux-x64 [OPTIONS] COMMAND [ARGS]...` on Linux (`07-direct-help.*`). Through the
+  launcher, every help page says `xrpl-camp`. So the tool name comes from npm-launcher 1.2.0's `argv0`.
+- **Not covered:** macOS (`darwin-arm64`) wasn't run.
+
 ## Re-check on the fixup-3 head `3b80987` (`recheck-3b80987/`): E1–E3 fixed
 
 Fixup 3 (`3b80987`) addresses E1–E3. This re-check ran from the receipts branch with `3b80987` merged in. Its
@@ -205,5 +241,8 @@ Found on `ae22f3b`. All three are fixed on `3b80987` (see the re-check above).
 - `record/`: every `--record` case, `states.txt`, and `packs/` (the valid pack with its three receipts, the forgery and
   the folder copy).
 - `npm/`: the pack, the installs and the wrapper runs.
+- `npm-release/`: the released package through `npx`, in `win/` and `linux/`: each command as `.cmd`, `.out`,
+  `.err` and `.exit`; the cached binary's hash (and the release checksums, in `win/`); the direct-run control; and
+  `harness/` (`wsl_node.sh`, `npm_release_check.sh`).
 - `harness/`: `camp_run.sh`, plus `ledger_probe.py.txt`, `trace_camp.py.txt` and `forge_pack.py.txt`. The `.txt` keeps
   the scripts out of the repo's lint.

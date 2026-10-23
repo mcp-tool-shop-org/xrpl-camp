@@ -1,0 +1,26 @@
+                                                                               
+ Usage: xrpl-camp proof verify [OPTIONS] {file}                                
+                                                                               
+ Verify a proof pack's integrity. A folder verifies every pack in it.          
+                                                                               
+ Two separate claims, deliberately never blurred. The hash check is local      
+ and proves only that the file has not been edited since it was written —      
+ anyone can recompute it, so it is not evidence of authenticity. `--online`    
+ asks the ledger whether the transactions the pack names actually happened,    
+ which is the part nobody can fake.                                            
+                                                                               
+┌─ Arguments ─────────────────────────────────────────────────────────────────┐
+│ *    file      <path>  A proof pack JSON file, or a folder of them          │
+│                        [required]                                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+┌─ Options ───────────────────────────────────────────────────────────────────┐
+│ --json                  Machine-readable JSON output                        │
+│ --online                Also check every transaction against the XRPL       │
+│                         ledger                                              │
+│ --record                Append a dated verification receipt to the proof    │
+│                         pack (requires --online)                            │
+│ --rpc-url        <str>  Check against this endpoint instead of the public   │
+│                         Testnet                                             │
+│ --help                  Show this message and exit.                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
