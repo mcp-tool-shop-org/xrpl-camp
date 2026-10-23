@@ -2495,11 +2495,74 @@ def _submit_signed(tx, wallet, url: str):
 
     result = response.result or {}
     engine_result = str(_meta(result).get("TransactionResult", "") or "")
-    if engine_result and engine_result != "tesSUCCESS":
+    if not engine_result:
+        return _resolve_submitted_tx(
+            str(result.get("hash", "") or txid).strip(), last_ledger, url
+        )
+    if engine_result != "tesSUCCESS":
         raise _engine_failure(engine_result)
     if "hash" not in result and txid:
         result = {**result, "hash": txid}
     return result
+
+
+def _resolve_submitted_tx(txid: str, last_ledger: int, url: str) -> dict:
+    """Resolve a submission response that returned without ``TransactionResult``.
+
+    An empty ``TransactionResult`` is not ``tesSUCCESS``. Look up the signed
+    transaction hash via :func:`_fetch_tx`: return the validated ``tesSUCCESS``
+    dict on confirmation, raise :func:`_engine_failure` on a validated
+    non-``tesSUCCESS`` code, or raise :class:`XRPLSubmissionUnresolved` when
+    there is no hash, the lookup fails, the transaction is not found, or it is
+    not yet validated.
+    """
+    if not txid:
+        raise XRPLSubmissionUnresolved(
+            "Submission returned without a TransactionResult or transaction "
+            "hash, so xrpl-camp cannot look up whether it landed on the ledger.",
+            txid="",
+            last_ledger=last_ledger,
+            detail=f"submit without TransactionResult or hash at {url}",
+        )
+
+    try:
+        response, looked_up = _fetch_tx(txid, url)
+    except XRPLTransportError as lookup_err:
+        raise XRPLSubmissionUnresolved(
+            f"Submission returned without a TransactionResult and looking up "
+            f"{txid} on the ledger failed: {lookup_err}",
+            txid=txid,
+            last_ledger=last_ledger,
+            detail=(
+                f"lookup error after empty TransactionResult at {url}: "
+                f"{lookup_err.error.detail}"
+            ),
+        ) from lookup_err
+
+    if response is not None and response.is_successful() and looked_up.get("validated"):
+        code = str(_meta(looked_up).get("TransactionResult", "") or "")
+        if code == "tesSUCCESS":
+            if "hash" not in looked_up:
+                looked_up = {**looked_up, "hash": txid}
+            return looked_up
+        if code:
+            raise _engine_failure(
+                code,
+                f"tx {txid} resolved after empty TransactionResult with {code} at {url}",
+            )
+
+    error = str(looked_up.get("error", "") or "")
+    detail = (
+        f"tx {txid} lookup after empty TransactionResult returned "
+        f"{error or 'unvalidated'} at {url}"
+    )
+    raise XRPLSubmissionUnresolved(
+        f"Submission returned without a TransactionResult and {txid} is not "
+        f"confirmed on the ledger.",
+        txid=txid,
+        last_ledger=last_ledger,
+        detail=detail,
+    )
 
 
 def _reserve_move(result: dict, before, after, nftoken_id: str = "") -> ReserveMove:

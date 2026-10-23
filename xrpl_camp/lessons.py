@@ -2952,8 +2952,8 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
     elif not_yet_visible:
         console.print(
             "\n  [yellow]Note:[/yellow] The ledger read after the mint did not show it "
-            "yet, so the reserve change could not be measured; the transaction link "
-            "shows what happened.",
+            "yet, so the reserve change could not be measured this time; the "
+            "transaction link shows what happened.",
         )
     else:
         console.print(
@@ -2967,6 +2967,7 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         doc: dict = {
             "ok": True,
             "simulated": False,
+            "reserve_measured": not not_yet_visible,
             "address": address,
             "network": network,
             "endpoint": url,

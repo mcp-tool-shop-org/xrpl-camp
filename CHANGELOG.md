@@ -5,6 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.2] - 2026-10-23
+
+### Fixed
+
+- **Signed NFT submissions no longer treat a missing `TransactionResult` as success.**
+  When `submit_and_wait` returns without a `TransactionResult` in `meta` during
+  `xrpl-camp reserve`, `_submit_signed` now looks up the signed transaction hash
+  on the ledger (`_fetch_tx`) before returning: it returns only when the ledger
+  confirms a validated `tesSUCCESS`, raises the matching engine failure on a
+  validated non-`tesSUCCESS` result, and raises `XRPLSubmissionUnresolved` when
+  the transaction is not found, not yet validated, or has no hash to look up.
+- **`xrpl-camp reserve --json` reports `"reserve_measured"` explicitly.**
+  When the ledger read right after the mint does not yet show the new owner
+  reserve (`not_yet_visible`), `reserve --json` now sets `"reserve_measured": false`
+  (and `"reserve_measured": true` when the reserve change is measured), and the
+  human-readable note says `"could not be measured this time"`.
+- **`xrpl-camp proof verify` output consistency (`--online` and Windows paths).**
+  `summarize_online` now counts every transaction lookup that received a ledger
+  response in `online.checked` (not only `ok` lookups, so a contradicted pack no
+  longer reports `checked: 0` alongside `total_lookups: 1`), `proof verify --online --json`
+  replaces the offline-only `"Run this same command with --online..."` prompt in
+  top-level `message` with the hash result plus the online verdict, and `file`
+  (and `folder`) paths are formatted with forward slashes across platforms.
+- **Standalone binary build recipe and CI runner parity.**
+  `BUILD.md` now includes the `direct_url.json` cleanup step and `uv run --no-sync pyinstaller`
+  invocation used in `.github/workflows/publish.yml`, `publish.yml` pins `uv`
+  (`0.11.18`) and managed CPython (`3.12.13`) in `/opt/uv-python`, and
+  `.polyglot-terms.json` lists the project's product, command, and protocol
+  names.
+
 ## [1.5.1] - 2026-10-23
 
 ### Fixed

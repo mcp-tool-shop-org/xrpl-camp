@@ -6,8 +6,18 @@ binaries for distribution via `npx @mcptoolshop/xrpl-camp`.
 ## Quick Build (local)
 
 ```bash
-uv venv && uv pip install . "pyinstaller>=6.9.0"
-uv run pyinstaller --onefile --name xrpl-camp --console \
+uv venv && uv pip install . "pyinstaller>=6.9.0,<7.0"
+uv run --no-sync python -c '
+import pathlib, sysconfig
+purelib = pathlib.Path(sysconfig.get_path("purelib"))
+for p in purelib.glob("*.dist-info/direct_url.json"):
+    p.unlink()
+remaining = list(purelib.glob("*.dist-info/direct_url.json"))
+if remaining:
+    raise SystemExit(f"direct_url.json still present in venv: {remaining}")
+print("Removed direct_url.json from build venv.")
+'
+uv run --no-sync pyinstaller --onefile --name xrpl-camp --console \
   --collect-submodules rich \
   --collect-data xrpl \
   xrpl_camp/__main__.py

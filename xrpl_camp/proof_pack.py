@@ -857,7 +857,13 @@ def summarize_online(results: list) -> dict:
         status = str(r.get("status", ""))
         counts[status] = counts.get(status, 0) + 1
 
-    checked = counts.get(ONLINE_OK, 0)
+    checked = sum(
+        counts.get(s, 0)
+        for s in (
+            ONLINE_OK, ONLINE_MISMATCH, ONLINE_MISS_HISTORY_GONE,
+            ONLINE_MISS_NOT_FOUND,
+        )
+    )
     total_lookups = sum(
         counts.get(s, 0)
         for s in (

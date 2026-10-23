@@ -987,7 +987,7 @@ def proof_verify(
             "valid": valid,
             "hash_match": valid,
             "recorded": False,
-            "file": str(file),
+            "file": _posix_path(file),
             "schema": pack.get("schema", ""),
             "address": pack.get("address", ""),
             "network": pack.get("network", ""),
@@ -1009,7 +1009,7 @@ def proof_verify(
         else:
             console.print(f"\n  [red]❌ FAIL[/red] — {escape(message)}\n")
 
-        console.print(f"  [bold]File:[/bold]     {escape(str(file))}")
+        console.print(f"  [bold]File:[/bold]     {escape(_posix_path(file))}")
         console.print(f"  [bold]Schema:[/bold]   {escape(str(pack.get('schema', 'unknown')))}")
         console.print(f"  [bold]Address:[/bold]  {escape(str(pack.get('address', 'unknown')))}")
         console.print(f"  [bold]Network:[/bold]  {escape(str(pack.get('network', 'unknown')))}")
@@ -1026,7 +1026,7 @@ def proof_verify(
     if online:
         offline = result if json_output else None
         if _simulating(False):
-            raise _online_skipped_for_dry_run(json_output, offline)
+            raise _online_skipped_for_dry_run(json_output, offline, pack=pack)
         raise _verify_online(
             pack,
             file,
@@ -1035,6 +1035,56 @@ def proof_verify(
             offline=offline,
             record=record,
         )
+
+
+def _posix_path(path: Path) -> str:
+    """Format `path` with forward slashes so output is identical across OSes."""
+    return path.as_posix().replace("\\", "/")
+
+
+def _online_message(pack: dict, online_note: str) -> str:
+    """Top-level `message` for `proof verify --online` (hash + online verdict).
+
+    When `--online` is given, the offline-only sentence ("it does not
+    independently confirm each transaction against the XRPL ledger. Run this
+    same command with --online...") is omitted because the online check WAS
+    requested, and its verdict is included directly in `message`.
+    """
+    from xrpl_camp.proof_pack import (
+        SUPPORTED_PROOF_PACK_SCHEMAS,
+        _verification_receipts,
+    )
+
+    schema = str(pack.get("schema", "") or "")
+    if schema not in SUPPORTED_PROOF_PACK_SCHEMAS:
+        prefix = (
+            f"Proof pack integrity verified against schema "
+            f"{schema or '(missing)'}, which this version of xrpl-camp does "
+            "not recognize: contents match their own recorded hash, but "
+            "this tool cannot confirm it understood every field in a "
+            "schema newer than it knows."
+        )
+    else:
+        prefix = (
+            f"Proof pack integrity verified against schema {schema}: contents "
+            "match their own recorded hash."
+        )
+
+    receipts = _verification_receipts(pack)
+    receipt_note = ""
+    if receipts:
+        n = len(receipts)
+        receipt_note = (
+            f" This pack also carries {n} attached verification "
+            f"{'receipt' if n == 1 else 'receipts'}, which sit OUTSIDE the "
+            "hash and are self-reported log lines -- 'someone's tool said "
+            "this passed on this date' -- not evidence, and they raise this "
+            "result's confidence by exactly nothing."
+        )
+
+    note = (online_note or "").strip()
+    body = f"{prefix} {note}" if note else prefix
+    return f"{body}{receipt_note}"
 
 
 def _reject_proof_verify(
@@ -1052,7 +1102,7 @@ def _reject_proof_verify(
             "valid": False,
             "hash_match": hash_match,
             "recorded": False,
-            "file": str(file),
+            "file": _posix_path(file),
             "code": err.code,
             "message": err.message,
             "hint": err.hint,
@@ -1062,7 +1112,10 @@ def _reject_proof_verify(
 
 
 def _online_skipped_for_dry_run(
-    json_output: bool, offline: dict | None = None,
+    json_output: bool,
+    offline: dict | None = None,
+    *,
+    pack: dict | None = None,
 ) -> typer.Exit:
     """--online under --dry-run: dry-run promises no network calls (1.4.2)."""
     import json as json_mod
@@ -1070,6 +1123,8 @@ def _online_skipped_for_dry_run(
     note = "--online was skipped: --dry-run makes no network calls."
     if json_output:
         doc = dict(offline or {})
+        if isinstance(pack, dict):
+            doc["message"] = _online_message(pack, note)
         doc["recorded"] = False
         doc["online"] = {"status": "skipped", "message": note}
         print(json_mod.dumps(doc, indent=2))
@@ -1117,6 +1172,7 @@ def _verify_online(
     results, summary = _online_check(pack, endpoint, quiet=json_output)
     code = online_exit_code(summary)
     online_status = str(summary.get("status", ""))
+    online_msg = _online_message(pack, str(summary.get("message", "")))
 
     recorded = False
     record_skipped = ""
@@ -1190,7 +1246,8 @@ def _verify_online(
         # One document: the hash result, then the ledger's. "valid" means the
         # pack holds up to every check that was run, so a pack the ledger
         # contradicts is not valid even though its hash matches (1.4.2).
-        doc = dict(offline or {"file": str(file)})
+        doc = dict(offline or {"file": _posix_path(file)})
+        doc["message"] = online_msg
         if online_status == SUMMARY_CONTRADICTED:
             doc["valid"] = False
         doc["recorded"] = recorded
@@ -1390,7 +1447,7 @@ def _verify_folder(
 
     rollup = batch_summary([
         {
-            "file": str(path),
+            "file": _posix_path(path),
             "address": str(pack.get("address", "")),
             "hash_ok": valid,
             "online": summary,
@@ -1417,7 +1474,7 @@ def _verify_folder(
     skip_note = "--online was skipped: --dry-run makes no network calls."
     if json_output:
         out = {
-            "folder": str(folder),
+            "folder": _posix_path(folder),
             "checked": len(results),
             # With --online, "passed" is a clean pass on every check (the
             # rollup's count); packs that couldn't be checked are neither.
@@ -1429,14 +1486,22 @@ def _verify_folder(
             ),
             "packs": [
                 {
-                    "file": str(path),
+                    "file": _posix_path(path),
                     "valid": holds(valid, summary),
                     "hash_match": valid,
                     "address": pack.get("address", ""),
                     "network": pack.get("network", ""),
                     "lessons_completed": len(pack.get("lessons", [])),
                     "sha256": pack.get("sha256", ""),
-                    "message": message,
+                    "message": (
+                        _online_message(pack, str((summary or {}).get("message", "")))
+                        if (check_online and valid)
+                        else (
+                            _online_message(pack, skip_note)
+                            if (skip_online and valid)
+                            else message
+                        )
+                    ),
                     **({"online": summary} if check_online else {}),
                 }
                 for path, valid, message, pack, summary in results

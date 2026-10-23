@@ -869,7 +869,7 @@ def test_record_write_failure_with_json_emits_single_json_error_document(
     assert doc["valid"] is False
     assert doc["hash_match"] is True
     assert doc["recorded"] is False
-    assert doc["file"] == str(path)
+    assert doc["file"] == path.as_posix()
     assert doc["code"] == "ARTIFACT_WRITE_FAILED"
     assert "read-only filesystem" in doc["message"]
     assert doc["hint"]
