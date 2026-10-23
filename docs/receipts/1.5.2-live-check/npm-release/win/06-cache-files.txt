@@ -1,0 +1,1 @@
+./mcptoolshop/xrpl-camp/1.5.2/xrpl-camp-1.5.2-win-x64.exe

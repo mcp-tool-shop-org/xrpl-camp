@@ -1,0 +1,9 @@
+json.loads: one document OK, 3402 chars
+ok = True
+simulated = False
+reserve_measured = True
+network = testnet
+endpoint = https://s.altnet.rippletest.net:51234/
+net_reserve_delta = 0
+mint 84AA33614557EFF7A5D8F645602BEB514D66CEE0D55E4B096477C9DBC11F127F tesSUCCESS owner 0 -> 1 reserve_delta 200000 locked
+burn D6D6952B7D8123625F178297F2AD4A7B3C0A5F04F906B4ABBAC28BA17C518303 tesSUCCESS owner 1 -> 0 reserve_delta -200000 released
