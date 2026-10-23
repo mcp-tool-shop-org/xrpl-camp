@@ -36,65 +36,83 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 2,
-      "changed": 5,
+      "added": 37,
+      "changed": 0,
       "moved": 0,
-      "parts": 5,
+      "parts": 0,
       "removed": 0
     },
     "items": [
       {
-        "kind": "import-added",
-        "sentence": "tests now imports scripts.",
+        "kind": "landing",
+        "sentence": "pyproject.toml is now also read by docs/receipts/1.5.1-live-check/harness/_run_151.sh.",
         "subjects": [
-          "tests",
-          "scripts"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "CI now also checks scripts/.",
-        "subjects": [
-          ".github/workflows/ci.yml",
-          "scripts/"
-        ]
-      },
-      {
-        "kind": "door",
-        "sentence": "Publish now also runs scripts/check_bundle.py.",
-        "subjects": [
-          ".github/workflows/publish.yml",
-          "scripts/check_bundle.py"
+          "pyproject.toml",
+          "docs/receipts/1.5.1-live-check/harness/_run_151.sh"
         ]
       },
       {
         "kind": "landing",
-        "sentence": "scripts/check_bundle.py is now read by tests/test_check_bundle.py.",
+        "sentence": "scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/harness/linux_build_151.sh.",
         "subjects": [
           "scripts/check_bundle.py",
-          "tests/test_check_bundle.py"
+          "docs/receipts/1.5.1-live-check/harness/linux_build_151.sh"
         ]
       },
       {
+        "kind": "landing",
+        "sentence": "xrpl_camp/__main__.py is now read by docs/receipts/1.5.1-live-check/harness/linux_build_151.sh.",
+        "subjects": [
+          "xrpl_camp/__main__.py",
+          "docs/receipts/1.5.1-live-check/harness/linux_build_151.sh"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.1-live-check/README.md"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.1-live-check/dist-info-uv-files.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.1-live-check/dist-info-uv-files.txt"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.1-live-check/harness/_run_151.sh is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.1-live-check/harness/_run_151.sh"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "And 34 more new files that belong to no part.",
+        "subjects": []
+      },
+      {
         "kind": "counts",
-        "sentence": "2 files added and 5 changed content, across 5 parts.",
+        "sentence": "37 files added.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "b74ffff5bb9f5a0096c3675327dd1ddd9caaf2f5",
-      "generatedAt": "2026-10-23T00:36:51.171Z"
+      "commit": "208cbc6f6c54d5ce700b6b60db1cfce57c4bb9a6",
+      "generatedAt": "2026-10-23T02:54:16.163Z"
     },
     "unchanged": false
   },
   "changesTogether": [],
   "changesTogetherNote": [
-    "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
+    "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "208cbc6f6c54d5ce700b6b60db1cfce57c4bb9a6",
+  "commit": "d80aeff0034a6d8915815e4024ff3d4595d44800",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly Python (36 files), shell (11), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
+  "derived": "7 parts, mostly Python (36 files), shell (13), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
     {
       "checks": [
@@ -373,14 +391,14 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-23T02:54:16.163Z",
+  "generatedAt": "2026-10-23T03:17:25.069Z",
   "limits": [
     "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
     "6 reads use paths built at run time and are not named here.",
     "4 writes and 10 reads go to a path their caller passes, not to this repository.",
     "1 write goes to a temporary directory, not to this repository.",
-    "637 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 634 more.",
-    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions."
+    "674 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 671 more.",
+    "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
   ],
   "mainDoor": ".github/workflows/ci.yml",
   "partLabels": {

@@ -1,18 +1,21 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-23 from commit 208cbc6 by Atlas 1.24.0.
+Mapped at 2026-10-23 from commit d80aeff by Atlas 1.24.0.
 
 ## What this is
 
-7 parts, mostly Python (36 files), shell (11), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (36 files), shell (13), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-23 (b74ffff)
+## What changed since 2026-10-23 (208cbc6)
 
-- tests now imports scripts.
-- CI now also checks scripts/.
-- Publish now also runs scripts/check_bundle.py.
-- scripts/check_bundle.py is now read by tests/test_check_bundle.py.
-- 2 files added and 5 changed content, across 5 parts.
+- pyproject.toml is now also read by docs/receipts/1.5.1-live-check/harness/_run_151.sh.
+- scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/harness/linux_build_151.sh.
+- xrpl_camp/__main__.py is now read by docs/receipts/1.5.1-live-check/harness/linux_build_151.sh.
+- docs/receipts/1.5.1-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.1-live-check/dist-info-uv-files.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.1-live-check/harness/_run_151.sh is new and belongs to no part, so atlas check fails on it against the previous map.
+- And 34 more new files that belong to no part.
+- 37 files added.
 
 ## What comes in
 
@@ -57,7 +60,7 @@ CI writes nothing this map can see.
 
 No two source files changed together often enough to name.
 
-Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits.
+Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do.
 
 ## What no test touches
 
@@ -91,7 +94,7 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 - 6 reads use paths built at run time and are not named here.
 - 4 writes and 10 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
-- 637 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 634 more.
-- Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.
+- 674 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 671 more.
+- Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.
