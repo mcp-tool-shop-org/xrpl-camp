@@ -25,7 +25,7 @@
           "path": ".github/workflows/pages.yml"
         },
         {
-          "hash": "15bcfece7ffb7ea6119add877c496e70cf4bfd8a902b5a3e72a767610f628f02",
+          "hash": "cf396f5b418e614907f3deed197295ea743d2e931faa3c6f786c8be81676f281",
           "path": ".github/workflows/publish.yml"
         },
         {
@@ -85,11 +85,15 @@
           "path": ".gitignore"
         },
         {
-          "hash": "ce6c20ed81f85dfd159a339f06aa850a7da41c458de35783aef55d9abae0e4a7",
+          "hash": "923e5f79604a53a4a242a6e663f07b419d91eb115d90104fc9307bc3da15a936",
+          "path": ".polyglot-terms.json"
+        },
+        {
+          "hash": "5de0f134cb7e201a17b16b00d3ee5241a5f15b72d4270b05fd554b6a711e9b0b",
           "path": "BUILD.md"
         },
         {
-          "hash": "4f09400faf8cd1e433161a78a32afc8525ce473898e41008d0b2f9ecfceac2f8",
+          "hash": "4b6239089119476d6c8b8b46a66994010e358fdc6ffa137f7e929b9f67d0dd04",
           "path": "CHANGELOG.md"
         },
         {
@@ -153,11 +157,11 @@
           "path": "docker-entrypoint.sh"
         },
         {
-          "hash": "3f250907242d06392cde4120edc6ebcb05e2ee0ee4aa60c7464822dca8516699",
+          "hash": "75a0947061d673870cb37eda0e67f7e0f05520763e927ed386263f45f6acb425",
           "path": "package.json"
         },
         {
-          "hash": "c7d5c3981a96a5dbda204662cd89cc87c77a02d7fac067cd03bcf142dacf7d11",
+          "hash": "fa7cb4cfc6f3c62be36997de2b4bffcd075423ad622c2e99a45a431d1f20b447",
           "path": "pyproject.toml"
         }
       ],
@@ -1140,7 +1144,7 @@
             "test_unknown_pack_with_record_leaves_bytes_unchanged_and_exits_3",
             "test_valid_pack_with_record_gains_one_receipt_and_keeps_sha256"
           ],
-          "hash": "204a639f56b2ac023a701fbb9bfe753c9bd29094d357ff6f74020fc0cb234dba",
+          "hash": "31535e4b06c8aabd114653264f24a59eb1b79a99a9e4ac854c0d996eae8211d7",
           "importOrder": [
             "tests/helpers.py",
             "xrpl_camp/__init__.py",
@@ -1164,6 +1168,46 @@
             "xrpl_camp/wallet.py"
           ],
           "path": "tests/test_v150_features.py",
+          "testFramework": "pytest"
+        },
+        {
+          "exports": [
+            "test_nft_submit_empty_result_lookup_not_found_with_hash_hint_names_nft_and_real_txid",
+            "test_nft_submit_empty_result_no_hash_hint_omits_verify_tx_and_mentions_explorer_or_account",
+            "test_nft_submit_lapsed_window_during_reserve_mint_uses_nft_hint_with_txid",
+            "test_payment_lesson_unresolved_path_keeps_payment_wording",
+            "test_proof_verify_json_prints_posix_file_separators_on_every_os",
+            "test_proof_verify_online_json_contradicted_pack_counts_checked_lookups",
+            "test_proof_verify_online_json_message_matches_mode_and_omits_offline_prompt",
+            "test_reserve_json_reports_reserve_measured_true_on_measured_path",
+            "test_reserve_not_yet_visible_sets_reserve_measured_false_and_explains_plainly",
+            "test_submit_signed_empty_result_raises_engine_failure_on_non_success_lookup",
+            "test_submit_signed_empty_result_raises_unresolved_when_lookup_not_found_or_unvalidated",
+            "test_submit_signed_empty_result_resolves_validated_tes_success_via_lookup",
+            "test_submit_signed_empty_result_with_no_hash_raises_unresolved"
+          ],
+          "hash": "8c4f4f320f4fcba37aa0a11d10e54f2d58f9fd629a9eb12278827bcfe0878b45",
+          "importOrder": [
+            "tests/helpers.py",
+            "xrpl_camp/__init__.py",
+            "xrpl_camp/lessons.py",
+            "xrpl_camp/transport.py",
+            "xrpl_camp/wallet.py",
+            "xrpl_camp/cli.py",
+            "xrpl_camp/models.py",
+            "xrpl_camp/proof_pack.py"
+          ],
+          "importsFiles": [
+            "tests/helpers.py",
+            "xrpl_camp/__init__.py",
+            "xrpl_camp/cli.py",
+            "xrpl_camp/lessons.py",
+            "xrpl_camp/models.py",
+            "xrpl_camp/proof_pack.py",
+            "xrpl_camp/transport.py",
+            "xrpl_camp/wallet.py"
+          ],
+          "path": "tests/test_v152_fixes.py",
           "testFramework": "pytest"
         },
         {
@@ -1271,7 +1315,7 @@
               "line": 53
             }
           ],
-          "hash": "e7f56ebf59c5f757aea2c3c75ab0ac327f24def29c0ac1eb7254bb00be3b89ce",
+          "hash": "03961ca8cd837716a66ef86c22af0d0ea7880baa40d4629f6221105e885ab49a",
           "path": "xrpl_camp/__init__.py",
           "sequences": []
         },
@@ -1611,170 +1655,170 @@
             {
               "in": "_verify_online",
               "kind": "raise",
-              "line": 1131
+              "line": 1187
             },
             {
               "in": "_verify_online",
               "kind": "except",
-              "line": 1146
+              "line": 1202
             },
             {
               "in": "_verify_online",
               "kind": "raise",
-              "line": 1147
+              "line": 1203
             },
             {
               "in": "_verify_online",
               "kind": "except",
-              "line": 1153
+              "line": 1209
             },
             {
               "in": "_verify_online",
               "kind": "raise",
-              "line": 1154
+              "line": 1210
             },
             {
               "in": "_verify_online",
               "kind": "raise",
-              "line": 1172
+              "line": 1228
             },
             {
               "in": "_verify_folder",
               "kind": "except",
-              "line": 1373
+              "line": 1430
             },
             {
               "in": "reset",
-              "kind": "except",
-              "line": 1517
-            },
-            {
-              "in": "reset",
-              "kind": "raise",
-              "line": 1518
-            },
-            {
-              "in": "reset",
-              "kind": "except",
-              "line": 1538
-            },
-            {
-              "in": "reset",
-              "kind": "except",
-              "line": 1547
-            },
-            {
-              "in": "reset",
-              "kind": "except",
-              "line": 1551
-            },
-            {
-              "in": "reset",
-              "kind": "raise",
-              "line": 1557
-            },
-            {
-              "in": "_dependency_version",
               "kind": "except",
               "line": 1582
             },
             {
+              "in": "reset",
+              "kind": "raise",
+              "line": 1583
+            },
+            {
+              "in": "reset",
+              "kind": "except",
+              "line": 1603
+            },
+            {
+              "in": "reset",
+              "kind": "except",
+              "line": 1612
+            },
+            {
+              "in": "reset",
+              "kind": "except",
+              "line": 1616
+            },
+            {
+              "in": "reset",
+              "kind": "raise",
+              "line": 1622
+            },
+            {
+              "in": "_dependency_version",
+              "kind": "except",
+              "line": 1647
+            },
+            {
               "in": "_tcp_probe",
               "kind": "except",
-              "line": 1627
+              "line": 1692
             },
             {
               "in": "_collect_network_checks",
               "kind": "except",
-              "line": 1664
+              "line": 1729
             },
             {
               "in": "_collect_checks",
               "kind": "except",
-              "line": 1711
+              "line": 1776
             },
             {
               "in": "_collect_checks",
               "kind": "except",
-              "line": 1720
+              "line": 1785
             },
             {
               "in": "_collect_checks",
               "kind": "except",
-              "line": 1734
+              "line": 1799
             },
             {
               "in": "_collect_checks",
               "kind": "except",
-              "line": 1746
+              "line": 1811
             },
             {
               "in": "_diagnostics",
               "kind": "except",
-              "line": 1791
+              "line": 1856
             },
             {
               "in": "self_check",
               "kind": "raise",
-              "line": 1812
+              "line": 1877
             },
             {
               "in": "self_check",
               "kind": "raise",
-              "line": 1831
+              "line": 1896
             },
             {
               "in": "support_bundle",
               "kind": "except",
-              "line": 1928
+              "line": 1993
             },
             {
               "in": "support_bundle",
               "kind": "except",
-              "line": 1934
+              "line": 1999
             },
             {
               "in": "support_bundle",
               "kind": "except",
-              "line": 1946
+              "line": 2011
             },
             {
               "in": "support_bundle",
               "kind": "raise",
-              "line": 1947
+              "line": 2012
             },
             {
               "in": "run",
               "kind": "except",
-              "line": 1980
+              "line": 2045
             },
             {
               "in": "run",
               "kind": "raise",
-              "line": 1984
+              "line": 2049
             },
             {
               "in": "run",
               "kind": "except",
-              "line": 1985
+              "line": 2050
             },
             {
               "in": "run",
               "kind": "raise",
-              "line": 1987
+              "line": 2052
             },
             {
               "in": "run",
               "kind": "except",
-              "line": 1988
+              "line": 2053
             },
             {
               "in": "run",
               "kind": "raise",
-              "line": 1996
+              "line": 2061
             }
           ],
-          "hash": "083ed16009156b78a28701a5f2c95da1ddd16700ce702164909dc27798e8f544",
+          "hash": "6c103098adba6e92eb2bd2cb6b1a2ecb438dc03faa981438610201891557360d",
           "importsFiles": [
             "xrpl_camp/__init__.py",
             "xrpl_camp/certificate.py",
@@ -3025,6 +3069,13 @@
                 },
                 {
                   "branch": "record and not online",
+                  "line": 1042,
+                  "name": "as_posix",
+                  "target": null,
+                  "via": "_posix_path"
+                },
+                {
+                  "branch": "record and not online",
                   "line": 88,
                   "name": "record_error",
                   "target": {
@@ -3098,14 +3149,14 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1329,
+                  "line": 1386,
                   "name": "glob",
                   "target": null,
                   "via": "_packs_in"
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1358,
+                  "line": 1415,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3114,7 +3165,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1362,
+                  "line": 1419,
                   "name": "EXIT_USER",
                   "passed": true,
                   "target": {
@@ -3124,7 +3175,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1367,
+                  "line": 1424,
                   "name": "resolve_verification_endpoint",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3133,7 +3184,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1382,
+                  "line": 1439,
                   "name": "verify_proof_pack",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3142,7 +3193,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1295,
+                  "line": 1352,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3151,7 +3202,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1298,
+                  "line": 1355,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3160,7 +3211,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1300,
+                  "line": 1357,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3169,7 +3220,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1307,
+                  "line": 1364,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3178,7 +3229,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1312,
+                  "line": 1369,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3188,7 +3239,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1315,
+                  "line": 1372,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3197,21 +3248,12 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1320,
+                  "line": 1377,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   },
                   "via": "_online_check_inner"
-                },
-                {
-                  "branch": "file.is_dir()",
-                  "line": 1391,
-                  "name": "batch_summary",
-                  "target": {
-                    "file": "xrpl_camp/proof_pack.py"
-                  },
-                  "via": "_verify_folder"
                 }
               ],
               "exported": true,
@@ -3222,6 +3264,41 @@
             },
             {
               "calls": [
+                {
+                  "line": 1042,
+                  "name": "as_posix",
+                  "target": null
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_posix_path"
+            },
+            {
+              "calls": [
+                {
+                  "line": 1073,
+                  "name": "_verification_receipts",
+                  "target": {
+                    "file": "xrpl_camp/proof_pack.py"
+                  }
+                }
+              ],
+              "exported": false,
+              "invokedAtTopLevel": false,
+              "isDefaultExport": false,
+              "name": "_online_message"
+            },
+            {
+              "calls": [
+                {
+                  "branch": "json_output",
+                  "line": 1042,
+                  "name": "as_posix",
+                  "target": null,
+                  "via": "_posix_path"
+                },
                 {
                   "line": 88,
                   "name": "record_error",
@@ -3247,7 +3324,15 @@
             {
               "calls": [
                 {
-                  "line": 1078,
+                  "line": 1073,
+                  "name": "_verification_receipts",
+                  "target": {
+                    "file": "xrpl_camp/proof_pack.py"
+                  },
+                  "via": "_online_message"
+                },
+                {
+                  "line": 1133,
                   "name": "EXIT_OK",
                   "passed": true,
                   "target": {
@@ -3263,21 +3348,21 @@
             {
               "calls": [
                 {
-                  "line": 1115,
+                  "line": 1170,
                   "name": "resolve_verification_endpoint",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1116,
+                  "line": 1171,
                   "name": "endpoint_claim",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1295,
+                  "line": 1352,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3285,7 +3370,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1298,
+                  "line": 1355,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3293,7 +3378,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1300,
+                  "line": 1357,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3301,7 +3386,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1307,
+                  "line": 1364,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3309,7 +3394,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1312,
+                  "line": 1369,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3318,7 +3403,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1315,
+                  "line": 1372,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3326,7 +3411,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1320,
+                  "line": 1377,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3334,28 +3419,36 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1118,
+                  "line": 1173,
                   "name": "online_exit_code",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1127,
+                  "line": 1073,
+                  "name": "_verification_receipts",
+                  "target": {
+                    "file": "xrpl_camp/proof_pack.py"
+                  },
+                  "via": "_online_message"
+                },
+                {
+                  "line": 1183,
                   "name": "build_verification_receipt",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1128,
+                  "line": 1184,
                   "name": "record_verification",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1129,
+                  "line": 1185,
                   "name": "verify_proof_pack",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3363,7 +3456,7 @@
                 },
                 {
                   "branch": "not mem_valid",
-                  "line": 1132,
+                  "line": 1188,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3371,12 +3464,19 @@
                 },
                 {
                   "branch": "not mem_valid",
-                  "line": 1137,
+                  "line": 1193,
                   "name": "EXIT_RUNTIME",
                   "passed": true,
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
+                },
+                {
+                  "branch": "not mem_valid",
+                  "line": 1042,
+                  "name": "as_posix",
+                  "target": null,
+                  "via": "_posix_path"
                 },
                 {
                   "branch": "not mem_valid",
@@ -3397,26 +3497,26 @@
                   "via": "_fail"
                 },
                 {
-                  "line": 1144,
+                  "line": 1200,
                   "name": "write_proof_pack_atomic",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1145,
+                  "line": 1201,
                   "name": "read_text",
                   "target": null
                 },
                 {
-                  "line": 1155,
+                  "line": 1211,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
                 },
                 {
-                  "line": 1163,
+                  "line": 1219,
                   "name": "EXIT_RUNTIME",
                   "passed": true,
                   "target": {
@@ -3424,39 +3524,23 @@
                   }
                 },
                 {
-                  "line": 1170,
+                  "line": 1226,
                   "name": "verify_proof_pack",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
-                  }
-                },
-                {
-                  "branch": "not post_valid",
-                  "line": 1173,
-                  "name": "CampError",
-                  "target": {
-                    "file": "xrpl_camp/errors.py"
-                  }
-                },
-                {
-                  "branch": "not post_valid",
-                  "line": 1181,
-                  "name": "EXIT_RUNTIME",
-                  "passed": true,
-                  "target": {
-                    "file": "xrpl_camp/errors.py"
                   }
                 }
               ],
               "exported": false,
               "invokedAtTopLevel": false,
               "isDefaultExport": false,
-              "name": "_verify_online"
+              "name": "_verify_online",
+              "truncated": true
             },
             {
               "calls": [
                 {
-                  "line": 1295,
+                  "line": 1352,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3464,7 +3548,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1298,
+                  "line": 1355,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3472,7 +3556,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1300,
+                  "line": 1357,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3480,7 +3564,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1307,
+                  "line": 1364,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3488,7 +3572,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1312,
+                  "line": 1369,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3497,7 +3581,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1315,
+                  "line": 1372,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3505,7 +3589,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1320,
+                  "line": 1377,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3521,35 +3605,35 @@
             {
               "calls": [
                 {
-                  "line": 1295,
+                  "line": 1352,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1298,
+                  "line": 1355,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1300,
+                  "line": 1357,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1307,
+                  "line": 1364,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1312,
+                  "line": 1369,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3557,14 +3641,14 @@
                   }
                 },
                 {
-                  "line": 1315,
+                  "line": 1372,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1320,
+                  "line": 1377,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3579,7 +3663,7 @@
             {
               "calls": [
                 {
-                  "line": 1329,
+                  "line": 1386,
                   "name": "glob",
                   "target": null
                 }
@@ -3592,14 +3676,14 @@
             {
               "calls": [
                 {
-                  "line": 1329,
+                  "line": 1386,
                   "name": "glob",
                   "target": null,
                   "via": "_packs_in"
                 },
                 {
                   "branch": "not packs",
-                  "line": 1358,
+                  "line": 1415,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3607,7 +3691,7 @@
                 },
                 {
                   "branch": "not packs",
-                  "line": 1362,
+                  "line": 1419,
                   "name": "EXIT_USER",
                   "passed": true,
                   "target": {
@@ -3649,21 +3733,21 @@
                   "via": "_simulating"
                 },
                 {
-                  "line": 1367,
+                  "line": 1424,
                   "name": "resolve_verification_endpoint",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1382,
+                  "line": 1439,
                   "name": "verify_proof_pack",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1295,
+                  "line": 1352,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3671,7 +3755,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1298,
+                  "line": 1355,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3679,7 +3763,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1300,
+                  "line": 1357,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3687,7 +3771,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1307,
+                  "line": 1364,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3695,7 +3779,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1312,
+                  "line": 1369,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3704,7 +3788,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1315,
+                  "line": 1372,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3712,7 +3796,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1320,
+                  "line": 1377,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3720,11 +3804,26 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1391,
+                  "line": 1042,
+                  "name": "as_posix",
+                  "target": null,
+                  "via": "_posix_path"
+                },
+                {
+                  "line": 1448,
                   "name": "batch_summary",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
+                },
+                {
+                  "branch": "json_output",
+                  "line": 1073,
+                  "name": "_verification_receipts",
+                  "target": {
+                    "file": "xrpl_camp/proof_pack.py"
+                  },
+                  "via": "_online_message"
                 }
               ],
               "exported": false,
@@ -3751,21 +3850,21 @@
                   "via": "_simulating"
                 },
                 {
-                  "line": 1510,
+                  "line": 1575,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1516,
+                  "line": 1581,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1518,
+                  "line": 1583,
                   "name": "STATE_DIR",
                   "passed": true,
                   "target": {
@@ -3773,7 +3872,7 @@
                   }
                 },
                 {
-                  "line": 1518,
+                  "line": 1583,
                   "name": "delete_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3796,7 +3895,7 @@
                   "via": "_fail"
                 },
                 {
-                  "line": 1546,
+                  "line": 1611,
                   "name": "STATE_DIR",
                   "passed": true,
                   "target": {
@@ -3804,14 +3903,14 @@
                   }
                 },
                 {
-                  "line": 1550,
+                  "line": 1615,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1557,
+                  "line": 1622,
                   "name": "STATE_DIR",
                   "passed": true,
                   "target": {
@@ -3819,7 +3918,7 @@
                   }
                 },
                 {
-                  "line": 1557,
+                  "line": 1622,
                   "name": "delete_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3834,28 +3933,28 @@
             {
               "calls": [
                 {
-                  "line": 1643,
+                  "line": 1708,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1649,
+                  "line": 1714,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1663,
+                  "line": 1728,
                   "name": "get_network_id",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1677,
+                  "line": 1742,
                   "name": "get_faucet_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3870,28 +3969,28 @@
             {
               "calls": [
                 {
-                  "line": 1726,
+                  "line": 1791,
                   "name": "get_state_dir",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1727,
+                  "line": 1792,
                   "name": "state_is_directory_local",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1728,
+                  "line": 1793,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1730,
+                  "line": 1795,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -3906,7 +4005,7 @@
             {
               "calls": [
                 {
-                  "line": 1726,
+                  "line": 1791,
                   "name": "get_state_dir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -3914,7 +4013,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1727,
+                  "line": 1792,
                   "name": "state_is_directory_local",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -3922,7 +4021,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1728,
+                  "line": 1793,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -3930,7 +4029,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1730,
+                  "line": 1795,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -3938,7 +4037,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1643,
+                  "line": 1708,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3946,7 +4045,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1649,
+                  "line": 1714,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3954,7 +4053,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1663,
+                  "line": 1728,
                   "name": "get_network_id",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3962,7 +4061,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1677,
+                  "line": 1742,
                   "name": "get_faucet_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3978,7 +4077,7 @@
             {
               "calls": [
                 {
-                  "line": 1726,
+                  "line": 1791,
                   "name": "get_state_dir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -3986,7 +4085,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1727,
+                  "line": 1792,
                   "name": "state_is_directory_local",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -3994,7 +4093,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1728,
+                  "line": 1793,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4002,7 +4101,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1730,
+                  "line": 1795,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4010,7 +4109,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1643,
+                  "line": 1708,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4018,7 +4117,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1649,
+                  "line": 1714,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4026,7 +4125,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1663,
+                  "line": 1728,
                   "name": "get_network_id",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4034,7 +4133,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1677,
+                  "line": 1742,
                   "name": "get_faucet_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4043,7 +4142,7 @@
                 },
                 {
                   "branch": "failed",
-                  "line": 1812,
+                  "line": 1877,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -4051,7 +4150,7 @@
                 },
                 {
                   "branch": "failed",
-                  "line": 1816,
+                  "line": 1881,
                   "name": "EXIT_USER",
                   "passed": true,
                   "target": {
@@ -4078,7 +4177,7 @@
                 },
                 {
                   "branch": "os.environ.get(\"XRPL_CAMP_RPC_URL\", \"\").strip()",
-                  "line": 1831,
+                  "line": 1896,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -4086,7 +4185,7 @@
                 },
                 {
                   "branch": "os.environ.get(\"XRPL_CAMP_RPC_URL\", \"\").strip()",
-                  "line": 1835,
+                  "line": 1900,
                   "name": "EXIT_USER",
                   "passed": true,
                   "target": {
@@ -4102,7 +4201,7 @@
             {
               "calls": [
                 {
-                  "line": 1726,
+                  "line": 1791,
                   "name": "get_state_dir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4110,7 +4209,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1727,
+                  "line": 1792,
                   "name": "state_is_directory_local",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4118,7 +4217,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1728,
+                  "line": 1793,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4126,7 +4225,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1730,
+                  "line": 1795,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4134,7 +4233,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1643,
+                  "line": 1708,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4142,7 +4241,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1649,
+                  "line": 1714,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4150,7 +4249,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1663,
+                  "line": 1728,
                   "name": "get_network_id",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4158,7 +4257,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1677,
+                  "line": 1742,
                   "name": "get_faucet_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4166,14 +4265,14 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1873,
+                  "line": 1938,
                   "name": "read_error_history",
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
                 },
                 {
-                  "line": 1902,
+                  "line": 1967,
                   "name": "STATE_DIR",
                   "passed": true,
                   "target": {
@@ -4181,42 +4280,42 @@
                   }
                 },
                 {
-                  "line": 1903,
+                  "line": 1968,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1904,
+                  "line": 1969,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1905,
+                  "line": 1970,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1918,
+                  "line": 1983,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1933,
+                  "line": 1998,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1947,
+                  "line": 2012,
                   "name": "write_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -4247,14 +4346,14 @@
             {
               "calls": [
                 {
-                  "line": 1982,
+                  "line": 2047,
                   "name": "record_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
                 },
                 {
-                  "line": 1983,
+                  "line": 2048,
                   "name": "format_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -4576,45 +4675,45 @@
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2827
+              "line": 2829
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2832
+              "line": 2834
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2847
+              "line": 2849
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2862
+              "line": 2864
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2867
+              "line": 2869
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2894
+              "line": 2896
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2931
+              "line": 2933
             },
             {
               "in": "_guided_flow",
               "kind": "except",
-              "line": 3072
+              "line": 3075
             }
           ],
-          "hash": "64650727be9b9e1b9f567d395cb6a6f1445dbf66ba81f9d45fb74327f2f6607e",
+          "hash": "a977858d03954491ca5895ab6e637d60b351d906c47407962f90a0c33e784120",
           "importsFiles": [
             "xrpl_camp/__init__.py",
             "xrpl_camp/certificate.py",
@@ -7839,7 +7938,7 @@
                   "via": "_classify"
                 },
                 {
-                  "line": 2536,
+                  "line": 2538,
                   "name": "send_error",
                   "passed": true,
                   "target": {
@@ -7847,7 +7946,7 @@
                   }
                 },
                 {
-                  "line": 2550,
+                  "line": 2552,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -7862,7 +7961,7 @@
             {
               "calls": [
                 {
-                  "line": 2569,
+                  "line": 2571,
                   "name": "ReserveMove",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7877,7 +7976,7 @@
             {
               "calls": [
                 {
-                  "line": 2626,
+                  "line": 2628,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7892,7 +7991,7 @@
             {
               "calls": [
                 {
-                  "line": 2702,
+                  "line": 2704,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7907,14 +8006,14 @@
             {
               "calls": [
                 {
-                  "line": 2718,
+                  "line": 2720,
                   "name": "is_dry_run",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 2729,
+                  "line": 2731,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7922,7 +8021,7 @@
                   "via": "_run_reserve_inner"
                 },
                 {
-                  "line": 2730,
+                  "line": 2732,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7931,7 +8030,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2569,
+                  "line": 2571,
                   "name": "ReserveMove",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7940,7 +8039,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2702,
+                  "line": 2704,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7958,7 +8057,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2626,
+                  "line": 2628,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8117,14 +8216,14 @@
             {
               "calls": [
                 {
-                  "line": 2729,
+                  "line": 2731,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 2730,
+                  "line": 2732,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8132,7 +8231,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2569,
+                  "line": 2571,
                   "name": "ReserveMove",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8141,7 +8240,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2702,
+                  "line": 2704,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8159,7 +8258,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2626,
+                  "line": 2628,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8326,14 +8425,14 @@
             {
               "calls": [
                 {
-                  "line": 3024,
+                  "line": 3027,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
                 },
                 {
-                  "line": 3025,
+                  "line": 3028,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8348,7 +8447,7 @@
             {
               "calls": [
                 {
-                  "line": 3069,
+                  "line": 3072,
                   "name": "get_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8356,7 +8455,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3069,
+                  "line": 3072,
                   "name": "set_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8364,7 +8463,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3071,
+                  "line": 3074,
                   "name": "get_or_create",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8372,7 +8471,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3073,
+                  "line": 3076,
                   "name": "CampFailure",
                   "passed": true,
                   "target": {
@@ -8381,7 +8480,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3073,
+                  "line": 3076,
                   "name": "state_corrupt_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8450,7 +8549,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3024,
+                  "line": 3027,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8459,7 +8558,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3025,
+                  "line": 3028,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8548,28 +8647,28 @@
             {
               "calls": [
                 {
-                  "line": 3069,
+                  "line": 3072,
                   "name": "get_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3069,
+                  "line": 3072,
                   "name": "set_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3071,
+                  "line": 3074,
                   "name": "get_or_create",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3073,
+                  "line": 3076,
                   "name": "CampFailure",
                   "passed": true,
                   "target": {
@@ -8577,7 +8676,7 @@
                   }
                 },
                 {
-                  "line": 3073,
+                  "line": 3076,
                   "name": "state_corrupt_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8645,7 +8744,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3024,
+                  "line": 3027,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8654,7 +8753,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3025,
+                  "line": 3028,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -9290,15 +9389,15 @@
             {
               "in": "apply_attestation_warnings",
               "kind": "except",
-              "line": 977
+              "line": 983
             },
             {
               "in": "apply_attestation_warnings",
               "kind": "raise",
-              "line": 978
+              "line": 984
             }
           ],
-          "hash": "2d3827a1af4547492640d8b3f76d90fa79f411aef4831253c2e2ea4e40a8d8a0",
+          "hash": "5e03ac9ea1a10ce26d0cacada8dc08416c256fd32f014ca43865802f2e3a588b",
           "importsFiles": [
             "xrpl_camp/__init__.py",
             "xrpl_camp/certificate.py",
@@ -9424,7 +9523,7 @@
             {
               "calls": [
                 {
-                  "line": 978,
+                  "line": 984,
                   "name": "PackGenerationError",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
@@ -9823,60 +9922,90 @@
             {
               "in": "_submit_signed",
               "kind": "except",
-              "line": 2484
+              "line": 2508
             },
             {
               "in": "_submit_signed",
               "kind": "except",
-              "line": 2490
+              "line": 2514
             },
             {
               "in": "_submit_signed",
               "kind": "raise",
-              "line": 2493
+              "line": 2525
             },
             {
               "in": "_submit_signed",
               "kind": "raise",
-              "line": 2499
+              "line": 2532
+            },
+            {
+              "in": "_submit_signed",
+              "kind": "raise",
+              "line": 2545
+            },
+            {
+              "in": "_resolve_submitted_tx",
+              "kind": "raise",
+              "line": 2568
+            },
+            {
+              "in": "_resolve_submitted_tx",
+              "kind": "except",
+              "line": 2580
+            },
+            {
+              "in": "_resolve_submitted_tx",
+              "kind": "raise",
+              "line": 2581
+            },
+            {
+              "in": "_resolve_submitted_tx",
+              "kind": "raise",
+              "line": 2600
+            },
+            {
+              "in": "_resolve_submitted_tx",
+              "kind": "raise",
+              "line": 2610
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2572
+              "line": 2687
             },
             {
               "in": "account_nfts",
               "kind": "except",
-              "line": 2582
+              "line": 2697
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2583
+              "line": 2698
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2589
+              "line": 2704
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2593
+              "line": 2708
             },
             {
               "in": "mint_nft",
               "kind": "raise",
-              "line": 2623
+              "line": 2738
             },
             {
               "in": "burn_nft",
               "kind": "raise",
-              "line": 2653
+              "line": 2768
             }
           ],
-          "hash": "b136ecad0cdf79dea251e0048b11c9c51e037f2cf8fc274c1f796fcb4b21a2b2",
+          "hash": "6d49c6ab6b35afe1b743075c16e0d31022625ffd6c3d2edb834bf0c9d33b227a",
           "importsFiles": [
             "xrpl_camp/errors.py"
           ],
@@ -9976,7 +10105,7 @@
       "outsideReads": 10,
       "outsideWrites": 5,
       "role": "code",
-      "testedBy": 22,
+      "testedBy": 23,
       "unresolvedNamed": [
         {
           "path": "xrpl_camp/cli.py",
@@ -10212,7 +10341,7 @@
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 25
+          "files": 26
         },
         {
           "boundary": "xrpl_camp",
@@ -11311,8 +11440,8 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "d6388e5a8fd92b7047da28c57bf6908656251c4a",
-    "tracked": 866
+    "commit": "aa6856a96fa4edac5feb9fab4d63897eb10f7954",
+    "tracked": 932
   },
   "landings": [
     {
@@ -11442,6 +11571,11 @@
           "confidence": "text"
         },
         {
+          "by": "docs/receipts/1.5.2-live-check/harness/linux_build_152.sh",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
           "by": "tests/test_check_bundle.py",
           "call": "literal",
           "confidence": "ast",
@@ -11501,6 +11635,11 @@
           "by": "docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh",
           "call": "literal",
           "confidence": "text"
+        },
+        {
+          "by": "docs/receipts/1.5.2-live-check/harness/linux_build_152.sh",
+          "call": "literal",
+          "confidence": "text"
         }
       ],
       "target": "xrpl_camp/__main__.py",
@@ -11510,7 +11649,7 @@
   "overlaps": [],
   "submodules": [],
   "symlinks": [],
-  "testFiles": 33,
+  "testFiles": 34,
   "testsNotRun": [
     "tests/test_certificate.py",
     "tests/test_check_bundle.py",
@@ -11531,6 +11670,7 @@
     "tests/test_v142_audit_fixes.py",
     "tests/test_v142_live_check_fixes.py",
     "tests/test_v150_features.py",
+    "tests/test_v152_fixes.py",
     "tests/test_version.py",
     "tests/test_wallet.py",
     "tests/test_xrpl_models.py"
@@ -14635,6 +14775,262 @@
     {
       "hash": "28ae3bce2e9569c61aeb0d8fb8d053f835999162b1aff4a6da477c4d01669c15",
       "path": "docs/receipts/1.5.1-live-check/sysconfigdata-home-paths.txt"
+    },
+    {
+      "hash": "fcf6ba269d53cd98d35982986a62d5c0bc5552bb48b04ca059b9b828e59eeac0",
+      "path": "docs/receipts/1.5.2-live-check/README.md"
+    },
+    {
+      "hash": "99a11cfdaddcd60d13d59135d2f30b2569f9bb69b56ba133c0025d8f7e03ca28",
+      "path": "docs/receipts/1.5.2-live-check/harness/_run_152.sh"
+    },
+    {
+      "hash": "76ec2c9aa1bc158031eb1f2d97d1bf1341f58d6af7f65e4e514829c16c83bdf6",
+      "path": "docs/receipts/1.5.2-live-check/harness/camp_run.sh"
+    },
+    {
+      "hash": "aa4f4273c8fc230af82b3755153ea922656eb586686ac3dc0e96565b26356c66",
+      "path": "docs/receipts/1.5.2-live-check/harness/forge_pack.py.txt"
+    },
+    {
+      "hash": "8a44aac2b47e663836d94204a75698421a22b2889785e615c09e169c3cdd1e47",
+      "path": "docs/receipts/1.5.2-live-check/harness/linux_build_152.sh"
+    },
+    {
+      "hash": "9862ff2ae4a1d0e767b2b02261027945a820d4ec518f162086da401e423169e4",
+      "path": "docs/receipts/1.5.2-live-check/harness/parse_verify_152.py.txt"
+    },
+    {
+      "hash": "cf2417dabcb76e8a4d08878f7aace4ffc4e9e232cbda00513556c8178e870d18",
+      "path": "docs/receipts/1.5.2-live-check/identity-scan-152-linux.txt"
+    },
+    {
+      "hash": "8b1b22b07e39464afbea03198e361451b27f2c09a1bd069a28f587a1d671dfc8",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/00-uv-python-dir-before.txt"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/01-python-install.exit"
+    },
+    {
+      "hash": "66bc9db83ef917a9da316fc459d1a41e87404e90657647a22bf903b026657f5d",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/01-python-install.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/02-venv.exit"
+    },
+    {
+      "hash": "61e83d9c5dd8e97e73152cbe6f7e810547f8f1dc0de46c53fcbf02736a8933c9",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/02-venv.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/03-install.exit"
+    },
+    {
+      "hash": "e4bcea2bd1c29bf433102548865a5bb097d3ff219d41e49d575daa143adb2f5b",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/03-install.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/04-remove-direct-url.exit"
+    },
+    {
+      "hash": "8cc3fc4704a052f1aa9d50526c8b4f564978cee6a39ca4923fbe4495c69b295e",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/04-remove-direct-url.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/05-pyinstaller.exit"
+    },
+    {
+      "hash": "14c399f7a0fc19689961e637e6946fe33b58260a6a3f30b4fc931b9016760347",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/05-pyinstaller.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/06-rename.exit"
+    },
+    {
+      "hash": "996754284bdaf8e51d228405bedf58c5615b69a9c717dbc37f4f8df3059a9a50",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/06-rename.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/07-check-bundle.exit"
+    },
+    {
+      "hash": "fbc401e8e02c6b129cf59f602871fe010f7e2b1716ae8466a78b5d644dc3fac4",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/07-check-bundle.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/08-check-bundle-list.exit"
+    },
+    {
+      "hash": "01346760f9cf4687da7ba0142dc22f6b55375ad0325fd2f84feb229e938b7644",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/08-check-bundle-list.log"
+    },
+    {
+      "hash": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/09-neg-control-150.exit"
+    },
+    {
+      "hash": "fa215e70b4cc689568ef59dfd3761162d8e44922a40a7d9fce8ae1c7b0b8d97f",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/09-neg-control-150.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/10-version.exit"
+    },
+    {
+      "hash": "4233133b6cf64ca47b7a1f6a16cc6116fab46e45ccb13fd394dfcc9847a09cb4",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/10-version.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/11-self-check.exit"
+    },
+    {
+      "hash": "e56a7d2b30348906a08e6f5384a6aba34dd7ae7b08f4418686b196755649eba4",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/11-self-check.log"
+    },
+    {
+      "hash": "448c20096f444b0cbf3d39b16e853ed20c137771b6fc99199fa5d30063b6ca24",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/dist-sha256.txt"
+    },
+    {
+      "hash": "6dddb8cedadc99e6db0cba843d0155f08f6b4a89206bdc29dca3d4b8b2786e97",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/file.txt"
+    },
+    {
+      "hash": "82453375978f975f8d2e4b5c90ed9bf78a34b4e8eabcdff348a0b7f70c7f4972",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/head.txt"
+    },
+    {
+      "hash": "54163064fc4d746449f635a7e92498c0223f16f9cf21d87de7924bc00679d12f",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/neg-control-sha256.txt"
+    },
+    {
+      "hash": "88f304400f025f23d2685cc077bc4f42eb79982be86cb81c5273fb1498601374",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/uv-version.txt"
+    },
+    {
+      "hash": "c35b56d8e792ddfe358abad610c97d61dd2696b8cbcf8a13a5b76881f6b7bea4",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/versions.txt"
+    },
+    {
+      "hash": "816783d61d78893f06b85e0f72e7887c99f24fbc6fefe1f2ed80e9ec420d9279",
+      "path": "docs/receipts/1.5.2-live-check/testnet/code.txt"
+    },
+    {
+      "hash": "a55a947d95a72d68d1cc72bfe2ac70bd7452177ec86effcb2b996bdb684cc8cf",
+      "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.err"
+    },
+    {
+      "hash": "d87ac8b04a842e09bf3372dfa2cdf27d30d8f94db4ff054f8f7dae42d346043d",
+      "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.out"
+    },
+    {
+      "hash": "ee103d1ab9f19e7d0abae1f86949aac4c3615740e4097cfbb5cce17811ad56ba",
+      "path": "docs/receipts/1.5.2-live-check/testnet/course/preflight.txt"
+    },
+    {
+      "hash": "81f481309011ff40b60b9f2a85af42b71fe974408851f82b7bd6f30699b3e5a9",
+      "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-parse-check.txt"
+    },
+    {
+      "hash": "9bf019984ca57eafbd4ee379a35c0efd9e82e6e0446d35007947b6d827f58b9c",
+      "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.cmd"
+    },
+    {
+      "hash": "91cf54708b6573ca37fcdc9079cf84bdd2f7349d8aa79e80af3f0e5b81278914",
+      "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.err"
+    },
+    {
+      "hash": "f2974dfe5dd81eea71e90967ad82363f9fee2b3c923de60c53b00fe997d8dd76",
+      "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.out"
+    },
+    {
+      "hash": "60bfb2ffaa3d1f9326f30bd0e09ba3886d64ff9ce1be52c59db05f12056b5af3",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/00-forge.txt"
+    },
+    {
+      "hash": "a1ebdd22225fef2a7365c9c21561e6f61dabc23edebd41356b7898ea024cb01d",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.cmd"
+    },
+    {
+      "hash": "02a1ec7409a5b9a01af542d6db368c2eca42edaf1cc07cbaffc95a6e94953bb9",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.err"
+    },
+    {
+      "hash": "ab84b6c4442a98325d785b8d941907c45caf192c24b28c7bf43148d209dc439d",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.out"
+    },
+    {
+      "hash": "11df167aae6e9128b4896eb5d620f014e6b73b1f3615be47a1c2cb44e4aab797",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.err"
+    },
+    {
+      "hash": "f914113ab2711e5af216916bc355422302fda7e2d56f0add3235475accf4c2c8",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.out"
+    },
+    {
+      "hash": "67de1e9c9272fff63373bf1f203e4a82e43a8a4996b4d8ff44c72fc15955eba0",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.err"
+    },
+    {
+      "hash": "539a53a004cf1364d6011f77485afe9a7632259362701a1e834add28bb7673bb",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.out"
+    },
+    {
+      "hash": "87c990e1ea2c4c217d734be2a83ae89656e2e183b9a7119cb148a111f9f72e4f",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.err"
+    },
+    {
+      "hash": "ddb3a94dd44e25b5575a2f0b59ac4c5e4a82bc6913383dd471a189e4a7c5c25f",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.out"
+    },
+    {
+      "hash": "0b383097cfd2e58f1ff4716c2dc1dbd81100ff02a39b35245b6b94983293a0de",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.err"
+    },
+    {
+      "hash": "3f9e9db5f30246f95ca9224d67bdd4653cc5f425dbc89cc66894ba34e81592ed",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.out"
+    },
+    {
+      "hash": "beb0d8d9a5ef543b510d69680d64d087e56044e1493975f802229ad2a46afc3f",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/30-parse-check.txt"
+    },
+    {
+      "hash": "a39e3c3c464dd73a8f1f08756add9addf48c0eeb6232d87fb859fc29382ddb58",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/packs/forged.json"
+    },
+    {
+      "hash": "4a0f6be24a9fa565932119b5888154e1ee73d03887cf07658c8ab3b2a69efa62",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/packs/honest.json"
     }
   ]
 }

@@ -1,23 +1,18 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-23 from commit d6388e5 by Atlas 1.24.0.
+Mapped at 2026-10-23 from commit aa6856a by Atlas 1.24.0.
 
 ## What this is
 
-7 parts, mostly Python (36 files), shell (19), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (37 files), shell (22), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-23 (99efab6)
+## What changed since 2026-10-23 (bc289d9)
 
-- scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/npm-release/harness/_run_npm151_linux.sh.
-- docs/receipts/1.5.1-live-check/npm-release/checksums-1.5.1.txt is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.5.1-live-check/npm-release/harness/_run_npm151_linux.sh is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.5.1-live-check/npm-release/harness/npm_release_check.sh is new and belongs to no part, so atlas check fails on it against the previous map.
-- And 63 more new files that belong to no part.
-- 66 files added and 2 changed content, across 1 part.
+Nothing structural changed since 2026-10-23; 4 files changed content.
 
 ## What comes in
 
-1. **CI.** On a pull request; on a push touching 12 paths; or by hand. Runs scripts/check-versions.sh and scripts/verify.sh; checks bin/xrpl-camp.js, xrpl_camp/, scripts/ and 25 more.
+1. **CI.** On a pull request; on a push touching 12 paths; or by hand. Runs scripts/check-versions.sh and scripts/verify.sh; checks bin/xrpl-camp.js, xrpl_camp/, scripts/ and 26 more.
 2. **Publish.** When a tag matching `v*` is pushed; or by hand. On a tag push, it runs docker-entrypoint.sh, scripts/check_bundle.py, scripts/verify-pypi-publish.sh and 1 more; builds xrpl_camp/__main__.py; checks xrpl_camp/; packs LICENSE, README.md and pyproject.toml into an image.
 3. **Deploy site to GitHub Pages.** On a push to main touching 2 paths; or by hand. Runs site/astro.config.mjs and site/src/.
 4. **Release (npm).** When a tag matching `v*` is pushed; or by hand. Runs scripts/check-versions.sh.
@@ -56,9 +51,11 @@ CI writes nothing this map can see.
 
 ## What tends to change together
 
-No two source files changed together often enough to name.
+- **xrpl_camp/cli.py** and **xrpl_camp/lessons.py** changed together in 4 of 6 commits, inside the xrpl_camp part.
 
-Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits.
+Confidence is low: fewer than 25 source files reach 10 revisions in the window.
+
+Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do.
 
 ## What no test touches
 
@@ -92,7 +89,7 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 - 6 reads use paths built at run time and are not named here.
 - 4 writes and 10 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
-- 775 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 772 more.
-- Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.
+- 839 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 836 more.
+- Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.

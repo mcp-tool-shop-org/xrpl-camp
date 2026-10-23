@@ -1,0 +1,49 @@
+{
+  "address": "rNWkd1duWrxaGHSB5p342osdVdK8eKF2A7",
+  "issued_at": "2026-10-23T06:54:44.170183+00:00",
+  "lessons": [
+    {
+      "completed_at": "2026-10-23T06:54:20.177636+00:00",
+      "lesson": 1,
+      "name": "Mental Model"
+    },
+    {
+      "completed_at": "2026-10-23T06:54:20.202567+00:00",
+      "lesson": 2,
+      "name": "Create Wallet"
+    },
+    {
+      "completed_at": "2026-10-23T06:54:32.282221+00:00",
+      "lesson": 3,
+      "name": "Fund Wallet"
+    },
+    {
+      "close_time_iso": "2026-10-23T06:54:41Z",
+      "completed_at": "2026-10-23T06:54:43.712122+00:00",
+      "explorer_url": "https://testnet.xrpl.org/transactions/1A08DAFB2A6FE0DF4D0877E88A48CD767BBB524675EA5CB03EFFC83E7B20EBD0",
+      "ledger_index": 21754285,
+      "lesson": 4,
+      "memo": "book keeper v1.5.2 live check",
+      "name": "Send Payment",
+      "txid": "1A08DAFB2A6FE0DF4D0877E88A48CD767BBB524675EA5CB03EFFC83E7B20EBD0"
+    },
+    {
+      "completed_at": "2026-10-23T06:54:44.154191+00:00",
+      "lesson": 5,
+      "name": "Verify Transaction"
+    },
+    {
+      "completed_at": "2026-10-23T06:54:44.164645+00:00",
+      "lesson": 6,
+      "name": "Certificate"
+    }
+  ],
+  "network": "testnet",
+  "rpc_url": "https://s.altnet.rippletest.net:51234/",
+  "schema": "xrpl-camp-proof-pack-v1",
+  "sha256": "sha256:5b0eff1e01b433ff1d083bfb3e2dfb284d7768825c8d0c61cbad64745ece4549",
+  "tool_version": "1.5.2",
+  "txids": {
+    "lesson_4": "1A08DAFB2A6FE0DF4D0877E88A48CD767BBB524675EA5CB03EFFC83E7B20EBD0"
+  }
+}

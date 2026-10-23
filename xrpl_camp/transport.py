@@ -2459,6 +2459,29 @@ class ReserveMove:
         return -(self.spendable_delta - self.balance_delta)
 
 
+def _nft_unresolved_hint(txid: str = "", account: str = "", url: str = "") -> str:
+    """Actionable hint when an NFT mint or burn submission is unresolved."""
+    clean_txid = str(txid or "").strip()
+    if clean_txid:
+        return (
+            "Do NOT run reserve again — that could mint a second NFT. "
+            f"Look it up first with 'xrpl-camp verify --tx {clean_txid}'."
+        )
+    addr = str(account or "").strip()
+    link = explorer_account_url_for(addr, url) if addr else ""
+    if link:
+        where = f"for {addr} on the testnet explorer ({link})"
+    elif addr:
+        where = f"for {addr} on the testnet explorer"
+    else:
+        where = "on the testnet explorer"
+    return (
+        "Do NOT run reserve again — that could mint a second NFT. "
+        "This outcome can't be looked up by hash; check your account's NFTs "
+        f"{where} before running 'xrpl-camp reserve' again."
+    )
+
+
 def _submit_signed(tx, wallet, url: str):
     """Autofill, sign and submit `tx`; return the validated result dict.
 
@@ -2472,6 +2495,7 @@ def _submit_signed(tx, wallet, url: str):
 
     assert_safe_network(url)
     client = JsonRpcClient(url)
+    account = str(getattr(wallet, "address", "") or getattr(tx, "account", "") or "")
 
     to_submit = tx
     txid = ""
@@ -2490,16 +2514,107 @@ def _submit_signed(tx, wallet, url: str):
     except Exception as e:
         logger.debug("submit %s failed after %.2fs: %s: %s",
                      url, time.monotonic() - started, type(e).__name__, e)
-        raise _submission_failure(e, url, txid, last_ledger, 0) from e
+        if txid and _LAPSE_RE.search(str(e)):
+            match = _LAPSE_RE.search(str(e))
+            if match and not last_ledger:
+                last_ledger = int(match.group(2))
+            return _resolve_submitted_tx(txid, last_ledger, url, account=account)
+        failure = _submission_failure(e, url, txid, last_ledger, 0)
+        if isinstance(failure, XRPLSubmissionUnresolved):
+            effective_txid = failure.txid or txid
+            raise XRPLSubmissionUnresolved(
+                failure.error.message,
+                txid=effective_txid,
+                last_ledger=failure.last_ledger or last_ledger,
+                hint=_nft_unresolved_hint(effective_txid, account=account, url=url),
+                detail=failure.error.detail,
+            ) from e
+        raise failure from e
     logger.debug("submit %s in %.2fs", url, time.monotonic() - started)
 
     result = response.result or {}
     engine_result = str(_meta(result).get("TransactionResult", "") or "")
-    if engine_result and engine_result != "tesSUCCESS":
+    if not engine_result:
+        return _resolve_submitted_tx(
+            str(result.get("hash", "") or txid).strip(),
+            last_ledger,
+            url,
+            account=account,
+        )
+    if engine_result != "tesSUCCESS":
         raise _engine_failure(engine_result)
     if "hash" not in result and txid:
         result = {**result, "hash": txid}
     return result
+
+
+def _resolve_submitted_tx(
+    txid: str,
+    last_ledger: int,
+    url: str,
+    *,
+    account: str = "",
+) -> dict:
+    """Resolve a submission response that returned without ``TransactionResult``.
+
+    An empty ``TransactionResult`` is not ``tesSUCCESS``. Look up the signed
+    transaction hash via :func:`_fetch_tx`: return the validated ``tesSUCCESS``
+    dict on confirmation, raise :func:`_engine_failure` on a validated
+    non-``tesSUCCESS`` code, or raise :class:`XRPLSubmissionUnresolved` when
+    there is no hash, the lookup fails, the transaction is not found, or it is
+    not yet validated.
+    """
+    if not txid:
+        raise XRPLSubmissionUnresolved(
+            "Submission returned without a TransactionResult or transaction "
+            "hash, so xrpl-camp cannot look up whether it landed on the ledger.",
+            txid="",
+            last_ledger=last_ledger,
+            hint=_nft_unresolved_hint("", account=account, url=url),
+            detail=f"submit without TransactionResult or hash at {url}",
+        )
+
+    hint = _nft_unresolved_hint(txid, account=account, url=url)
+    try:
+        response, looked_up = _fetch_tx(txid, url)
+    except XRPLTransportError as lookup_err:
+        raise XRPLSubmissionUnresolved(
+            f"Submission returned without a TransactionResult and looking up "
+            f"{txid} on the ledger failed: {lookup_err}",
+            txid=txid,
+            last_ledger=last_ledger,
+            hint=hint,
+            detail=(
+                f"lookup error after empty TransactionResult at {url}: "
+                f"{lookup_err.error.detail}"
+            ),
+        ) from lookup_err
+
+    if response is not None and response.is_successful() and looked_up.get("validated"):
+        code = str(_meta(looked_up).get("TransactionResult", "") or "")
+        if code == "tesSUCCESS":
+            if "hash" not in looked_up:
+                looked_up = {**looked_up, "hash": txid}
+            return looked_up
+        if code:
+            raise _engine_failure(
+                code,
+                f"tx {txid} resolved after empty TransactionResult with {code} at {url}",
+            )
+
+    error = str(looked_up.get("error", "") or "")
+    detail = (
+        f"tx {txid} lookup after empty TransactionResult returned "
+        f"{error or 'unvalidated'} at {url}"
+    )
+    raise XRPLSubmissionUnresolved(
+        f"Submission returned without a TransactionResult and {txid} is not "
+        f"confirmed on the ledger.",
+        txid=txid,
+        last_ledger=last_ledger,
+        hint=hint,
+        detail=detail,
+    )
 
 
 def _reserve_move(result: dict, before, after, nftoken_id: str = "") -> ReserveMove:

@@ -1,0 +1,14 @@
+import json,sys,pathlib
+R=pathlib.Path(sys.argv[1]); BS=chr(92)
+for n in ('20-folder-online-json','21-honest-online-json','22-forged-online-json','23-honest-offline-json'):
+    s=(R/f'{n}.out').read_text(encoding='utf-8'); d=json.loads(s)
+    print(f'== {n}: one JSON document, {len(s)} chars')
+    docs=d['packs'] if 'packs' in d else [d]
+    if 'packs' in d: print('  folder =',d['folder'],'| checked =',d['checked'],'passed =',d['passed'],'failed =',d['failed'])
+    for p in docs:
+        on=p.get('online') or {}
+        print('  file =',p['file'],'| valid =',p['valid'],'| hash_match =',p['hash_match'],'| backslash in file:', BS in p['file'])
+        print('    online.status =',on.get('status','<none>'),'| online.checked =',on.get('checked','<none>'),'| online.total_lookups =',on.get('total_lookups','<none>'))
+        m=p.get('message','')
+        print('    "--online" in message:', '--online' in m, '| "Run this same command" in message:', 'Run this same command' in m)
+        print('    message:', m)

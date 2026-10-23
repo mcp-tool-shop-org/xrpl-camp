@@ -1,0 +1,25 @@
+== 20-folder-online-json: one JSON document, 2239 chars
+  folder = packs | checked = 2 passed = 1 failed = 1
+  file = packs/forged.json | valid = False | hash_match = True | backslash in file: False
+    online.status = contradicted | online.checked = 1 | online.total_lookups = 1
+    "--online" in message: False | "Run this same command" in message: False
+    message: Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. 1 of 1 transactions do not match what the ledger says. The ledger is the authority here, not this file.
+  file = packs/honest.json | valid = True | hash_match = True | backslash in file: False
+    online.status = confirmed | online.checked = 1 | online.total_lookups = 1
+    "--online" in message: False | "Run this same command" in message: False
+    message: Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.
+== 21-honest-online-json: one JSON document, 5130 chars
+  file = packs/honest.json | valid = True | hash_match = True | backslash in file: False
+    online.status = confirmed | online.checked = 1 | online.total_lookups = 1
+    "--online" in message: False | "Run this same command" in message: False
+    message: Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.
+== 22-forged-online-json: one JSON document, 5385 chars
+  file = packs/forged.json | valid = False | hash_match = True | backslash in file: False
+    online.status = contradicted | online.checked = 1 | online.total_lookups = 1
+    "--online" in message: False | "Run this same command" in message: False
+    message: Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. 1 of 1 transactions do not match what the ledger says. The ledger is the authority here, not this file.
+== 23-honest-offline-json: one JSON document, 752 chars
+  file = packs/honest.json | valid = True | hash_match = True | backslash in file: False
+    online.status = <none> | online.checked = <none> | online.total_lookups = <none>
+    "--online" in message: True | "Run this same command" in message: True
+    message: Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. This confirms the file has not been edited since it was written -- it does not independently confirm each transaction against the XRPL ledger. Run this same command with --online to check every transaction against the network, or look each txid up yourself in a block explorer.

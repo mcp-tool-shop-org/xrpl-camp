@@ -2533,6 +2533,8 @@ def _camp_nftoken_id(nft: object) -> str:
 
 def _burn_failed_error(nftoken_id: str, exc: Exception) -> CampError:
     """Structured error when burning an NFT fails."""
+    if isinstance(exc, transport.XRPLSubmissionUnresolved):
+        return exc.error
     base = _classify(exc, send_error)
     token_id = str(nftoken_id or "").strip()
     if token_id:
@@ -2952,8 +2954,8 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
     elif not_yet_visible:
         console.print(
             "\n  [yellow]Note:[/yellow] The ledger read after the mint did not show it "
-            "yet, so the reserve change could not be measured; the transaction link "
-            "shows what happened.",
+            "yet, so the reserve change could not be measured this time; the "
+            "transaction link shows what happened.",
         )
     else:
         console.print(
@@ -2967,6 +2969,7 @@ def _run_reserve_inner(*, dry_run: bool, json_output: bool) -> int:
         doc: dict = {
             "ok": True,
             "simulated": False,
+            "reserve_measured": not not_yet_visible,
             "address": address,
             "network": network,
             "endpoint": url,
