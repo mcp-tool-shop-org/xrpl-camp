@@ -209,6 +209,206 @@ def test_submit_signed_empty_result_with_no_hash_raises_unresolved(monkeypatch):
     assert exc_info.value.error.retryable is False
 
 
+def test_nft_submit_empty_result_lookup_not_found_with_hash_hint_names_nft_and_real_txid(
+    monkeypatch,
+):
+    from xrpl.models import NFTokenMint
+    from xrpl.wallet import Wallet
+
+    w = Wallet.create()
+    signed_state = _stub_submit_without_tx_result(monkeypatch, presign_ok=True)
+    payload = {"error": "txnNotFound", "error_message": "Transaction not found."}
+    monkeypatch.setattr(
+        transport,
+        "_fetch_tx",
+        lambda txid, url: (make_response(payload, successful=False), payload),
+    )
+
+    tx = NFTokenMint(account=w.address, nftoken_taxon=0, uri=transport._to_hex("xrpl-camp"))
+    with pytest.raises(transport.XRPLSubmissionUnresolved) as exc_info:
+        transport._submit_signed(tx, w, transport.TESTNET_URL)
+
+    hint = exc_info.value.error.hint
+    real_txid = str(signed_state["txid"])
+    assert real_txid
+    assert "NFT" in hint
+    assert "payment" not in hint.lower()
+    assert "<hash>" not in hint
+    assert f"xrpl-camp verify --tx {real_txid}" in hint
+
+
+def test_nft_submit_empty_result_no_hash_hint_omits_verify_tx_and_mentions_explorer_or_account(
+    monkeypatch,
+):
+    from xrpl.models import NFTokenMint
+    from xrpl.wallet import Wallet
+
+    w = Wallet.create()
+    _stub_submit_without_tx_result(monkeypatch, presign_ok=False)
+    monkeypatch.setattr(
+        transport,
+        "_fetch_tx",
+        lambda *a, **k: pytest.fail("_fetch_tx must not run when there is no hash"),
+    )
+
+    tx = NFTokenMint(account=w.address, nftoken_taxon=0, uri=transport._to_hex("xrpl-camp"))
+    with pytest.raises(transport.XRPLSubmissionUnresolved) as exc_info:
+        transport._submit_signed(tx, w, transport.TESTNET_URL)
+
+    hint = exc_info.value.error.hint
+    assert "verify --tx" not in hint
+    assert "<hash>" not in hint
+    assert "payment" not in hint.lower()
+    assert "NFT" in hint
+    assert "explorer" in hint.lower()
+    assert w.address in hint
+
+
+def test_nft_submit_lapsed_window_during_reserve_mint_uses_nft_hint_with_txid(
+    monkeypatch,
+):
+    import xrpl.clients
+    import xrpl.transaction
+    from xrpl.models import NFTokenMint
+    from xrpl.wallet import Wallet
+
+    w = Wallet.create()
+
+    class DummyClient:
+        def __init__(self, url: str) -> None:
+            self.url = url
+
+    monkeypatch.setattr(xrpl.clients, "JsonRpcClient", DummyClient)
+    monkeypatch.setattr(transport, "assert_safe_network", lambda url=None: None)
+    monkeypatch.setattr(
+        transport,
+        "_spendable_detail",
+        lambda address, url=None, *, fee_drops=0: (
+            99_000_000,
+            True,
+            transport.AccountSummary(100_000_000, 50000, 0, 7),
+            1_000_000,
+            200_000,
+        ),
+    )
+
+    signed_txid: list[str] = []
+
+    def fake_autofill(tx, client, wallet_arg, **kwargs):
+        filled = NFTokenMint.from_dict(
+            {
+                **tx.to_dict(),
+                "fee": "10",
+                "sequence": 7,
+                "last_ledger_sequence": 910,
+            }
+        )
+        signed = xrpl.transaction.sign(filled, wallet_arg)
+        signed_txid.append(str(signed.get_hash()))
+        return signed
+
+    def lapsed_submit(tx, client, wallet_arg, **kwargs):
+        raise RuntimeError(
+            "The latest validated ledger sequence 912 is greater than LastLedgerSequence 910."
+        )
+
+    payload = {"error": "txnNotFound", "error_message": "Transaction not found."}
+    monkeypatch.setattr(xrpl.transaction, "autofill_and_sign", fake_autofill)
+    monkeypatch.setattr(xrpl.transaction, "submit_and_wait", lapsed_submit)
+    monkeypatch.setattr(
+        transport,
+        "_fetch_tx",
+        lambda txid, url: (make_response(payload, successful=False), payload),
+    )
+
+    with pytest.raises(transport.XRPLSubmissionUnresolved) as exc_info:
+        transport.mint_nft(w.seed, url=transport.TESTNET_URL)
+
+    real_txid = signed_txid[0]
+    hint = exc_info.value.error.hint
+    assert "NFT" in hint
+    assert "payment" not in hint.lower()
+    assert "<hash>" not in hint
+    assert f"xrpl-camp verify --tx {real_txid}" in hint
+    assert exc_info.value.txid == real_txid
+    assert exc_info.value.last_ledger == 910
+
+
+def test_payment_lesson_unresolved_path_keeps_payment_wording(monkeypatch):
+    import xrpl.clients
+    import xrpl.transaction
+    from xrpl.models import Payment
+    from xrpl.wallet import Wallet
+
+    sender = Wallet.create()
+    dest = Wallet.create()
+
+    class DummyClient:
+        def __init__(self, url: str) -> None:
+            self.url = url
+
+    monkeypatch.setattr(xrpl.clients, "JsonRpcClient", DummyClient)
+    monkeypatch.setattr(transport, "assert_safe_network", lambda url=None: None)
+    monkeypatch.setattr(
+        transport,
+        "_spendable_detail",
+        lambda address, url=None, *, fee_drops=0: (
+            99_000_000,
+            True,
+            transport.AccountSummary(100_000_000, 50000, 0, 7),
+            1_000_000,
+            200_000,
+        ),
+    )
+
+    def fake_autofill(tx, client, wallet_arg, **kwargs):
+        filled = Payment.from_dict(
+            {
+                **tx.to_dict(),
+                "fee": "10",
+                "sequence": 7,
+                "last_ledger_sequence": 910,
+            }
+        )
+        return xrpl.transaction.sign(filled, wallet_arg)
+
+    def lapsed_submit(tx, client, wallet_arg, **kwargs):
+        raise RuntimeError(
+            "The latest validated ledger sequence 912 is greater than LastLedgerSequence 910."
+        )
+
+    payload = {"error": "txnNotFound", "error_message": "Transaction not found."}
+    monkeypatch.setattr(xrpl.transaction, "autofill_and_sign", fake_autofill)
+    monkeypatch.setattr(xrpl.transaction, "submit_and_wait", lapsed_submit)
+    monkeypatch.setattr(
+        transport,
+        "_fetch_tx",
+        lambda txid, url: (make_response(payload, successful=False), payload),
+    )
+
+    with pytest.raises(transport.XRPLSubmissionUnresolved) as exc_info:
+        transport.send_memo_payment(
+            sender.seed,
+            "hello",
+            dest.address,
+            url=transport.TESTNET_URL,
+            amount_drops=1_000_000,
+        )
+
+    hint = exc_info.value.error.hint
+    assert hint == transport.XRPLSubmissionUnresolved.default_hint
+    assert "Do NOT send again — that would write a second payment." in hint
+    # Also assert that NFT submission does NOT share the payment wording:
+    assert "payment" in hint.lower()
+    # And compare with _resolve_submitted_tx on an NFT submission to ensure they differ:
+    with pytest.raises(transport.XRPLSubmissionUnresolved) as nft_exc:
+        transport._resolve_submitted_tx(
+            exc_info.value.txid, 910, transport.TESTNET_URL
+        )
+    assert "NFT" in nft_exc.value.error.hint
+    assert "payment" not in nft_exc.value.error.hint.lower()
+
+
 # ---------------------------------------------------------------------------
 # 2. #20.2: `reserve --json` `reserve_measured` and human-readable note
 # ---------------------------------------------------------------------------

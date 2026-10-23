@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   confirms a validated `tesSUCCESS`, raises the matching engine failure on a
   validated non-`tesSUCCESS` result, and raises `XRPLSubmissionUnresolved` when
   the transaction is not found, not yet validated, or has no hash to look up.
+  The unresolved hint now names the NFT rather than a payment and only offers a
+  `verify --tx <txid>` lookup when there is a transaction hash (pointing to the
+  account's NFTs on the explorer when there is no hash).
 - **`xrpl-camp reserve --json` reports `"reserve_measured"` explicitly.**
   When the ledger read right after the mint does not yet show the new owner
   reserve (`not_yet_visible`), `reserve --json` now sets `"reserve_measured": false`

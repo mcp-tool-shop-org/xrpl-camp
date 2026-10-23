@@ -93,7 +93,7 @@
           "path": "BUILD.md"
         },
         {
-          "hash": "66f35e0b891710927ca9655d4544daf9d55e572a46709fc70105f1507c0d6ac3",
+          "hash": "4b6239089119476d6c8b8b46a66994010e358fdc6ffa137f7e929b9f67d0dd04",
           "path": "CHANGELOG.md"
         },
         {
@@ -1172,6 +1172,10 @@
         },
         {
           "exports": [
+            "test_nft_submit_empty_result_lookup_not_found_with_hash_hint_names_nft_and_real_txid",
+            "test_nft_submit_empty_result_no_hash_hint_omits_verify_tx_and_mentions_explorer_or_account",
+            "test_nft_submit_lapsed_window_during_reserve_mint_uses_nft_hint_with_txid",
+            "test_payment_lesson_unresolved_path_keeps_payment_wording",
             "test_proof_verify_json_prints_posix_file_separators_on_every_os",
             "test_proof_verify_online_json_contradicted_pack_counts_checked_lookups",
             "test_proof_verify_online_json_message_matches_mode_and_omits_offline_prompt",
@@ -1182,7 +1186,7 @@
             "test_submit_signed_empty_result_resolves_validated_tes_success_via_lookup",
             "test_submit_signed_empty_result_with_no_hash_raises_unresolved"
           ],
-          "hash": "df0a03a231acfdd3fd536f4f33bfd8fa06d0b4b13f59993fb6cd02ec314ca6b1",
+          "hash": "8c4f4f320f4fcba37aa0a11d10e54f2d58f9fd629a9eb12278827bcfe0878b45",
           "importOrder": [
             "tests/helpers.py",
             "xrpl_camp/__init__.py",
@@ -4671,45 +4675,45 @@
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2827
+              "line": 2829
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2832
+              "line": 2834
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2847
+              "line": 2849
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2862
+              "line": 2864
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2867
+              "line": 2869
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2894
+              "line": 2896
             },
             {
               "in": "_run_reserve_inner",
               "kind": "except",
-              "line": 2931
+              "line": 2933
             },
             {
               "in": "_guided_flow",
               "kind": "except",
-              "line": 3073
+              "line": 3075
             }
           ],
-          "hash": "b4de9d307b0cb166d9319a079e3319b3a12850d4b33ca06105cc16c6897e49f0",
+          "hash": "a977858d03954491ca5895ab6e637d60b351d906c47407962f90a0c33e784120",
           "importsFiles": [
             "xrpl_camp/__init__.py",
             "xrpl_camp/certificate.py",
@@ -7934,7 +7938,7 @@
                   "via": "_classify"
                 },
                 {
-                  "line": 2536,
+                  "line": 2538,
                   "name": "send_error",
                   "passed": true,
                   "target": {
@@ -7942,7 +7946,7 @@
                   }
                 },
                 {
-                  "line": 2550,
+                  "line": 2552,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -7957,7 +7961,7 @@
             {
               "calls": [
                 {
-                  "line": 2569,
+                  "line": 2571,
                   "name": "ReserveMove",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7972,7 +7976,7 @@
             {
               "calls": [
                 {
-                  "line": 2626,
+                  "line": 2628,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -7987,7 +7991,7 @@
             {
               "calls": [
                 {
-                  "line": 2702,
+                  "line": 2704,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8002,14 +8006,14 @@
             {
               "calls": [
                 {
-                  "line": 2718,
+                  "line": 2720,
                   "name": "is_dry_run",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 2729,
+                  "line": 2731,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8017,7 +8021,7 @@
                   "via": "_run_reserve_inner"
                 },
                 {
-                  "line": 2730,
+                  "line": 2732,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8026,7 +8030,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2569,
+                  "line": 2571,
                   "name": "ReserveMove",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8035,7 +8039,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2702,
+                  "line": 2704,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8053,7 +8057,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2626,
+                  "line": 2628,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8212,14 +8216,14 @@
             {
               "calls": [
                 {
-                  "line": 2729,
+                  "line": 2731,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 2730,
+                  "line": 2732,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8227,7 +8231,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2569,
+                  "line": 2571,
                   "name": "ReserveMove",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8236,7 +8240,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2702,
+                  "line": 2704,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8254,7 +8258,7 @@
                 },
                 {
                   "branch": "dry_run",
-                  "line": 2626,
+                  "line": 2628,
                   "name": "explorer_url_for_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -8421,14 +8425,14 @@
             {
               "calls": [
                 {
-                  "line": 3025,
+                  "line": 3027,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
                 },
                 {
-                  "line": 3026,
+                  "line": 3028,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8443,7 +8447,7 @@
             {
               "calls": [
                 {
-                  "line": 3070,
+                  "line": 3072,
                   "name": "get_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8451,7 +8455,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3070,
+                  "line": 3072,
                   "name": "set_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8459,7 +8463,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3072,
+                  "line": 3074,
                   "name": "get_or_create",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -8467,7 +8471,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3074,
+                  "line": 3076,
                   "name": "CampFailure",
                   "passed": true,
                   "target": {
@@ -8476,7 +8480,7 @@
                   "via": "_guided_flow"
                 },
                 {
-                  "line": 3074,
+                  "line": 3076,
                   "name": "state_corrupt_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8545,7 +8549,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3025,
+                  "line": 3027,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8554,7 +8558,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3026,
+                  "line": 3028,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8643,28 +8647,28 @@
             {
               "calls": [
                 {
-                  "line": 3070,
+                  "line": 3072,
                   "name": "get_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3070,
+                  "line": 3072,
                   "name": "set_execution_mode",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3072,
+                  "line": 3074,
                   "name": "get_or_create",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 3074,
+                  "line": 3076,
                   "name": "CampFailure",
                   "passed": true,
                   "target": {
@@ -8672,7 +8676,7 @@
                   }
                 },
                 {
-                  "line": 3074,
+                  "line": 3076,
                   "name": "state_corrupt_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8740,7 +8744,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3025,
+                  "line": 3027,
                   "name": "is_verbose",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -8749,7 +8753,7 @@
                 },
                 {
                   "branch": "not result",
-                  "line": 3026,
+                  "line": 3028,
                   "name": "strip",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -9918,85 +9922,90 @@
             {
               "in": "_submit_signed",
               "kind": "except",
-              "line": 2484
+              "line": 2508
             },
             {
               "in": "_submit_signed",
               "kind": "except",
-              "line": 2490
+              "line": 2514
             },
             {
               "in": "_submit_signed",
               "kind": "raise",
-              "line": 2493
+              "line": 2525
             },
             {
               "in": "_submit_signed",
               "kind": "raise",
-              "line": 2503
+              "line": 2532
+            },
+            {
+              "in": "_submit_signed",
+              "kind": "raise",
+              "line": 2545
             },
             {
               "in": "_resolve_submitted_tx",
               "kind": "raise",
-              "line": 2520
+              "line": 2568
             },
             {
               "in": "_resolve_submitted_tx",
               "kind": "except",
-              "line": 2530
+              "line": 2580
             },
             {
               "in": "_resolve_submitted_tx",
               "kind": "raise",
-              "line": 2531
+              "line": 2581
             },
             {
               "in": "_resolve_submitted_tx",
               "kind": "raise",
-              "line": 2549
+              "line": 2600
             },
             {
               "in": "_resolve_submitted_tx",
               "kind": "raise",
-              "line": 2559
+              "line": 2610
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2635
+              "line": 2687
             },
             {
               "in": "account_nfts",
               "kind": "except",
-              "line": 2645
+              "line": 2697
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2646
+              "line": 2698
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2652
+              "line": 2704
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2656
+              "line": 2708
             },
             {
               "in": "mint_nft",
               "kind": "raise",
-              "line": 2686
+              "line": 2738
             },
             {
               "in": "burn_nft",
               "kind": "raise",
-              "line": 2716
+              "line": 2768
             }
           ],
-          "hash": "90889a2b912568af7c352366e3ed0eb251eee05483cb983272de8f5f5e12cff3",
+          "hash": "6d49c6ab6b35afe1b743075c16e0d31022625ffd6c3d2edb834bf0c9d33b227a",
           "importsFiles": [
             "xrpl_camp/errors.py"
           ],
@@ -11431,7 +11440,7 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "bc289d9751079362e6a4c0fe7cb27e98f35596cf",
+    "commit": "aa6856a96fa4edac5feb9fab4d63897eb10f7954",
     "tracked": 932
   },
   "landings": [

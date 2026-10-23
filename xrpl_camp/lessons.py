@@ -2533,6 +2533,8 @@ def _camp_nftoken_id(nft: object) -> str:
 
 def _burn_failed_error(nftoken_id: str, exc: Exception) -> CampError:
     """Structured error when burning an NFT fails."""
+    if isinstance(exc, transport.XRPLSubmissionUnresolved):
+        return exc.error
     base = _classify(exc, send_error)
     token_id = str(nftoken_id or "").strip()
     if token_id:
