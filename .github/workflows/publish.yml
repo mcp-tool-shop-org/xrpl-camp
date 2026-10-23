@@ -120,6 +120,18 @@ jobs:
 
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
 
+      - name: Set neutral UV_PYTHON_INSTALL_DIR outside user home
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            echo "UV_PYTHON_INSTALL_DIR=C:\\uv-python" >> "$GITHUB_ENV"
+            mkdir -p /c/uv-python
+          else
+            sudo mkdir -p /opt/uv-python
+            sudo chown "$USER" /opt/uv-python
+            echo "UV_PYTHON_INSTALL_DIR=/opt/uv-python" >> "$GITHUB_ENV"
+          fi
+
       - run: uv python install 3.12
 
       - run: uv venv
@@ -153,7 +165,7 @@ jobs:
           mv "dist/xrpl-camp${{ matrix.ext }}" "dist/${OUTNAME}"
           echo "ASSET_NAME=${OUTNAME}" >> "$GITHUB_ENV"
 
-      - name: Check bundle archive for direct_url.json
+      - name: Check bundle archive for direct_url.json and _sysconfigdata home paths
         shell: bash
         run: uv run --no-sync python scripts/check_bundle.py "dist/$ASSET_NAME"
 
