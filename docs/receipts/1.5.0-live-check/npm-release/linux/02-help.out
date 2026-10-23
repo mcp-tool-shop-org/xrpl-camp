@@ -1,0 +1,41 @@
+                                                                                
+ Usage: xrpl-camp [OPTIONS] COMMAND [ARGS]...                                   
+                                                                                
+ XRPL Camp — learn the XRP Ledger in one sitting.                               
+                                                                                
+╭─ Options ────────────────────────────────────────────────────────────────────╮
+│ --version                       Show the installed version and exit          │
+│ --dry-run                       Simulate every command in this run: no       │
+│                                 network calls, no disk writes                │
+│ --yes                 -y        Non-interactive: never wait for a keypress   │
+│                                 (RESET still asks)                           │
+│ --verbose                       Include technical detail with errors         │
+│ --install-completion            Install completion for the current shell.    │
+│ --show-completion               Show completion for the current shell, to    │
+│                                 copy it or customize the installation.       │
+│ --help                          Show this message and exit.                  │
+╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Commands ───────────────────────────────────────────────────────────────────╮
+│ start           Guided flow through all 6 lessons.                           │
+│ status          Show your training progress.                                 │
+│ wallet          Create or display your Testnet wallet. 'create' writes a     │
+│                 seed to disk.                                                │
+│ fund            Fund your wallet via the Testnet faucet.                     │
+│ send            Send a memo payment on the XRPL Testnet. Defaults to your    │
+│                 own mailbox.                                                 │
+│ read            Read entries back off the ledger: yours, somebody else's, or │
+│                 one hash.                                                    │
+│ try             Break it on purpose against the live network. Signs nothing, │
+│                 costs nothing.                                               │
+│ reserve         Mint an NFT, then burn it, and watch the owner reserve lock  │
+│                 and come back.                                               │
+│ verify          Verify a transaction you sent, on the XRPL Testnet.          │
+│ certificate     Generate a completion certificate and proof pack (--format   │
+│                 text adds a .txt keepsake).                                  │
+│ reset           Wipe all XRPL Camp state (.xrpl-camp/ directory).            │
+│ self-check      Diagnose your environment and your connection to the ledger. │
+│ support-bundle  Write a diagnostic zip for bug reports. Attach it to your    │
+│                 issue.                                                       │
+│ proof           Proof pack commands.                                         │
+╰──────────────────────────────────────────────────────────────────────────────╯
+
