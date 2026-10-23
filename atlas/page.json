@@ -36,76 +36,67 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 35,
-      "changed": 1,
+      "added": 66,
+      "changed": 2,
       "moved": 0,
-      "parts": 0,
+      "parts": 1,
       "removed": 0
     },
     "items": [
       {
         "kind": "landing",
-        "sentence": "scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/harness/_run_151_g1.sh and docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh.",
+        "sentence": "scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/npm-release/harness/_run_npm151_linux.sh.",
         "subjects": [
           "scripts/check_bundle.py",
-          "docs/receipts/1.5.1-live-check/harness/_run_151_g1.sh",
-          "docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh"
-        ]
-      },
-      {
-        "kind": "landing",
-        "sentence": "xrpl_camp/__main__.py is now also read by docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh.",
-        "subjects": [
-          "xrpl_camp/__main__.py",
-          "docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh"
+          "docs/receipts/1.5.1-live-check/npm-release/harness/_run_npm151_linux.sh"
         ]
       },
       {
         "kind": "unassigned",
-        "sentence": "docs/receipts/1.5.1-live-check/g1-44dc45a/identity-scan-151-g1-linux.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "sentence": "docs/receipts/1.5.1-live-check/npm-release/checksums-1.5.1.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          "docs/receipts/1.5.1-live-check/g1-44dc45a/identity-scan-151-g1-linux.txt"
+          "docs/receipts/1.5.1-live-check/npm-release/checksums-1.5.1.txt"
         ]
       },
       {
         "kind": "unassigned",
-        "sentence": "docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/00-uv-python-dir-before.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "sentence": "docs/receipts/1.5.1-live-check/npm-release/harness/_run_npm151_linux.sh is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          "docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/00-uv-python-dir-before.txt"
+          "docs/receipts/1.5.1-live-check/npm-release/harness/_run_npm151_linux.sh"
         ]
       },
       {
         "kind": "unassigned",
-        "sentence": "docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/01-python-install.exit is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "sentence": "docs/receipts/1.5.1-live-check/npm-release/harness/npm_release_check.sh is new and belongs to no part, so atlas check fails on it against the previous map.",
         "subjects": [
-          "docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/01-python-install.exit"
+          "docs/receipts/1.5.1-live-check/npm-release/harness/npm_release_check.sh"
         ]
       },
       {
         "kind": "unassigned",
-        "sentence": "And 32 more new files that belong to no part.",
+        "sentence": "And 63 more new files that belong to no part.",
         "subjects": []
       },
       {
         "kind": "counts",
-        "sentence": "35 files added and 1 changed content.",
+        "sentence": "66 files added and 2 changed content, across 1 part.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "db6d63e8e524e68caf54d04c88bd0d0325f9801e",
-      "generatedAt": "2026-10-23T03:52:09.272Z"
+      "commit": "99efab67898d7e614c65680a7b97445772597287",
+      "generatedAt": "2026-10-23T04:11:19.042Z"
     },
     "unchanged": false
   },
   "changesTogether": [],
   "changesTogetherNote": [
-    "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
+    "Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "99efab67898d7e614c65680a7b97445772597287",
+  "commit": "d6388e5a8fd92b7047da28c57bf6908656251c4a",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly Python (36 files), shell (15), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
+  "derived": "7 parts, mostly Python (36 files), shell (19), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
     {
       "checks": [
@@ -384,14 +375,14 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-23T04:11:19.042Z",
+  "generatedAt": "2026-10-23T04:36:48.022Z",
   "limits": [
     "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
     "6 reads use paths built at run time and are not named here.",
     "4 writes and 10 reads go to a path their caller passes, not to this repository.",
     "1 write goes to a temporary directory, not to this repository.",
-    "709 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 706 more.",
-    "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
+    "775 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 772 more.",
+    "Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions."
   ],
   "mainDoor": ".github/workflows/ci.yml",
   "partLabels": {
