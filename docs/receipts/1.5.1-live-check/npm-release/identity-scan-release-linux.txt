@@ -1,0 +1,10 @@
+HIT gmail <scratch>/npm-151-release-20261023T0434Z/linux/xrpl-camp-1.5.1-linux-x64!carchive/base_library.zip/io.pyc:@0x847
+HIT home-path <scratch>/npm-151-release-20261023T0434Z/linux/xrpl-camp-1.5.1-linux-x64!carchive/base_library.zip/ntpath.pyc:@0x1976
+HIT home-path <scratch>/npm-151-release-20261023T0434Z/linux/xrpl-camp-1.5.1-linux-x64!carchive/libpython3.12.so.1.0:@0x58857c
+HIT gmail <scratch>/npm-151-release-20261023T0434Z/linux/xrpl-camp-1.5.1-linux-x64!carchive/libpython3.12.so.1.0:@0x578467
+HIT gmail <scratch>/npm-151-release-20261023T0434Z/linux/xrpl-camp-1.5.1-linux-x64!pyz/PYZ.pyz/bz2.pyc-body:@0x1b9
+HIT gmail <scratch>/npm-151-release-20261023T0434Z/linux/xrpl-camp-1.5.1-linux-x64!pyz/PYZ.pyz/httpx/_urls.pyc-body:@0x320a
+HIT gmail <scratch>/npm-151-release-20261023T0434Z/linux/xrpl-camp-1.5.1-linux-x64!pyz/PYZ.pyz/pygments/lexers/gdscript.pyc-body:@0x111
+HIT gmail <scratch>/npm-151-release-20261023T0434Z/linux/xrpl-camp-1.5.1-linux-x64!pyz/PYZ.pyz/rich/_spinners.pyc-body:@0x448
+RESULT HIT 8
+exit 1

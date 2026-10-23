@@ -1,4 +1,4 @@
-# 1.5.1 Linux build check on `854c31f`, then the G1 re-check on `44dc45a`
+# 1.5.1 Linux build check on `854c31f`, the G1 re-check on `44dc45a`, and the released npm package
 
 This is the check the Editor asked for on **`854c31f`** (PR #25, `fix/1.5.1-build-record` → `main`). 1.5.1 removes
 the PEP 610 `direct_url.json` build record from the build venv before PyInstaller runs, and adds
@@ -42,6 +42,12 @@ The scan still reports 9 hits. 8 are third party. **1 is not: the build machine'
 (G1 below).** The released 1.5.0 Linux asset carries the same `_sysconfigdata` path, as
 `/home/runner/work/_temp/uv-python-dir/…`, alongside its `direct_url.json`. So a CI build of 1.5.1 will carry it too
 until G1 is fixed.
+
+**The released package, `@mcptoolshop/xrpl-camp@1.5.1`, passes on Windows and on Linux** (the
+"released npm package" section below).
+- `npx --yes` from fresh caches prints `xrpl-camp 1.5.1`, and the help reads `Usage: xrpl-camp …`.
+- The downloaded binaries match `checksums-1.5.1.txt`.
+- `check_bundle.py` passes the CI-built linux asset (exit 0). That is the CI counterpart to the local G1 check.
 
 ## The build
 
@@ -163,6 +169,43 @@ still needs his written exception naming them.
 
 **What the re-check doesn't cover:** the macOS and Windows legs, and the workflow's `sudo mkdir` / `chown` lines.
 
+## The released npm package, `@mcptoolshop/xrpl-camp@1.5.1` — PASS (`npm-release/`)
+
+1.5.1 is released: tag `v1.5.1` on `07ffbb6`, the npm package, and the GitHub release assets. This repeats the
+1.5.0 npm check from fresh state, in an empty working folder:
+- `npm_config_cache` and `npm_config_prefix` are new folders;
+- the launcher's binary cache is new too: `LOCALAPPDATA` on Windows, `XDG_CACHE_HOME` on Linux.
+
+So the first `npx` call downloads the binary from the v1.5.1 release and checks it against `checksums-1.5.1.txt`.
+- **Windows:** native, Node 22.22.3, npm 10.9.8 (`harness/npm_release_check_win.sh`).
+- **Linux:** WSL Ubuntu 26.04, with the official Node 22.22.3 in `~/opt` (`harness/wsl_node.sh`,
+  `harness/npm_release_check.sh`).
+
+| Check | Windows | Linux |
+|---|---|---|
+| `npx --yes @mcptoolshop/xrpl-camp@1.5.1 --version` | exit 0, `xrpl-camp 1.5.1` | exit 0, `xrpl-camp 1.5.1` |
+| `--help` | exit 0, `Usage: xrpl-camp [OPTIONS] COMMAND [ARGS]...`, listing `reserve`, `certificate` and `proof` | the same |
+| `reserve --help`, `certificate --help`, `proof verify --help` | exit 0. `certificate` has `--format` (json, or text); `proof verify` has `--online`, and `--record` "(requires --online)" | the same |
+| The cached binary | `xrpl-camp-1.5.1-win-x64.exe`, sha256 `049cbf73…`, **equal to `checksums-1.5.1.txt`** | `xrpl-camp-1.5.1-linux-x64`, sha256 `038fbecb…`, **equal to `checksums-1.5.1.txt`** |
+| **argv[0] control:** the cached binary run directly | `Usage: xrpl-camp-1.5.1-win-x64.exe …` | `Usage: xrpl-camp-1.5.1-linux-x64 …` |
+
+The direct runs show the file name, so the `xrpl-camp` in every launcher run comes from the launcher setting argv[0].
+The launcher's stderr reads `Fetching checksums …`, `Downloading …`, `Verifying SHA256...`, `Ready.` on the first
+call. Windows also has npm's "new major version" notice.
+
+**`check_bundle.py` on the CI-built Linux asset.** I ran it from the `v1.5.1` tag (`07ffbb6`), in a venv with
+PyInstaller.
+- On `xrpl-camp-1.5.1-linux-x64` downloaded straight from the release (sha256 `038fbecb…`, the checksum line):
+  **exit 0**, `[bundle-check] Verified 97 archive entries in …: no direct_url.json or _sysconfigdata home path present`.
+- On the launcher's cached copy: the same, exit 0.
+
+The asset's unpacked identity scan (`identity-scan-release-linux.txt`) is `RESULT HIT 8`, with no `_sysconfigdata`
+hit and no build record. These are the same 8 third-party members as the local G1 build. The two libpython offsets
+differ (`0x58857c`, `0x578467`), as they did on the 1.5.0 asset, which CI built on a newer 3.12.
+
+**What it doesn't cover:** macOS (darwin-arm64) didn't run, so the darwin asset and its checksum line weren't
+exercised. No lesson ran from the npm channel; the 1.5.0 live check covers those on the Python install.
+
 ## What this doesn't cover
 
 - macOS (darwin-arm64) didn't run. Its `_sysconfigdata` would hold the macOS runner's home path, but that is
@@ -176,6 +219,11 @@ still needs his written exception naming them.
   `dist-sha256.txt`, `file.txt` and `neg-control-150-sha256.txt`.
 - `identity-scan-151-linux.txt`, `identity-scan-150-linux-control.txt`, `sysconfigdata-home-paths.txt`,
   `dist-info-uv-files.txt`.
+- `npm-release/`:
+  - `win/` and `linux/`: each `npx` call as `.cmd`, `.out`, `.err` and `.exit`; the cached file list and sha256;
+    the direct-binary control; and `node-version.txt`;
+  - `linux/` also has the tag head, the release asset's sha256, and the two `check_bundle.py` runs (`09-`, `10-`);
+  - `checksums-1.5.1.txt` (from the release), `identity-scan-release-linux.txt`, and `harness/`.
 - `g1-44dc45a/`: `linux-build/` (each step's `.log` and `.exit` 01–12, the two negative controls and their hashes,
   `00-uv-python-dir-before.txt`, the binary's hash, `file` type and versions), `identity-scan-151-g1-linux.txt` and
   `sysconfigdata-prefix.txt`.
