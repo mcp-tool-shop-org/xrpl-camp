@@ -99,7 +99,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "tests",
-      "qualifyingSourceCommits": 6,
+      "qualifyingSourceCommits": 7,
       "rebaseline": null
     },
     {
@@ -112,12 +112,12 @@
           "tests"
         ]
       },
-      "cohesion": null,
+      "cohesion": 1,
       "cohesionDropped": false,
       "confidence": "low",
       "highWater": null,
       "name": "xrpl_camp",
-      "qualifyingSourceCommits": 8,
+      "qualifyingSourceCommits": 9,
       "rebaseline": null
     }
   ],
@@ -150,8 +150,8 @@
         "path": ".github/workflows/pages.yml"
       },
       {
-        "commits": 9,
-        "lines": 671,
+        "commits": 10,
+        "lines": 677,
         "path": ".github/workflows/publish.yml"
       },
       {
@@ -170,13 +170,18 @@
         "path": ".gitignore"
       },
       {
-        "commits": 2,
-        "lines": 40,
+        "commits": 1,
+        "lines": 27,
+        "path": ".polyglot-terms.json"
+      },
+      {
+        "commits": 3,
+        "lines": 54,
         "path": "BUILD.md"
       },
       {
-        "commits": 6,
-        "lines": 344,
+        "commits": 7,
+        "lines": 374,
         "path": "CHANGELOG.md"
       },
       {
@@ -240,8 +245,8 @@
         "path": "SHIP_GATE.md"
       },
       {
-        "commits": 13,
-        "lines": 499,
+        "commits": 14,
+        "lines": 524,
         "path": "atlas/README.md"
       },
       {
@@ -250,18 +255,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 13,
-        "lines": 2007,
+        "commits": 14,
+        "lines": 2058,
         "path": "atlas/page.json"
       },
       {
-        "commits": 13,
-        "lines": 7812,
+        "commits": 14,
+        "lines": 8264,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 13,
-        "lines": 35124,
+        "commits": 14,
+        "lines": 35401,
         "path": "atlas/structure.json"
       },
       {
@@ -4300,13 +4305,13 @@
         "path": "package-lock.json"
       },
       {
-        "commits": 8,
-        "lines": 46,
+        "commits": 9,
+        "lines": 48,
         "path": "package.json"
       },
       {
-        "commits": 11,
-        "lines": 78,
+        "commits": 12,
+        "lines": 80,
         "path": "pyproject.toml"
       },
       {
@@ -4505,9 +4510,14 @@
         "path": "tests/test_v142_live_check_fixes.py"
       },
       {
-        "commits": 1,
-        "lines": 931,
+        "commits": 2,
+        "lines": 933,
         "path": "tests/test_v150_features.py"
+      },
+      {
+        "commits": 1,
+        "lines": 482,
+        "path": "tests/test_v152_fixes.py"
       },
       {
         "commits": 3,
@@ -4525,8 +4535,8 @@
         "path": "tests/test_xrpl_models.py"
       },
       {
-        "commits": 8,
-        "lines": 188,
+        "commits": 9,
+        "lines": 190,
         "path": "xrpl_camp/__init__.py"
       },
       {
@@ -4540,8 +4550,8 @@
         "path": "xrpl_camp/certificate.py"
       },
       {
-        "commits": 7,
-        "lines": 3405,
+        "commits": 8,
+        "lines": 3490,
         "path": "xrpl_camp/cli.py"
       },
       {
@@ -4550,8 +4560,8 @@
         "path": "xrpl_camp/errors.py"
       },
       {
-        "commits": 7,
-        "lines": 6102,
+        "commits": 8,
+        "lines": 6107,
         "path": "xrpl_camp/lessons.py"
       },
       {
@@ -4560,13 +4570,13 @@
         "path": "xrpl_camp/models.py"
       },
       {
-        "commits": 6,
-        "lines": 2230,
+        "commits": 7,
+        "lines": 2238,
         "path": "xrpl_camp/proof_pack.py"
       },
       {
-        "commits": 6,
-        "lines": 6441,
+        "commits": 7,
+        "lines": 6506,
         "path": "xrpl_camp/transport.py"
       },
       {
@@ -4580,11 +4590,54 @@
     "level": "low",
     "reason": "fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions"
   },
-  "generatedAt": "2026-10-23T04:36:48.022Z",
+  "generatedAt": "2026-10-23T06:44:03.864Z",
   "generatedFrom": {
-    "commit": "d6388e5a8fd92b7047da28c57bf6908656251c4a"
+    "commit": "d02a4894e8cd3d6debd8ac9fbe941a031611987d"
   },
-  "pairs": [],
+  "pairs": [
+    {
+      "a": ".github/workflows/publish.yml",
+      "b": "package.json",
+      "either": 8,
+      "shared": 4,
+      "strength": 0.5
+    },
+    {
+      "a": "package.json",
+      "b": "pyproject.toml",
+      "either": 7,
+      "shared": 5,
+      "strength": 0.714286
+    },
+    {
+      "a": "package.json",
+      "b": "xrpl_camp/__init__.py",
+      "either": 6,
+      "shared": 4,
+      "strength": 0.666667
+    },
+    {
+      "a": "pyproject.toml",
+      "b": "xrpl_camp/__init__.py",
+      "either": 7,
+      "shared": 5,
+      "strength": 0.714286
+    },
+    {
+      "a": "pyproject.toml",
+      "b": "xrpl_camp/cli.py",
+      "either": 8,
+      "shared": 4,
+      "strength": 0.5
+    },
+    {
+      "a": "xrpl_camp/cli.py",
+      "b": "xrpl_camp/lessons.py",
+      "either": 6,
+      "shared": 4,
+      "strength": 0.666667
+    }
+  ],
   "parameters": {
     "appliedChangesetLimit": 50,
     "changeset": 50,
@@ -4595,16 +4648,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "both",
-    "headDate": "2026-10-23T00:36:33-04:00",
-    "inScopeFiles": 871,
+    "headDate": "2026-10-23T02:43:58-04:00",
+    "inScopeFiles": 873,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 28,
+    "qualifyingCommits": 29,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-04-26T04:36:33.000Z",
+    "since": "2026-04-26T06:43:58.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",
