@@ -5,7 +5,7 @@
 
 **Tags:** `[all]` every repo · `[npm]` `[pypi]` `[vsix]` `[desktop]` `[container]` published artifacts · `[mcp]` MCP servers · `[cli]` CLI tools
 
-**Measured 2026-09-09 for v1.4.0; README, CHANGELOG, `--help`, version and translation lines re-measured 2026-10-22 at v1.4.2 and again at v1.5.0, and for v1.5.1 on 2026-10-23 (full treatments).** v1.5.1 changes only the release build: binaries no longer carry the PEP 610 `direct_url.json` build record or a home path in `_sysconfigdata`, and `scripts/check_bundle.py` fails a binary that does. v1.4.1 is a patch that moves a container warning from stdout to stderr and pins LF on shell scripts; it changes nothing any line below measures, so the dates stand rather than being re-stamped to look fresher than the measurement is. Every date below is when the line was last
+**Measured 2026-09-09 for v1.4.0; README, CHANGELOG, `--help`, version and translation lines re-measured 2026-10-22 at v1.4.2 and again at v1.5.0, and for v1.5.1 and v1.5.2 on 2026-10-23 (full treatments).** v1.5.2 resolves a submission that returns no `TransactionResult` by looking it up (never treating it as success), adds `reserve_measured` to `reserve --json`, fixes `proof verify --online --json` output, and pins uv 0.11.18 and CPython 3.12.13 in the release build. v1.5.1 changes only the release build: binaries no longer carry the PEP 610 `direct_url.json` build record or a home path in `_sysconfigdata`, and `scripts/check_bundle.py` fails a binary that does. v1.4.1 is a patch that moves a container warning from stdout to stderr and pins LF on shell scripts; it changes nothing any line below measures, so the dates stand rather than being re-stamped to look fresher than the measurement is. Every date below is when the line was last
 actually verified, not when it was first written. The previous revision carried
 `2026-03-02` on every row and had gone unre-measured across four releases — including
 a row that skipped the entire npm section as "not an npm package" while four npm
@@ -43,7 +43,7 @@ versions were live. A gate that is not re-measured is decoration.
 ## C. Operator Docs
 
 - [x] `[all]` README is current: what it does, install, usage, supported platforms + runtime versions (2026-10-22) — Python 3.11–3.13 now stated
-- [x] `[all]` CHANGELOG.md (Keep a Changelog format) (2026-10-23) — through 1.5.1; 1.4.0 states plainly what shipped to which registry and what did not
+- [x] `[all]` CHANGELOG.md (Keep a Changelog format) (2026-10-23) — through 1.5.2; 1.4.0 states plainly what shipped to which registry and what did not
 - [x] `[all]` LICENSE file present and repo states support status (2026-09-09)
 - [x] `[cli]` `--help` output accurate for all commands and flags (2026-10-22) — every command in `xrpl-camp --help` at 1.5.0 (reserve included) is in the README table; command table in README generated from actual `--help`
 - [x] `[cli|mcp|desktop]` Logging levels defined: silent / normal / verbose / debug — secrets redacted at all levels (2026-09-09) — `--verbose` gates technical detail; `support-bundle` redacts
@@ -53,7 +53,7 @@ versions were live. A gate that is not re-measured is decoration.
 ## D. Shipping Hygiene
 
 - [x] `[all]` `verify` script exists (test + build + smoke in one command) (2026-09-09) — `scripts/verify.sh`; `ci.yml` calls it directly so the two cannot drift
-- [x] `[all]` Version in manifest matches git tag (2026-10-23, `check-versions.sh`: 1.5.1) — `scripts/check-versions.sh` gates `pyproject.toml` / `__init__.py` / `package.json` in CI; both publish workflows re-verify against the tag
+- [x] `[all]` Version in manifest matches git tag (2026-10-23, `check-versions.sh`: 1.5.2) — `scripts/check-versions.sh` gates `pyproject.toml` / `__init__.py` / `package.json` in CI; both publish workflows re-verify against the tag
 - [x] `[all]` Dependency scanning runs in CI (ecosystem-appropriate) (2026-09-09) — `pip-audit`. The previous revision credited "ruff in CI", which is a linter and scans nothing
 - [x] `[all]` Automated dependency update mechanism exists (2026-09-09) — weekly `freshness-check.yml` pushes `freshness-check/latest` and opens or updates one tracking issue on stale action pins and dependency ceilings (2026-09-30: a PR cannot be opened with the default token). The previous revision credited "uv.lock, manual updates", which is both self-contradicting and cites a gitignored file
 - [x] `[npm]` Package published from CI with no long-lived token (2026-09-09) — `release.yml`, OIDC trusted publishing, `--provenance`
@@ -69,7 +69,7 @@ versions were live. A gate that is not re-measured is decoration.
 ## E. Identity (soft gate — does not block ship)
 
 - [x] `[all]` Logo in README header (2026-09-09)
-- [x] `[all]` Translations (polyglot-mcp, 7 languages) (2026-10-22) — regenerated in the 1.5.0 treatment; README.md is unchanged since v1.5.0, so the 1.5.1 treatment found no drift
+- [x] `[all]` Translations (polyglot-mcp, 7 languages) (2026-10-22) — regenerated in the 1.5.0 treatment; README.md is unchanged since v1.5.0, so the 1.5.1 and 1.5.2 treatments found no drift
 - [x] `[org]` Landing page (@mcptoolshop/site-theme) (2026-09-09)
 - [x] `[all]` GitHub repo metadata: description, homepage, topics (2026-09-09)
 

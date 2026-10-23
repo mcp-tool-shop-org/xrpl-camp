@@ -55,6 +55,8 @@ xrpl-camp reserve --json       # one JSON document on stdout, progress on stderr
 
 Signs two Testnet transactions from your wallet: an `NFTokenMint` and an `NFTokenBurn` of that token. Any leftover `xrpl-camp` NFT from an earlier interrupted run is burned first. Exits 1 if you have no wallet or no spendable XRP, and exits non-zero (naming the `NFTokenID`) if a burn fails.
 
+If the ledger hasn't caught up when the reserve is read, the run still succeeds but says the reserve couldn't be measured this time; `--json` reports this as `"reserve_measured": false`. If a mint or burn returns no result, `reserve` looks the transaction up before calling it a success. When it can't confirm the outcome, it says so and tells you not to run it again yet, since that could mint a second NFT.
+
 ## Individual lessons
 
 ```bash
