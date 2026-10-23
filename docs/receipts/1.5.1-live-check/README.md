@@ -28,8 +28,14 @@ the PEP 610 `direct_url.json` build record from the build venv before PyInstalle
 - `--version` prints `xrpl-camp 1.5.1`.
 - The identity scan on the unpacked binary has **no `build-record`**, and the same scan of the 1.5.0 asset has one.
 
+**G1 is open.** The unpacked Linux check found the build machine's (on CI, the runner's) Python install prefix in
+`_sysconfigdata`, and the PASS above doesn't cover it. It is being fixed on `fix/1.5.1-build-record` before
+release: the Publisher ruled to fix it, with no exception.
+
 The scan still reports 9 hits. 8 are third party. **1 is not: the build machine's home path inside `_sysconfigdata`
-(G1 below).** The released 1.5.0 asset carries it as `/home/runner/…`, so a CI build of 1.5.1 will too.
+(G1 below).** The released 1.5.0 Linux asset carries the same `_sysconfigdata` path, as
+`/home/runner/work/_temp/uv-python-dir/…`, alongside its `direct_url.json`. So a CI build of 1.5.1 will carry it too
+until G1 is fixed.
 
 ## The build
 
@@ -87,7 +93,7 @@ I read the bytes around each hit in the unpacked bundle (`harness/unpack_pyinsta
 | `pyz/PYZ.pyz/rich/_spinners.pyc-body` | the MIT licence line of the spinners data | third party: rich |
 | **`pyz/PYZ.pyz/_sysconfigdata__linux_x86_64-linux-gnu.pyc-body`** | **the build machine's home path** (G1) | **the builder** |
 
-**G1: `_sysconfigdata` carries the builder's home path.** When uv installs Python, it writes the interpreter's
+**G1 (open, being fixed before release): `_sysconfigdata` carries the builder's home path.** When uv installs Python, it writes the interpreter's
 install prefix into `_sysconfigdata__linux_x86_64-linux-gnu.py`, and PyInstaller bundles that module. It shows up as
 20 strings (`BINDIR`, `prefix`, `INCLUDEPY`, `DESTDIRS` …):
 - on this build, under `<home>/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu`, the WSL account on this
