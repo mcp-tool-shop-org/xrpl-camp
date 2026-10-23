@@ -120,6 +120,18 @@ jobs:
 
       - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
 
+      - name: Set neutral UV_PYTHON_INSTALL_DIR outside user home
+        shell: bash
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            echo "UV_PYTHON_INSTALL_DIR=C:\\uv-python" >> "$GITHUB_ENV"
+            mkdir -p /c/uv-python
+          else
+            sudo mkdir -p /opt/uv-python
+            sudo chown "$USER" /opt/uv-python
+            echo "UV_PYTHON_INSTALL_DIR=/opt/uv-python" >> "$GITHUB_ENV"
+          fi
+
       - run: uv python install 3.12
 
       - run: uv venv
@@ -127,17 +139,35 @@ jobs:
       - name: Install dependencies + PyInstaller
         run: uv pip install . "pyinstaller>=6.9.0,<7.0"
 
+      - name: Remove PEP 610 direct_url.json build record from venv
+        shell: bash
+        run: |
+          uv run --no-sync python -c '
+          import pathlib, sysconfig
+          purelib = pathlib.Path(sysconfig.get_path("purelib"))
+          for p in purelib.glob("*.dist-info/direct_url.json"):
+              p.unlink()
+          remaining = list(purelib.glob("*.dist-info/direct_url.json"))
+          if remaining:
+              raise SystemExit(f"direct_url.json still present in venv: {remaining}")
+          print("Removed direct_url.json from build venv.")
+          '
+
       - name: Build binary
         shell: bash
         run: |
           VERSION=${GITHUB_REF_NAME#v}
-          uv run pyinstaller --onefile --name "xrpl-camp" --console \
+          uv run --no-sync pyinstaller --onefile --name "xrpl-camp" --console \
             --collect-submodules rich \
             --collect-data xrpl \
             xrpl_camp/__main__.py
           OUTNAME="xrpl-camp-${VERSION}-${{ matrix.target }}${{ matrix.ext }}"
           mv "dist/xrpl-camp${{ matrix.ext }}" "dist/${OUTNAME}"
           echo "ASSET_NAME=${OUTNAME}" >> "$GITHUB_ENV"
+
+      - name: Check bundle archive for direct_url.json and _sysconfigdata home paths
+        shell: bash
+        run: uv run --no-sync python scripts/check_bundle.py "dist/$ASSET_NAME"
 
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

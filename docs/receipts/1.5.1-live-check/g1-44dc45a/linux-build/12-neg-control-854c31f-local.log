@@ -1,0 +1,2 @@
++ check_bundle.py <854c31f local binary>
+BUNDLE CHECK FAILED: Home path found in bundled _sysconfigdata module in <scratch>/1.5.1-854c31f/linux/xrpl-camp-1.5.1-linux-x64: PYZ.pyz:_sysconfigdata__linux_x86_64-linux-gnu (20 hits, e.g. <home>/)

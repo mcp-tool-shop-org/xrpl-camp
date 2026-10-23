@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.5.1] - 2026-10-23
+
+### Fixed
+
+- **Standalone release binaries no longer bundle a PEP 610 `direct_url.json` build record.**
+  `publish.yml` now strips `*.dist-info/direct_url.json` from the build virtual
+  environment after `uv pip install .`, invokes PyInstaller via
+  `uv run --no-sync pyinstaller` so `uv` does not re-sync the project as an
+  editable install, and verifies each built binary archive with
+  `scripts/check_bundle.py` to fail the build if any `direct_url.json` entry is
+  present.
+
 ## [1.5.0] - 2026-10-22
 
 Wires the remaining CLI surfaces from the 1.4.0 build (issue #14): the owner

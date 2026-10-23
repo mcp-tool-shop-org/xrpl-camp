@@ -1,23 +1,25 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-23 from commit b74ffff by Atlas 1.24.0.
+Mapped at 2026-10-23 from commit 99efab6 by Atlas 1.24.0.
 
 ## What this is
 
-7 parts, mostly Python (34 files), shell (11), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (36 files), shell (15), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-22 (eae5d5f)
+## What changed since 2026-10-23 (db6d63e)
 
-- docs/receipts/1.5.0-live-check/npm-release/harness/npm_release_check.sh is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.5.0-live-check/npm-release/harness/wsl_node.sh is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.5.0-live-check/npm-release/linux/01-version.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
-- And 53 more new files that belong to no part.
-- 56 files added and 10 changed content, across 2 parts.
+- scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/harness/_run_151_g1.sh and docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh.
+- xrpl_camp/__main__.py is now also read by docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh.
+- docs/receipts/1.5.1-live-check/g1-44dc45a/identity-scan-151-g1-linux.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/00-uv-python-dir-before.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/01-python-install.exit is new and belongs to no part, so atlas check fails on it against the previous map.
+- And 32 more new files that belong to no part.
+- 35 files added and 1 changed content.
 
 ## What comes in
 
-1. **CI.** On a pull request; on a push touching 12 paths; or by hand. Runs scripts/check-versions.sh and scripts/verify.sh; checks bin/xrpl-camp.js, xrpl_camp/ and tests/.
-2. **Publish.** When a tag matching `v*` is pushed; or by hand. On a tag push, it runs docker-entrypoint.sh, scripts/verify-pypi-publish.sh and xrpl_camp/cli.py; builds xrpl_camp/__main__.py; checks xrpl_camp/; packs LICENSE, README.md and pyproject.toml into an image.
+1. **CI.** On a pull request; on a push touching 12 paths; or by hand. Runs scripts/check-versions.sh and scripts/verify.sh; checks bin/xrpl-camp.js, xrpl_camp/, scripts/ and 25 more.
+2. **Publish.** When a tag matching `v*` is pushed; or by hand. On a tag push, it runs docker-entrypoint.sh, scripts/check_bundle.py, scripts/verify-pypi-publish.sh and 1 more; builds xrpl_camp/__main__.py; checks xrpl_camp/; packs LICENSE, README.md and pyproject.toml into an image.
 3. **Deploy site to GitHub Pages.** On a push to main touching 2 paths; or by hand. Runs site/astro.config.mjs and site/src/.
 4. **Release (npm).** When a tag matching `v*` is pushed; or by hand. Runs scripts/check-versions.sh.
 5. **Freshness Check.** On a schedule (`0 8 * * 1`), Monday at 08:00 UTC; or by hand. Runs scripts/check-freshness.sh.
@@ -26,7 +28,7 @@ Mapped at 2026-10-23 from commit b74ffff by Atlas 1.24.0.
 
 ## What happens through CI
 
-1. The workflow runs scripts/check-versions.sh and scripts/verify.sh in scripts; it checks bin/xrpl-camp.js in bin, tests/ in tests and xrpl_camp/ in xrpl_camp.
+1. The workflow runs scripts/check-versions.sh and scripts/verify.sh in scripts; it checks bin/xrpl-camp.js in bin, scripts/ in scripts, tests/ in tests and xrpl_camp/ in xrpl_camp.
 2. It uploads coverage to Codecov.
 
 ## Who reads the results
@@ -35,7 +37,7 @@ CI writes nothing this map can see.
 
 ## The other doors
 
-**Publish** runs docker-entrypoint.sh, scripts/verify-pypi-publish.sh and xrpl_camp/cli.py and checks xrpl_camp/ and packs LICENSE, README.md and pyproject.toml into an image on a tag push, and publishes to PyPI and a container image, creates a GitHub release, and builds xrpl_camp/__main__.py into binaries for darwin-arm64, linux-x64 and win-x64 and uploads them to the release, on a tag push.
+**Publish** runs docker-entrypoint.sh, scripts/check_bundle.py, scripts/verify-pypi-publish.sh and 1 more and checks xrpl_camp/ and packs LICENSE, README.md and pyproject.toml into an image on a tag push, and publishes to PyPI and a container image, creates a GitHub release, and builds xrpl_camp/__main__.py into binaries for darwin-arm64, linux-x64 and win-x64 and uploads them to the release, on a tag push.
 
 **Deploy site to GitHub Pages** runs site/astro.config.mjs and site/src/, and deploys the site.
 
@@ -49,7 +51,7 @@ CI writes nothing this map can see.
 
 ## What breaks what
 
-- **scripts** is imported by no other part and sits on the path of 4 doors.
+- **scripts** is imported only from tests, by 1 part (tests), and sits on the path of 4 doors.
 - **xrpl_camp** is imported only from tests, by 1 part (tests), and sits on the path of 3 doors.
 - **bin** is imported by no other part and sits on the path of 2 doors.
 
@@ -57,7 +59,7 @@ CI writes nothing this map can see.
 
 No two source files changed together often enough to name.
 
-Window: 180 days; a pair counts from 3 shared commits, since the window holds fewer than 30 qualifying commits.
+Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do.
 
 ## What no test touches
 
@@ -91,7 +93,7 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 - 6 reads use paths built at run time and are not named here.
 - 4 writes and 10 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
-- 637 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 634 more.
-- Statistics confidence is low: fewer than 30 qualifying commits in the window, and fewer than 25 source files reach 10 revisions.
+- 709 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 706 more.
+- Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.
