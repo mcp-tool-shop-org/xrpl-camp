@@ -1,6 +1,6 @@
 {
   "name": "@mcptoolshop/xrpl-camp",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Learn the XRP Ledger in one sitting — real transactions, portable proof, 10 minutes.",
   "type": "commonjs",
   "license": "MIT",
