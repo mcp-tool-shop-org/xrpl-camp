@@ -1,0 +1,2 @@
++ uv run --no-sync python scripts/check_bundle.py <home>/camp-150-asset/xrpl-camp-1.5.0-linux-x64
+BUNDLE CHECK FAILED: Bundled PEP 610 direct_url.json build record found in <home>/camp-150-asset/xrpl-camp-1.5.0-linux-x64: xrpl_camp-1.5.0.dist-info/direct_url.json

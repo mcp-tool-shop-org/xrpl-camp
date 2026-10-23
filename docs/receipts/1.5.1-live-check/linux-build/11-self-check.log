@@ -1,0 +1,16 @@
++ dist/xrpl-camp-1.5.1-linux-x64 self-check
+
+  OK  Version  1.5.1
+  OK  Platform  Linux x86_64 · Python 3.12.13
+  OK  Console encoding  utf-8
+  OK  Rich rendering  Table renders correctly
+  OK  Filesystem write  Temp write succeeded
+  --  State directory  not yet created: <home>/camp-151-linux/.xrpl-camp 
+(follows your working directory) (run: xrpl-camp start)
+  --  xrpl  -- (imported; version not reported)
+  --  typer  -- (imported; version not reported)
+  --  rich  -- (imported; version not reported)
+  OK  Endpoint  https://s.altnet.rippletest.net:51234/  (testnet)
+  OK  Endpoint reachable  yes, 376 ms to open a connection
+  OK  Ledger round-trip  network_id 1 (Testnet)
+

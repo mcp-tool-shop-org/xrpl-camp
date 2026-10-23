@@ -1,0 +1,96 @@
++ uv run --no-sync pyinstaller --onefile --name xrpl-camp --console --collect-submodules rich --collect-data xrpl xrpl_camp/__main__.py
+108 INFO: PyInstaller: 6.22.3, contrib hooks: 2026.9
+109 INFO: Python: 3.12.13
+111 INFO: Platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+111 INFO: Python environment: <home>/camp-151-linux/.venv
+112 INFO: wrote <home>/camp-151-linux/xrpl-camp.spec
+318 INFO: Module search paths (PYTHONPATH):
+['<home>/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python312.zip',
+ '<home>/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/python3.12',
+ '<home>/.local/share/uv/python/cpython-3.12-linux-x86_64-gnu/lib/python3.12/lib-dynload',
+ '<home>/camp-151-linux/.venv/lib/python3.12/site-packages',
+ '<home>/camp-151-linux']
+391 INFO: Appending 'datas' from .spec
+392 INFO: checking Analysis
+392 INFO: Building Analysis because Analysis-00.toc is non existent
+393 INFO: Looking for Python shared library...
+398 INFO: Using Python shared library: <home>/.local/share/uv/python/cpython-3.12.13-linux-x86_64-gnu/lib/libpython3.12.so.1.0
+398 INFO: Running Analysis Analysis-00.toc
+399 INFO: Target bytecode optimization level: 0
+399 INFO: Initializing module dependency graph...
+401 INFO: Initializing module graph hook caches...
+406 INFO: Analyzing modules for base_library.zip ...
+646 INFO: Processing standard module hook 'hook-encodings.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+922 INFO: Processing standard module hook 'hook-math.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+1414 INFO: Processing standard module hook 'hook-pickle.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+1835 INFO: Processing standard module hook 'hook-heapq.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+2049 INFO: Caching module dependency graph...
+2065 INFO: Analyzing <home>/camp-151-linux/xrpl_camp/__main__.py
+2100 INFO: Processing standard module hook 'hook-platform.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+2164 INFO: Processing standard module hook 'hook-_ctypes.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+2173 INFO: Processing pre-safe-import-module hook 'hook-typing_extensions.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks/pre_safe_import_module'
+2175 INFO: SetuptoolsInfo: initializing cached setuptools info...
+2689 INFO: Processing standard module hook 'hook-multiprocessing.util.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+2761 INFO: Processing standard module hook 'hook-xml.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3166 INFO: Processing standard module hook 'hook-difflib.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+3254 INFO: Processing standard module hook 'hook-rich.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+3565 INFO: Processing standard module hook 'hook-pygments.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+4291 INFO: Processing standard module hook 'hook-sysconfig.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+4332 INFO: Processing standard module hook 'hook-webbrowser.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks'
+4730 INFO: Processing standard module hook 'hook-certifi.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+4781 INFO: Processing standard module hook 'hook-anyio.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+5396 INFO: Processing standard module hook 'hook-Crypto.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+5744 INFO: Processing standard module hook 'hook-websockets.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/_pyinstaller_hooks_contrib/stdhooks'
+5991 INFO: Analyzing hidden import 'rich._unicode_data.unicode10-0-0'
+5995 INFO: Analyzing hidden import 'rich._unicode_data.unicode11-0-0'
+5999 INFO: Analyzing hidden import 'rich._unicode_data.unicode12-0-0'
+6002 INFO: Analyzing hidden import 'rich._unicode_data.unicode12-1-0'
+6004 INFO: Analyzing hidden import 'rich._unicode_data.unicode13-0-0'
+6007 INFO: Analyzing hidden import 'rich._unicode_data.unicode14-0-0'
+6012 INFO: Analyzing hidden import 'rich._unicode_data.unicode15-0-0'
+6015 INFO: Analyzing hidden import 'rich._unicode_data.unicode15-1-0'
+6018 INFO: Analyzing hidden import 'rich._unicode_data.unicode16-0-0'
+6022 INFO: Analyzing hidden import 'rich._unicode_data.unicode17-0-0'
+6026 INFO: Analyzing hidden import 'rich._unicode_data.unicode4-1-0'
+6029 INFO: Analyzing hidden import 'rich._unicode_data.unicode5-0-0'
+6031 INFO: Analyzing hidden import 'rich._unicode_data.unicode5-1-0'
+6034 INFO: Analyzing hidden import 'rich._unicode_data.unicode5-2-0'
+6036 INFO: Analyzing hidden import 'rich._unicode_data.unicode6-0-0'
+6038 INFO: Analyzing hidden import 'rich._unicode_data.unicode6-1-0'
+6040 INFO: Analyzing hidden import 'rich._unicode_data.unicode6-2-0'
+6043 INFO: Analyzing hidden import 'rich._unicode_data.unicode6-3-0'
+6046 INFO: Analyzing hidden import 'rich._unicode_data.unicode7-0-0'
+6049 INFO: Analyzing hidden import 'rich._unicode_data.unicode8-0-0'
+6067 INFO: Analyzing hidden import 'rich._unicode_data.unicode9-0-0'
+6070 INFO: Analyzing hidden import 'rich.bar'
+6072 INFO: Analyzing hidden import 'rich.diagnose'
+6074 INFO: Analyzing hidden import 'rich.layout'
+6085 INFO: Analyzing hidden import 'rich.logging'
+6090 INFO: Analyzing hidden import 'rich.prompt'
+6094 INFO: Processing module hooks (post-graph stage)...
+7309 INFO: Performing binary vs. data reclassification (68 entries)
+7448 INFO: Looking for ctypes DLLs
+7955 INFO: Analyzing run-time hooks ...
+7959 INFO: Including run-time hook 'pyi_rth_inspect.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks/rthooks'
+7962 INFO: Including run-time hook 'pyi_rth_pkgutil.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks/rthooks'
+7963 INFO: Including run-time hook 'pyi_rth_multiprocessing.py' from '<home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/hooks/rthooks'
+7972 INFO: Creating base_library.zip...
+7981 INFO: Looking for dynamic libraries
+8158 INFO: Warnings written to <home>/camp-151-linux/build/xrpl-camp/warn-xrpl-camp.txt
+8181 INFO: Graph cross-reference written to <home>/camp-151-linux/build/xrpl-camp/xref-xrpl-camp.html
+8200 INFO: checking PYZ
+8200 INFO: Building PYZ because PYZ-00.toc is non existent
+8201 INFO: Building PYZ (ZlibArchive) <home>/camp-151-linux/build/xrpl-camp/PYZ-00.pyz
+8599 INFO: Building PYZ (ZlibArchive) <home>/camp-151-linux/build/xrpl-camp/PYZ-00.pyz completed successfully.
+8613 INFO: checking PKG
+8613 INFO: Building PKG because PKG-00.toc is non existent
+8613 INFO: Building PKG (CArchive) xrpl-camp.pkg
+13312 INFO: Building PKG (CArchive) xrpl-camp.pkg completed successfully.
+13313 INFO: Bootloader <home>/camp-151-linux/.venv/lib/python3.12/site-packages/PyInstaller/bootloader/Linux-64bit-intel/run
+13314 INFO: checking EXE
+13315 INFO: Building EXE because EXE-00.toc is non existent
+13315 INFO: Building EXE from EXE-00.toc
+13316 INFO: Copying bootloader EXE to <home>/camp-151-linux/dist/xrpl-camp
+13317 INFO: Appending PKG archive to custom ELF section in EXE
+13355 INFO: Building EXE from EXE-00.toc completed successfully.
+13356 INFO: Build complete! The results are available in: <home>/camp-151-linux/dist
