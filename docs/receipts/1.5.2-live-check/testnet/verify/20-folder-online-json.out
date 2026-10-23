@@ -1,0 +1,64 @@
+{
+  "folder": "packs",
+  "checked": 2,
+  "passed": 1,
+  "failed": 1,
+  "unverifiable": 0,
+  "packs": [
+    {
+      "file": "packs/forged.json",
+      "valid": false,
+      "hash_match": true,
+      "address": "rNWkd1duWrxaGHSB5p342osdVdK8eKF2A7",
+      "network": "testnet",
+      "lessons_completed": 6,
+      "sha256": "sha256:5b0eff1e01b433ff1d083bfb3e2dfb284d7768825c8d0c61cbad64745ece4549",
+      "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. 1 of 1 transactions do not match what the ledger says. The ledger is the authority here, not this file.",
+      "online": {
+        "status": "contradicted",
+        "message": "1 of 1 transactions do not match what the ledger says. The ledger is the authority here, not this file.",
+        "counts": {
+          "not_checkable": 5,
+          "mismatch": 1
+        },
+        "checked": 1,
+        "total_lookups": 1
+      }
+    },
+    {
+      "file": "packs/honest.json",
+      "valid": true,
+      "hash_match": true,
+      "address": "rNWkd1duWrxaGHSB5p342osdVdK8eKF2A7",
+      "network": "testnet",
+      "lessons_completed": 6,
+      "sha256": "sha256:05bb5ca6396eb038e6759b768324a288c7d273b1092e452158bb64698443761a",
+      "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.",
+      "online": {
+        "status": "confirmed",
+        "message": "All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.",
+        "counts": {
+          "not_checkable": 5,
+          "ok": 1
+        },
+        "checked": 1,
+        "total_lookups": 1
+      }
+    }
+  ],
+  "endpoint": "https://s.altnet.rippletest.net:51234/",
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "needs_attention": [
+      {
+        "file": "packs/forged.json",
+        "address": "rNWkd1duWrxaGHSB5p342osdVdK8eKF2A7",
+        "reason": "the ledger contradicts this pack",
+        "online_status": "contradicted",
+        "hash_ok": true
+      }
+    ],
+    "message": "1 of 2 proof packs need a look; 1 passed."
+  }
+}

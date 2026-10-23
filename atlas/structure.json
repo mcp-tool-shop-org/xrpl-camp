@@ -11431,8 +11431,8 @@
   ],
   "engine": "1.24.0",
   "generatedFrom": {
-    "commit": "d02a4894e8cd3d6debd8ac9fbe941a031611987d",
-    "tracked": 868
+    "commit": "bc289d9751079362e6a4c0fe7cb27e98f35596cf",
+    "tracked": 932
   },
   "landings": [
     {
@@ -11562,6 +11562,11 @@
           "confidence": "text"
         },
         {
+          "by": "docs/receipts/1.5.2-live-check/harness/linux_build_152.sh",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
           "by": "tests/test_check_bundle.py",
           "call": "literal",
           "confidence": "ast",
@@ -11619,6 +11624,11 @@
         },
         {
           "by": "docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh",
+          "call": "literal",
+          "confidence": "text"
+        },
+        {
+          "by": "docs/receipts/1.5.2-live-check/harness/linux_build_152.sh",
           "call": "literal",
           "confidence": "text"
         }
@@ -14756,6 +14766,262 @@
     {
       "hash": "28ae3bce2e9569c61aeb0d8fb8d053f835999162b1aff4a6da477c4d01669c15",
       "path": "docs/receipts/1.5.1-live-check/sysconfigdata-home-paths.txt"
+    },
+    {
+      "hash": "fcf6ba269d53cd98d35982986a62d5c0bc5552bb48b04ca059b9b828e59eeac0",
+      "path": "docs/receipts/1.5.2-live-check/README.md"
+    },
+    {
+      "hash": "99a11cfdaddcd60d13d59135d2f30b2569f9bb69b56ba133c0025d8f7e03ca28",
+      "path": "docs/receipts/1.5.2-live-check/harness/_run_152.sh"
+    },
+    {
+      "hash": "76ec2c9aa1bc158031eb1f2d97d1bf1341f58d6af7f65e4e514829c16c83bdf6",
+      "path": "docs/receipts/1.5.2-live-check/harness/camp_run.sh"
+    },
+    {
+      "hash": "aa4f4273c8fc230af82b3755153ea922656eb586686ac3dc0e96565b26356c66",
+      "path": "docs/receipts/1.5.2-live-check/harness/forge_pack.py.txt"
+    },
+    {
+      "hash": "8a44aac2b47e663836d94204a75698421a22b2889785e615c09e169c3cdd1e47",
+      "path": "docs/receipts/1.5.2-live-check/harness/linux_build_152.sh"
+    },
+    {
+      "hash": "9862ff2ae4a1d0e767b2b02261027945a820d4ec518f162086da401e423169e4",
+      "path": "docs/receipts/1.5.2-live-check/harness/parse_verify_152.py.txt"
+    },
+    {
+      "hash": "cf2417dabcb76e8a4d08878f7aace4ffc4e9e232cbda00513556c8178e870d18",
+      "path": "docs/receipts/1.5.2-live-check/identity-scan-152-linux.txt"
+    },
+    {
+      "hash": "8b1b22b07e39464afbea03198e361451b27f2c09a1bd069a28f587a1d671dfc8",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/00-uv-python-dir-before.txt"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/01-python-install.exit"
+    },
+    {
+      "hash": "66bc9db83ef917a9da316fc459d1a41e87404e90657647a22bf903b026657f5d",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/01-python-install.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/02-venv.exit"
+    },
+    {
+      "hash": "61e83d9c5dd8e97e73152cbe6f7e810547f8f1dc0de46c53fcbf02736a8933c9",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/02-venv.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/03-install.exit"
+    },
+    {
+      "hash": "e4bcea2bd1c29bf433102548865a5bb097d3ff219d41e49d575daa143adb2f5b",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/03-install.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/04-remove-direct-url.exit"
+    },
+    {
+      "hash": "8cc3fc4704a052f1aa9d50526c8b4f564978cee6a39ca4923fbe4495c69b295e",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/04-remove-direct-url.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/05-pyinstaller.exit"
+    },
+    {
+      "hash": "14c399f7a0fc19689961e637e6946fe33b58260a6a3f30b4fc931b9016760347",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/05-pyinstaller.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/06-rename.exit"
+    },
+    {
+      "hash": "996754284bdaf8e51d228405bedf58c5615b69a9c717dbc37f4f8df3059a9a50",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/06-rename.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/07-check-bundle.exit"
+    },
+    {
+      "hash": "fbc401e8e02c6b129cf59f602871fe010f7e2b1716ae8466a78b5d644dc3fac4",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/07-check-bundle.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/08-check-bundle-list.exit"
+    },
+    {
+      "hash": "01346760f9cf4687da7ba0142dc22f6b55375ad0325fd2f84feb229e938b7644",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/08-check-bundle-list.log"
+    },
+    {
+      "hash": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/09-neg-control-150.exit"
+    },
+    {
+      "hash": "fa215e70b4cc689568ef59dfd3761162d8e44922a40a7d9fce8ae1c7b0b8d97f",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/09-neg-control-150.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/10-version.exit"
+    },
+    {
+      "hash": "4233133b6cf64ca47b7a1f6a16cc6116fab46e45ccb13fd394dfcc9847a09cb4",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/10-version.log"
+    },
+    {
+      "hash": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/11-self-check.exit"
+    },
+    {
+      "hash": "e56a7d2b30348906a08e6f5384a6aba34dd7ae7b08f4418686b196755649eba4",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/11-self-check.log"
+    },
+    {
+      "hash": "448c20096f444b0cbf3d39b16e853ed20c137771b6fc99199fa5d30063b6ca24",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/dist-sha256.txt"
+    },
+    {
+      "hash": "6dddb8cedadc99e6db0cba843d0155f08f6b4a89206bdc29dca3d4b8b2786e97",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/file.txt"
+    },
+    {
+      "hash": "82453375978f975f8d2e4b5c90ed9bf78a34b4e8eabcdff348a0b7f70c7f4972",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/head.txt"
+    },
+    {
+      "hash": "54163064fc4d746449f635a7e92498c0223f16f9cf21d87de7924bc00679d12f",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/neg-control-sha256.txt"
+    },
+    {
+      "hash": "88f304400f025f23d2685cc077bc4f42eb79982be86cb81c5273fb1498601374",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/uv-version.txt"
+    },
+    {
+      "hash": "c35b56d8e792ddfe358abad610c97d61dd2696b8cbcf8a13a5b76881f6b7bea4",
+      "path": "docs/receipts/1.5.2-live-check/linux-build/versions.txt"
+    },
+    {
+      "hash": "816783d61d78893f06b85e0f72e7887c99f24fbc6fefe1f2ed80e9ec420d9279",
+      "path": "docs/receipts/1.5.2-live-check/testnet/code.txt"
+    },
+    {
+      "hash": "a55a947d95a72d68d1cc72bfe2ac70bd7452177ec86effcb2b996bdb684cc8cf",
+      "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.err"
+    },
+    {
+      "hash": "d87ac8b04a842e09bf3372dfa2cdf27d30d8f94db4ff054f8f7dae42d346043d",
+      "path": "docs/receipts/1.5.2-live-check/testnet/course/01-start.out"
+    },
+    {
+      "hash": "ee103d1ab9f19e7d0abae1f86949aac4c3615740e4097cfbb5cce17811ad56ba",
+      "path": "docs/receipts/1.5.2-live-check/testnet/course/preflight.txt"
+    },
+    {
+      "hash": "81f481309011ff40b60b9f2a85af42b71fe974408851f82b7bd6f30699b3e5a9",
+      "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-parse-check.txt"
+    },
+    {
+      "hash": "9bf019984ca57eafbd4ee379a35c0efd9e82e6e0446d35007947b6d827f58b9c",
+      "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.cmd"
+    },
+    {
+      "hash": "91cf54708b6573ca37fcdc9079cf84bdd2f7349d8aa79e80af3f0e5b81278914",
+      "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.err"
+    },
+    {
+      "hash": "f2974dfe5dd81eea71e90967ad82363f9fee2b3c923de60c53b00fe997d8dd76",
+      "path": "docs/receipts/1.5.2-live-check/testnet/reserve/10-reserve-json.out"
+    },
+    {
+      "hash": "60bfb2ffaa3d1f9326f30bd0e09ba3886d64ff9ce1be52c59db05f12056b5af3",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/00-forge.txt"
+    },
+    {
+      "hash": "a1ebdd22225fef2a7365c9c21561e6f61dabc23edebd41356b7898ea024cb01d",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.cmd"
+    },
+    {
+      "hash": "02a1ec7409a5b9a01af542d6db368c2eca42edaf1cc07cbaffc95a6e94953bb9",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.err"
+    },
+    {
+      "hash": "ab84b6c4442a98325d785b8d941907c45caf192c24b28c7bf43148d209dc439d",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/20-folder-online-json.out"
+    },
+    {
+      "hash": "11df167aae6e9128b4896eb5d620f014e6b73b1f3615be47a1c2cb44e4aab797",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.err"
+    },
+    {
+      "hash": "f914113ab2711e5af216916bc355422302fda7e2d56f0add3235475accf4c2c8",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/21-honest-online-json.out"
+    },
+    {
+      "hash": "67de1e9c9272fff63373bf1f203e4a82e43a8a4996b4d8ff44c72fc15955eba0",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.err"
+    },
+    {
+      "hash": "539a53a004cf1364d6011f77485afe9a7632259362701a1e834add28bb7673bb",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/22-forged-online-json.out"
+    },
+    {
+      "hash": "87c990e1ea2c4c217d734be2a83ae89656e2e183b9a7119cb148a111f9f72e4f",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.err"
+    },
+    {
+      "hash": "ddb3a94dd44e25b5575a2f0b59ac4c5e4a82bc6913383dd471a189e4a7c5c25f",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/23-honest-offline-json.out"
+    },
+    {
+      "hash": "0b383097cfd2e58f1ff4716c2dc1dbd81100ff02a39b35245b6b94983293a0de",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.err"
+    },
+    {
+      "hash": "3f9e9db5f30246f95ca9224d67bdd4653cc5f425dbc89cc66894ba34e81592ed",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/24-folder-online-human.out"
+    },
+    {
+      "hash": "beb0d8d9a5ef543b510d69680d64d087e56044e1493975f802229ad2a46afc3f",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/30-parse-check.txt"
+    },
+    {
+      "hash": "a39e3c3c464dd73a8f1f08756add9addf48c0eeb6232d87fb859fc29382ddb58",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/packs/forged.json"
+    },
+    {
+      "hash": "4a0f6be24a9fa565932119b5888154e1ee73d03887cf07658c8ab3b2a69efa62",
+      "path": "docs/receipts/1.5.2-live-check/testnet/verify/packs/honest.json"
     }
   ]
 }

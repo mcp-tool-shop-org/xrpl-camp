@@ -1,0 +1,1 @@
+forged <scratch>/live-152-4a7ff84-20261023T0654Z/verify/packs/forged.json: lesson_4 CA114A1767A29203… -> 1A08DAFB2A6FE0DF…, sha256:5b0eff1e01b433ff1d083bfb3e2dfb284d7768825c8d0c61cbad64745ece4549

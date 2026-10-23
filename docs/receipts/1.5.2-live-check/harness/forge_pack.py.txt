@@ -1,0 +1,27 @@
+"""Forge a proof pack the way a cheater would: swap lesson 4's txid, then re-seal the hash with the tool's own code.
+
+Usage: python -I forge_pack.py <honest-pack> <out-pack> <new-txid>
+
+The txid is replaced in lessons[].txid, lessons[].explorer_url and txids.lesson_4. The sha256 is recomputed over the
+canonical JSON exactly as xrpl_camp.proof_pack does, so the offline hash check passes and only the ledger can
+tell. The forged file is written with the tool's canonical_json.
+"""
+import hashlib
+import json
+import sys
+
+from xrpl_camp.proof_pack import _sealed_content, canonical_json
+
+src, dst, new = sys.argv[1], sys.argv[2], sys.argv[3]
+pack = json.load(open(src, encoding="utf-8"))
+old = pack["txids"]["lesson_4"]
+pack["txids"]["lesson_4"] = new
+for lesson in pack["lessons"]:
+    if lesson.get("txid") == old:
+        lesson["txid"] = new
+        if "explorer_url" in lesson:
+            lesson["explorer_url"] = lesson["explorer_url"].replace(old, new)
+pack.pop("verifications", None)
+pack["sha256"] = "sha256:" + hashlib.sha256(canonical_json(_sealed_content(pack)).encode("utf-8")).hexdigest()
+open(dst, "w", encoding="utf-8", newline="\n").write(canonical_json(pack))
+print(f"forged {dst}: lesson_4 {old[:16]}… -> {new[:16]}…, {pack['sha256']}")

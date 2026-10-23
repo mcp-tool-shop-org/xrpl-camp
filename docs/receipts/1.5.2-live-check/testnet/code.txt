@@ -1,0 +1,1 @@
+code: 4a7ff84a9868abf34bf98ce3f3f59186485325c8 | xrpl-camp 1.5.2 | non-editable install of a clean worktree at that commit (Windows, Python 3.12)
