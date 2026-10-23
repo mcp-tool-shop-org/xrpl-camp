@@ -1,0 +1,144 @@
+{
+  "valid": true,
+  "hash_match": true,
+  "recorded": false,
+  "file": "packs/honest.json",
+  "schema": "xrpl-camp-proof-pack-v1",
+  "address": "rNWkd1duWrxaGHSB5p342osdVdK8eKF2A7",
+  "network": "testnet",
+  "lessons_completed": 6,
+  "tool_version": "1.5.2",
+  "sha256": "sha256:05bb5ca6396eb038e6759b768324a288c7d273b1092e452158bb64698443761a",
+  "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.",
+  "endpoint": "https://s.altnet.rippletest.net:51234/",
+  "online": {
+    "status": "confirmed",
+    "message": "All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.",
+    "counts": {
+      "not_checkable": 5,
+      "ok": 1
+    },
+    "checked": 1,
+    "total_lookups": 1
+  },
+  "lessons": [
+    {
+      "lesson": 1,
+      "name": "Mental Model",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    },
+    {
+      "lesson": 2,
+      "name": "Create Wallet",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    },
+    {
+      "lesson": 3,
+      "name": "Fund Wallet",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    },
+    {
+      "lesson": 4,
+      "name": "Send Payment",
+      "txid": "CA114A1767A29203060E1BD0A516984BA90604DD794350D55C124C869CB0CF95",
+      "checks": {
+        "exists": true,
+        "account_binding": true,
+        "validated_success": true,
+        "memo_binding": true,
+        "ledger_provenance": true
+      },
+      "problems": [],
+      "ledger_index_seen": 21754285,
+      "ledger_reason": "found",
+      "status": "ok",
+      "proves": "A transaction with this exact hash is on the ledger, was sent by this pack's address, and closed successfully.",
+      "does_not_prove": "That xrpl-camp produced it, or that only this learner ever held the key -- nothing here is signed, so possession of the seed is not proven."
+    },
+    {
+      "lesson": 5,
+      "name": "Verify Transaction",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    },
+    {
+      "lesson": 6,
+      "name": "Certificate",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    }
+  ]
+}

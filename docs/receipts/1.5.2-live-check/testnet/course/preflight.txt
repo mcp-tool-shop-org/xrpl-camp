@@ -1,0 +1,3 @@
+XRPL_CAMP_* set: []
+rpc: https://s.altnet.rippletest.net:51234/ | faucet override: None
+check_endpoint: PASS

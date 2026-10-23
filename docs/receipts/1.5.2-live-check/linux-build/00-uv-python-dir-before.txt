@@ -1,0 +1,4 @@
+drwxrwxrwx 4 <user> <user> 4096 Oct 23 02:38 /opt/uv-python
+cpython-3.12-linux-x86_64-gnu
+cpython-3.12.13-linux-x86_64-gnu
+writable: yes

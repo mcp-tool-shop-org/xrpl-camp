@@ -1,0 +1,13 @@
+{
+  "valid": true,
+  "hash_match": true,
+  "recorded": false,
+  "file": "packs/honest.json",
+  "schema": "xrpl-camp-proof-pack-v1",
+  "address": "rNWkd1duWrxaGHSB5p342osdVdK8eKF2A7",
+  "network": "testnet",
+  "lessons_completed": 6,
+  "tool_version": "1.5.2",
+  "sha256": "sha256:05bb5ca6396eb038e6759b768324a288c7d273b1092e452158bb64698443761a",
+  "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. This confirms the file has not been edited since it was written -- it does not independently confirm each transaction against the XRPL ledger. Run this same command with --online to check every transaction against the network, or look each txid up yourself in a block explorer."
+}
