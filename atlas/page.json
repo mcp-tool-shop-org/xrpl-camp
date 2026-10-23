@@ -36,33 +36,76 @@
   ],
   "changes": {
     "fileCounts": {
-      "added": 0,
-      "changed": 4,
+      "added": 35,
+      "changed": 1,
       "moved": 0,
-      "parts": 3,
+      "parts": 0,
       "removed": 0
     },
     "items": [
       {
+        "kind": "landing",
+        "sentence": "scripts/check_bundle.py is now also read by docs/receipts/1.5.1-live-check/harness/_run_151_g1.sh and docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh.",
+        "subjects": [
+          "scripts/check_bundle.py",
+          "docs/receipts/1.5.1-live-check/harness/_run_151_g1.sh",
+          "docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh"
+        ]
+      },
+      {
+        "kind": "landing",
+        "sentence": "xrpl_camp/__main__.py is now also read by docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh.",
+        "subjects": [
+          "xrpl_camp/__main__.py",
+          "docs/receipts/1.5.1-live-check/harness/linux_build_151_g1.sh"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.1-live-check/g1-44dc45a/identity-scan-151-g1-linux.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.1-live-check/g1-44dc45a/identity-scan-151-g1-linux.txt"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/00-uv-python-dir-before.txt is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/00-uv-python-dir-before.txt"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/01-python-install.exit is new and belongs to no part, so atlas check fails on it against the previous map.",
+        "subjects": [
+          "docs/receipts/1.5.1-live-check/g1-44dc45a/linux-build/01-python-install.exit"
+        ]
+      },
+      {
+        "kind": "unassigned",
+        "sentence": "And 32 more new files that belong to no part.",
+        "subjects": []
+      },
+      {
         "kind": "counts",
-        "sentence": "Nothing structural changed since 2026-10-23; 4 files changed content.",
+        "sentence": "35 files added and 1 changed content.",
         "subjects": []
       }
     ],
     "since": {
-      "commit": "d80aeff0034a6d8915815e4024ff3d4595d44800",
-      "generatedAt": "2026-10-23T03:17:25.069Z"
+      "commit": "db6d63e8e524e68caf54d04c88bd0d0325f9801e",
+      "generatedAt": "2026-10-23T03:52:09.272Z"
     },
-    "unchanged": true
+    "unchanged": false
   },
   "changesTogether": [],
   "changesTogetherNote": [
     "Window: 180 days; a pair counts from 3 shared commits, since 0 source files reach 10 revisions; the floor rises to 10 when 25 do."
   ],
   "changesTogetherWithTests": 0,
-  "commit": "db6d63e8e524e68caf54d04c88bd0d0325f9801e",
+  "commit": "99efab67898d7e614c65680a7b97445772597287",
   "defaultBranch": "main",
-  "derived": "7 parts, mostly Python (36 files), shell (13), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
+  "derived": "7 parts, mostly Python (36 files), shell (15), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.",
   "doors": [
     {
       "checks": [
@@ -341,13 +384,13 @@
       ]
     }
   ],
-  "generatedAt": "2026-10-23T03:52:09.272Z",
+  "generatedAt": "2026-10-23T04:11:19.042Z",
   "limits": [
     "1 import could not be resolved: `xrpl_camp/cli.py` imports a path built at run time.",
     "6 reads use paths built at run time and are not named here.",
     "4 writes and 10 reads go to a path their caller passes, not to this repository.",
     "1 write goes to a temporary directory, not to this repository.",
-    "674 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 671 more.",
+    "709 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 706 more.",
     "Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window."
   ],
   "mainDoor": ".github/workflows/ci.yml",
