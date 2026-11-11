@@ -1,19 +1,14 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-10-23 from commit f33e1f2 by Atlas 1.24.0.
+Mapped at 2026-11-11 from commit d3a2bb2 by Atlas 1.26.0.
 
 ## What this is
 
 7 parts, mostly Python (37 files), shell (26), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-10-23 (aa6856a)
+## What changed since 2026-10-23 (f33e1f2)
 
-- scripts/check_bundle.py is now also read by docs/receipts/1.5.2-live-check/npm-release/harness/_run_npm152_linux.sh.
-- docs/receipts/1.5.2-live-check/npm-release/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.5.2-live-check/npm-release/checksums-1.5.2.txt is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.5.2-live-check/npm-release/harness/_run_npm152_linux.sh is new and belongs to no part, so atlas check fails on it against the previous map.
-- And 71 more new files that belong to no part.
-- 74 files added and 3 changed content, across 3 parts.
+Nothing structural changed since 2026-10-23; 1 file changed content.
 
 ## What comes in
 
@@ -82,7 +77,7 @@ People write the repository root, scripts/ and site/. Nothing in this repository
 
 ## Where to start
 
-xrpl_camp/cli.py → xrpl_camp/errors.py
+xrpl_camp/cli.py → xrpl_camp/errors.py → xrpl_camp/models.py
 
 Read those in order to follow one run of xrpl-camp end to end. This path follows xrpl-camp (a command people run, from pyproject.toml) from its entry, since CI only checks code.
 
