@@ -13,7 +13,7 @@
           "path": ".github/freshness-report.md"
         },
         {
-          "hash": "9b8a855e2158d6f0dfd32121a493aa503c82a6f1bcfaad2c9ff216db1171bdf7",
+          "hash": "7b17b48cd86b5a5bd53a931c6aa0ea8db557cad3051f4a658d1ff6df66a745f6",
           "path": ".github/workflows/ci.yml"
         },
         {
@@ -10465,6 +10465,13 @@
           "why": "no setup-python step before it"
         }
       ],
+      "unresolvedExpressions": [
+        {
+          "adds": "words",
+          "job": "lint-and-test",
+          "step": "Set up Python ${{ matrix.python-version }}"
+        }
+      ],
       "uses": [
         "actions/checkout",
         "actions/download-artifact",
@@ -11154,6 +11161,13 @@
           "why": "no setup-python step before it"
         }
       ],
+      "unresolvedExpressions": [
+        {
+          "adds": "words",
+          "job": "release-outcome",
+          "step": "Check that GitHub Release and PyPI publish agree"
+        }
+      ],
       "uses": [
         "actions/checkout",
         "actions/download-artifact",
@@ -11438,9 +11452,9 @@
       "to": "xrpl_camp"
     }
   ],
-  "engine": "1.24.0",
+  "engine": "1.26.0",
   "generatedFrom": {
-    "commit": "f33e1f2ffd7595dcf0f4f7a85045a3a8aa6f9f57",
+    "commit": "d3a2bb2e202f8a4ae7b61c6496417c70ac754433",
     "tracked": 1006
   },
   "landings": [
