@@ -73,9 +73,11 @@ Add `--json` to either form for machine-readable output.
 xrpl-camp proof verify ./submissions --online
 ```
 
-Point it at a folder and it verifies every pack in it. With `--online`, every pack whose hash holds is also checked against the ledger and marked VERIFIED, UNVERIFIABLE or FAILED. The exit code is 1 if any pack fails, 3 if some could not be checked, and 0 otherwise. That is how you confirm a room of thirty people finished without trusting thirty screenshots.
+Point it at a folder and it verifies every pack in it. With `--online`, every pack whose hash holds is also checked against the ledger and marked VERIFIED, UNVERIFIABLE, UNCONFIRMED or FAILED. The exit code is 1 if any pack fails, 3 if some could not be checked, and 0 otherwise. That is how you confirm a room of thirty people finished without trusting thirty screenshots.
 
 With `--json`, a file or a folder prints exactly one JSON document, and progress goes to stderr. A pack the ledger contradicts reads `"valid": false` with `"hash_match": true`.
+
+**`valid` means "not contradicted". It does not mean "verified".** `valid` is `false` only when the hash does not match or the ledger contradicts the pack. It stays `true` whenever the ledger could not confirm the pack: an unreachable endpoint (`unknown`), ledger history gone, or history unconfirmed. To know that the ledger confirmed every lesson, read the exit code (`0`) or `online.status` (`confirmed`). Do not read `valid` alone: a pack with made-up transactions can be `"valid": true` with exit code 3.
 
 A pack in a newer format than this version knows (`xrpl-camp-proof-pack-v*`) is still checked: its hash is verified, and the output says the version is unknown.
 
