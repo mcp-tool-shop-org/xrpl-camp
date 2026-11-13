@@ -1,18 +1,19 @@
 # xrpl-camp: how it works
 
-Mapped at 2026-11-13 from commit c10abfb by Atlas 1.26.0.
+Mapped at 2026-11-13 from commit f76a594 by Atlas 1.26.0.
 
 ## What this is
 
-7 parts, mostly Python (40 files), shell (26), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
+7 parts, mostly Python (40 files), shell (29), CSS (2), JavaScript (2), TypeScript (2) and Astro (1). Work enters through 7 doors; the busiest is CI, which reaches 4 parts. It publishes to npm and PyPI, and a container image. It deploys a site to GitHub Pages. People run xrpl-camp.
 
-## What changed since 2026-11-11 (d3a2bb2)
+## What changed since 2026-11-13 (c10abfb)
 
-- docs/receipts/1.6.0-live-check/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.6.0-live-check/testnet/01-start.cmd is new and belongs to no part, so atlas check fails on it against the previous map.
-- docs/receipts/1.6.0-live-check/testnet/01-start.err is new and belongs to no part, so atlas check fails on it against the previous map.
-- And 47 more new files that belong to no part.
-- 53 files added and 11 changed content, across 4 parts.
+- scripts/check_bundle.py is now also read by docs/receipts/1.6.0-live-check/npm-release/harness/_run_npm160_linux.sh.
+- docs/receipts/1.6.0-live-check/npm-release/README.md is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.6.0-live-check/npm-release/checksums-1.6.0.txt is new and belongs to no part, so atlas check fails on it against the previous map.
+- docs/receipts/1.6.0-live-check/npm-release/harness/_run_npm160_linux.sh is new and belongs to no part, so atlas check fails on it against the previous map.
+- And 78 more new files that belong to no part.
+- 81 files added and 8 changed content, across 2 parts.
 
 ## What comes in
 
@@ -93,7 +94,7 @@ Read those in order to follow one run of xrpl-camp end to end. This path follows
 - 6 reads use paths built at run time and are not named here.
 - 4 writes and 10 reads go to a path their caller passes, not to this repository.
 - 1 write goes to a temporary directory, not to this repository.
-- 963 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 960 more.
+- 1044 files belong to no part: docs/receipts/1.4.1-live-check/README.md, docs/receipts/1.4.1-live-check/account_checks.txt, docs/receipts/1.4.1-live-check/channels/npm-dryrun.cmd and 1041 more.
 - Statistics confidence is low: fewer than 25 source files reach 10 revisions in the window.
 
 Regenerate with `npx --yes @dogfood-lab/atlas map`.

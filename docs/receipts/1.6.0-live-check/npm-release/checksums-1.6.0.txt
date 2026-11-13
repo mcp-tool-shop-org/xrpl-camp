@@ -1,0 +1,3 @@
+b844d1fb7b7731549ec24f0caba3c5dbcb8221b21f71c8e7e619ab0ead26f6be  xrpl-camp-1.6.0-darwin-arm64
+80ce71a000ea594b2101783c60f8a4c75f8288a63e011877ddd3a96eb0c5afc7  xrpl-camp-1.6.0-linux-x64
+b35c9e055dcec7d6f4b3f27f9e446771182a7078e1ff072bd4e10c443cf61195  xrpl-camp-1.6.0-win-x64.exe

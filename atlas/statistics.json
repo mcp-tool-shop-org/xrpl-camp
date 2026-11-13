@@ -117,7 +117,7 @@
       "confidence": "low",
       "highWater": null,
       "name": "xrpl_camp",
-      "qualifyingSourceCommits": 11,
+      "qualifyingSourceCommits": 10,
       "rebaseline": null
     }
   ],
@@ -190,28 +190,28 @@
         "path": "Dockerfile"
       },
       {
-        "commits": 4,
-        "lines": 404,
+        "commits": 5,
+        "lines": 502,
         "path": "README.es.md"
       },
       {
-        "commits": 4,
-        "lines": 400,
+        "commits": 5,
+        "lines": 510,
         "path": "README.fr.md"
       },
       {
-        "commits": 4,
-        "lines": 420,
+        "commits": 5,
+        "lines": 534,
         "path": "README.hi.md"
       },
       {
-        "commits": 4,
-        "lines": 386,
+        "commits": 5,
+        "lines": 478,
         "path": "README.it.md"
       },
       {
-        "commits": 4,
-        "lines": 394,
+        "commits": 5,
+        "lines": 520,
         "path": "README.ja.md"
       },
       {
@@ -220,13 +220,13 @@
         "path": "README.md"
       },
       {
-        "commits": 4,
-        "lines": 368,
+        "commits": 5,
+        "lines": 466,
         "path": "README.pt-BR.md"
       },
       {
-        "commits": 4,
-        "lines": 424,
+        "commits": 5,
+        "lines": 530,
         "path": "README.zh.md"
       },
       {
@@ -245,8 +245,8 @@
         "path": "SHIP_GATE.md"
       },
       {
-        "commits": 17,
-        "lines": 585,
+        "commits": 18,
+        "lines": 609,
         "path": "atlas/README.md"
       },
       {
@@ -255,18 +255,18 @@
         "path": "atlas/boundaries.yaml"
       },
       {
-        "commits": 17,
-        "lines": 2280,
+        "commits": 18,
+        "lines": 2365,
         "path": "atlas/page.json"
       },
       {
-        "commits": 17,
-        "lines": 9298,
+        "commits": 18,
+        "lines": 9472,
         "path": "atlas/statistics.json"
       },
       {
-        "commits": 17,
-        "lines": 36618,
+        "commits": 18,
+        "lines": 37524,
         "path": "atlas/structure.json"
       },
       {
@@ -4855,6 +4855,661 @@
         "path": "docs/receipts/1.5.2-live-check/testnet/verify/packs/honest.json"
       },
       {
+        "commits": 1,
+        "lines": 83,
+        "path": "docs/receipts/1.6.0-live-check/README.md"
+      },
+      {
+        "commits": 1,
+        "lines": 64,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/README.md"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/checksums-1.6.0.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 14,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/harness/_run_npm160_linux.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 27,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/harness/npm_release_check.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 26,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/harness/npm_release_check_win.sh"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/01-version.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/01-version.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/01-version.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/01-version.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/02-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/02-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/02-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 43,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/02-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/03-reserve-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/03-reserve-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/03-reserve-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 18,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/03-reserve-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/04-certificate-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/04-certificate-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/04-certificate-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 16,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/04-certificate-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/05-proof-verify-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/05-proof-verify-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/05-proof-verify-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 26,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/05-proof-verify-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/06-cache-files.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/06-cached-sha256.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/07-direct-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/07-direct-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/07-direct-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 43,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/07-direct-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/08-release-asset-sha256.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/08-tag-head.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/09-check-bundle-release-asset.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 109,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/09-check-bundle-release-asset.log"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/10-check-bundle-launcher-cache.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 109,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/10-check-bundle-launcher-cache.log"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/linux/node-version.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/08-self-check.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/08-self-check.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/08-self-check.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 16,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/08-self-check.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/09-verify-honest.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/09-verify-honest.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/09-verify-honest.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 151,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/09-verify-honest.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/10-verify-unconfirmed.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/10-verify-unconfirmed.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/10-verify-unconfirmed.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 153,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/10-verify-unconfirmed.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/11-verify-fake.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/11-verify-fake.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/11-verify-fake.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 153,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/verify/11-verify-fake.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/01-version.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 9,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/01-version.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/01-version.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/01-version.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/02-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/02-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/02-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 44,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/02-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/03-reserve-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/03-reserve-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/03-reserve-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 18,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/03-reserve-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/04-certificate-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/04-certificate-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/04-certificate-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 17,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/04-certificate-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/05-proof-verify-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/05-proof-verify-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/05-proof-verify-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 26,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/05-proof-verify-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/06-cache-files.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/06-cached-sha256.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/07-direct-help.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/07-direct-help.err"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/07-direct-help.exit"
+      },
+      {
+        "commits": 1,
+        "lines": 44,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/07-direct-help.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/npm-release/win/node-version.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/01-start.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/testnet/01-start.err"
+      },
+      {
+        "commits": 1,
+        "lines": 235,
+        "path": "docs/receipts/1.6.0-live-check/testnet/01-start.out"
+      },
+      {
+        "commits": 1,
+        "lines": 4,
+        "path": "docs/receipts/1.6.0-live-check/testnet/02-forge.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/testnet/03-endpoint-range.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 153,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_future_ledger-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_future_ledger-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 153,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_future_ledger-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_pruned_ledger-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_pruned_ledger-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 153,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_pruned_ledger-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-honest-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-honest-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 151,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-honest-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-real_txid_future_ledger-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-real_txid_future_ledger-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 153,
+        "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-real_txid_future_ledger-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid.err"
+      },
+      {
+        "commits": 1,
+        "lines": 30,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_future_ledger.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_future_ledger.err"
+      },
+      {
+        "commits": 1,
+        "lines": 33,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_future_ledger.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_pruned_ledger.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_pruned_ledger.err"
+      },
+      {
+        "commits": 1,
+        "lines": 33,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_pruned_ledger.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-honest.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-honest.err"
+      },
+      {
+        "commits": 1,
+        "lines": 29,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-honest.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-real_txid_future_ledger.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-real_txid_future_ledger.err"
+      },
+      {
+        "commits": 1,
+        "lines": 30,
+        "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-real_txid_future_ledger.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/20-folder-unconfirmed-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/20-folder-unconfirmed-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 66,
+        "path": "docs/receipts/1.6.0-live-check/testnet/20-folder-unconfirmed-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/21-folder-unconfirmed.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/testnet/21-folder-unconfirmed.err"
+      },
+      {
+        "commits": 1,
+        "lines": 12,
+        "path": "docs/receipts/1.6.0-live-check/testnet/21-folder-unconfirmed.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/22-folder-all-json.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 5,
+        "path": "docs/receipts/1.6.0-live-check/testnet/22-folder-all-json.err"
+      },
+      {
+        "commits": 1,
+        "lines": 150,
+        "path": "docs/receipts/1.6.0-live-check/testnet/22-folder-all-json.out"
+      },
+      {
+        "commits": 1,
+        "lines": 2,
+        "path": "docs/receipts/1.6.0-live-check/testnet/30-verify-honest-offline.cmd"
+      },
+      {
+        "commits": 1,
+        "lines": 0,
+        "path": "docs/receipts/1.6.0-live-check/testnet/30-verify-honest-offline.err"
+      },
+      {
+        "commits": 1,
+        "lines": 13,
+        "path": "docs/receipts/1.6.0-live-check/testnet/30-verify-honest-offline.out"
+      },
+      {
+        "commits": 1,
+        "lines": 1,
+        "path": "docs/receipts/1.6.0-live-check/testnet/code.txt"
+      },
+      {
+        "commits": 1,
+        "lines": 3,
+        "path": "docs/receipts/1.6.0-live-check/testnet/preflight.txt"
+      },
+      {
         "commits": 2,
         "lines": 32,
         "path": "node_modules/.bin/mcptoolshop-launch"
@@ -5060,8 +5715,8 @@
         "path": "site/src/content/docs/handbook/lessons.md"
       },
       {
-        "commits": 5,
-        "lines": 187,
+        "commits": 6,
+        "lines": 191,
         "path": "site/src/content/docs/handbook/proof-pack.md"
       },
       {
@@ -5295,9 +5950,9 @@
     "level": "low",
     "reason": "fewer than 25 source files reach 10 revisions in the window"
   },
-  "generatedAt": "2026-11-13T12:47:37.588Z",
+  "generatedAt": "2026-11-13T13:43:42.816Z",
   "generatedFrom": {
-    "commit": "c10abfb7a17c3d5f8e38beac324d65bdeed0b5c2"
+    "commit": "f76a5949ef34e1d76d8e6603297fa9969c741650"
   },
   "pairs": [
     {
@@ -5343,27 +5998,6 @@
       "strength": 1
     },
     {
-      "a": "package.json",
-      "b": "pyproject.toml",
-      "either": 7,
-      "shared": 5,
-      "strength": 0.714286
-    },
-    {
-      "a": "package.json",
-      "b": "xrpl_camp/__init__.py",
-      "either": 6,
-      "shared": 4,
-      "strength": 0.666667
-    },
-    {
-      "a": "pyproject.toml",
-      "b": "xrpl_camp/__init__.py",
-      "either": 7,
-      "shared": 5,
-      "strength": 0.714286
-    },
-    {
       "a": "xrpl_camp/cli.py",
       "b": "xrpl_camp/proof_pack.py",
       "either": 6,
@@ -5381,16 +6015,16 @@
     "floor": "fallen",
     "floorHeld": false,
     "floorTrigger": "revision-depth",
-    "headDate": "2026-11-13T07:43:34-05:00",
-    "inScopeFiles": 1064,
+    "headDate": "2026-11-13T08:43:37-05:00",
+    "inScopeFiles": 1145,
     "pinnedStart": null,
     "priorFloor": "fallen",
-    "qualifyingCommits": 33,
+    "qualifyingCommits": 34,
     "qualifyingMinimum": 30,
     "revisions": 5,
     "shared": 10,
     "sharedFloorUsed": 3,
-    "since": "2026-05-17T12:43:34.000Z",
+    "since": "2026-05-17T13:43:37.000Z",
     "sourceExtensions": [
       ".js",
       ".mjs",

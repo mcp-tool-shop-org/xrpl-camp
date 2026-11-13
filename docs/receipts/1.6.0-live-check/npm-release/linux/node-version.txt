@@ -1,0 +1,3 @@
+node v22.22.3, npm 10.9.8
+npx: <home>/node-v22/bin/npx
+Linux x86_64
