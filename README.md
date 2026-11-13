@@ -116,7 +116,7 @@ This resolves every transaction the pack names and checks that it exists, was se
 Two details worth knowing, because both are easy to get wrong:
 
 - Verification always queries the public Testnet (or `--rpc-url`), **never** the endpoint named inside the pack. A forged pack can name a server its author controls.
-- The XRPL Testnet is periodically reset. When that happens, honest transactions stop resolving. The pack records each transaction's ledger index, so a reset reports as *unverifiable* (exit 3) rather than as fraud (exit 1).
+- The XRPL Testnet is periodically reset (next on 2026-11-25). When that happens, honest transactions stop resolving. If the endpoint does not hold the ledger a transaction was recorded in, the result is *unverifiable* (exit 3), not fraud (exit 1), and the output names what that rests on: an announced reset (`history_signal: announced`), or only the pack's own ledger number (`pack_claim`, shown as **UNCONFIRMED**). Neither is a pass.
 
 Offline verification remains the default and makes no network calls, so it still works on a plane or a locked-down classroom machine.
 

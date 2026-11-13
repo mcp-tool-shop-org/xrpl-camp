@@ -110,12 +110,16 @@ def _entry() -> dict:
 
 
 def test_a_reset_miss_is_reported_as_uncheckable_not_as_a_forgery():
+    """With an announced reset behind it. Without one it is UNCONFIRMED:
+    see tests/test_history_signal.py."""
     live = {"found": False, "reason": transport.REASON_HISTORY_GONE}
-    result = proof_pack.classify_lesson_online(_entry(), "rLEARNER", live)
+    result = proof_pack.classify_lesson_online(
+        _entry(), "rLEARNER", live, announced_reset="Testnet was reset on 2026-11-25 (src)",
+    )
     assert result["status"] == proof_pack.ONLINE_MISS_HISTORY_GONE
     text = " ".join(result["problems"])
     assert f"does not hold ledger {RECORDED}" in text
-    assert "the network was reset or its old history was discarded" in text
+    assert "Testnet was reset on 2026-11-25" in text
     assert "no transaction with this hash" not in text
 
 

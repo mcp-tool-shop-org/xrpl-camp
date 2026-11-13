@@ -1266,6 +1266,7 @@ def _verify_online(
         "mismatch": "[red]MISMATCH[/red]",
         "miss_not_found": "[red]MISSING[/red] ",
         "miss_ledger_history_gone": "[yellow]NO HISTORY[/yellow]",
+        "miss_history_unconfirmed": "[yellow]UNCONFIRMED[/yellow]",
         "unreachable": "[yellow]UNREACHED[/yellow]",
         "not_checkable": "[dim]SKIPPED[/dim] ",
     }
@@ -1342,11 +1343,14 @@ def _online_check_inner(pack: dict, endpoint: str, name: str) -> tuple[list, dic
         online_lookup_plan,
         summarize_online,
     )
+    from xrpl_camp.resets import announced_reset_after, parse_time
 
     by_lesson = {
         e.get("lesson"): e for e in pack.get("lessons", []) if isinstance(e, dict)
     }
     address = str(pack.get("address", ""))
+    # The network of the endpoint being asked, never one the pack names.
+    network = transport.network_label_for_url(endpoint)
     results = []
 
     for item in online_lookup_plan(pack):
@@ -1372,6 +1376,11 @@ def _online_check_inner(pack: dict, endpoint: str, name: str) -> tuple[list, dic
         results.append(classify_lesson_online(
             entry, address, live,
             unreachable_reason=(err.message if err else ""),
+            # The one signal that is not the pack's own word: an announced
+            # reset of this endpoint's network after the lesson was completed.
+            announced_reset=announced_reset_after(
+                network, parse_time(entry.get("completed_at")),
+            ),
         ))
 
     return results, summarize_online(results)
@@ -1404,6 +1413,7 @@ def _verify_folder(
     from xrpl_camp.proof_pack import (
         SUMMARY_CONTRADICTED,
         SUMMARY_HISTORY_GONE,
+        SUMMARY_HISTORY_UNCONFIRMED,
         SUMMARY_UNKNOWN,
         batch_summary,
         resolve_verification_endpoint,
@@ -1458,7 +1468,11 @@ def _verify_folder(
     hash_failed = [r for r in results if not r[1]]
     if hash_failed or SUMMARY_CONTRADICTED in statuses:
         code = 1
-    elif SUMMARY_UNKNOWN in statuses or SUMMARY_HISTORY_GONE in statuses:
+    elif (
+        SUMMARY_UNKNOWN in statuses
+        or SUMMARY_HISTORY_GONE in statuses
+        or SUMMARY_HISTORY_UNCONFIRMED in statuses
+    ):
         code = EXIT_PARTIAL
     else:
         code = EXIT_OK
@@ -1521,6 +1535,7 @@ def _verify_folder(
         SUMMARY_CONTRADICTED: "[red]FAILED[/red]",
         SUMMARY_UNKNOWN: "[yellow]UNVERIFIABLE[/yellow]",
         SUMMARY_HISTORY_GONE: "[yellow]UNVERIFIABLE[/yellow]",
+        SUMMARY_HISTORY_UNCONFIRMED: "[yellow]UNCONFIRMED[/yellow]",
     }
     console.print()
     if check_online:

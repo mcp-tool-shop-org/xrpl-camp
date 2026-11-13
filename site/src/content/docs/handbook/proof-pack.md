@@ -43,14 +43,17 @@ The forged pack above — the one that passes the offline hash check — fails t
 
 **It never trusts the endpoint named in the pack.** The pack records which RPC endpoint the run used, and that is displayed as context. It is not used as the oracle. A forged pack can name a server its author controls, and such a server will happily confirm a transaction that never existed — this was tested. Verification queries the public Testnet, or an endpoint you pass with `--rpc-url`.
 
-**A missing transaction is not automatically fraud.** The XRPL Testnet is periodically reset, and when that happens perfectly honest transactions stop resolving. The pack records each transaction's ledger index, so the tool can tell "this ledger range no longer exists" from "this never happened":
+**A missing transaction is not automatically fraud.** The XRPL Testnet is periodically reset (next on **2026-11-25**, [xrpl.org notice](https://xrpl.org/blog/2026/testnet-devnet-reset)), and when that happens perfectly honest transactions stop resolving. The pack records each transaction's ledger index, so the tool can see that the endpoint no longer holds that ledger. It cannot see whether the transaction was ever in it: the ledger index is the pack's own word. So the outcome names what it rests on:
 
 | Outcome | Exit code | Meaning |
 |---------|-----------|---------|
 | confirmed | 0 | the ledger agrees with the pack |
 | contradicted | 1 | the ledger disagrees — something in this pack is not true |
-| ledger history gone | 3 | the Testnet was reset; unverifiable, not disproven |
+| ledger history gone | 3 | an announced reset covers the time the lesson was completed, and the endpoint does not hold its ledger; unverifiable, not disproven (`history_signal: announced`) |
+| history unconfirmed | 3 | the endpoint does not hold the ledger the pack records, and only the pack says so; shown as **UNCONFIRMED** (`history_signal: pack_claim`) |
 | unknown | 3 | the endpoint could not be reached |
+
+Neither history outcome is a pass. A pack listing made-up transactions dated before a reset reads the same as an honest one, and anyone can write a ledger number into a pack, so in both cases only the pack's hash is left as evidence. `--json` carries `history_signal` on each lesson and on the result; when lessons rest on different signals, the weaker one (`pack_claim`) names the result.
 
 Exit 3 means *could not check*, and it is deliberately not the same as *checked and failed*. Conflating them would make a flaky wifi connection look like an accusation.
 
