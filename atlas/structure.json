@@ -93,7 +93,7 @@
           "path": "BUILD.md"
         },
         {
-          "hash": "4b6239089119476d6c8b8b46a66994010e358fdc6ffa137f7e929b9f67d0dd04",
+          "hash": "13715b718eb2cb9a97150f47a8f395ed42db788d96a4dcf7a35df468b5193407",
           "path": "CHANGELOG.md"
         },
         {
@@ -125,7 +125,7 @@
           "path": "README.ja.md"
         },
         {
-          "hash": "616f9556e3a21cf6333ca889a2dd4dc0e4235fadcc3b3490bfaf0dba953bef8f",
+          "hash": "ff11d321ae2846371cb96242303167ee4da97c79a6f581290e77146959e2bf8b",
           "path": "README.md"
         },
         {
@@ -141,11 +141,11 @@
           "path": "SCORECARD.md"
         },
         {
-          "hash": "93d52374f54c279c90fd493a382b728f57a24a423a693883d31dc4725b9ed762",
+          "hash": "899290fbdf6f0ce27fc6d9a6f5516eca441456b95ab299a484d06dcbca006e14",
           "path": "SECURITY.md"
         },
         {
-          "hash": "561db07ef3121687f39f88d10f57ec8e9eb34942a38092a00a3091ee3fb4d97f",
+          "hash": "6c79d384fb2302305745329590b02beb4fab958b819ddcf91c212c00a34abc5d",
           "path": "SHIP_GATE.md"
         },
         {
@@ -157,11 +157,11 @@
           "path": "docker-entrypoint.sh"
         },
         {
-          "hash": "75a0947061d673870cb37eda0e67f7e0f05520763e927ed386263f45f6acb425",
+          "hash": "256a227a38a1339fc00346be1e830763a8def32e6bcb6f9e680d7fae028b2454",
           "path": "package.json"
         },
         {
-          "hash": "fa7cb4cfc6f3c62be36997de2b4bffcd075423ad622c2e99a45a431d1f20b447",
+          "hash": "6eb2b20a7d845abbd5e80b2d52479d8d5c59483a1bdf786eba975e3afa4e5e2d",
           "path": "pyproject.toml"
         }
       ],
@@ -339,7 +339,7 @@
           "path": "site/src/content/docs/handbook/lessons.md"
         },
         {
-          "hash": "79dc022e35255a138611ed72ecb94f5c475e7b5c95e0830e00ee5362602a9abc",
+          "hash": "30b9cba2500d56ad2cab4b34583fb4a329cbc9f9f1a8e25406424b519633d35b",
           "path": "site/src/content/docs/handbook/proof-pack.md"
         },
         {
@@ -710,6 +710,51 @@
         },
         {
           "exports": [
+            "pinned_clock",
+            "test_a_confirmed_pack_has_no_history_signal",
+            "test_a_contradiction_or_an_unknown_still_outranks_it",
+            "test_a_found_transaction_and_a_plain_miss_carry_no_signal",
+            "test_a_pack_claim_summary_is_unconfirmed_and_not_a_pass",
+            "test_a_reset_day_spans_every_timezone",
+            "test_an_announced_reset_is_an_independent_signal",
+            "test_an_announced_reset_summary_is_history_gone_and_not_a_pass",
+            "test_cli_a_lesson_completed_after_the_reset_is_not_covered_by_it",
+            "test_cli_after_the_announced_reset_it_is_history_gone_with_the_signal",
+            "test_cli_before_any_announced_reset_a_history_miss_is_unconfirmed",
+            "test_cli_the_network_is_the_endpoints_not_the_packs",
+            "test_every_listed_reset_cites_the_xrpl_org_notice",
+            "test_neither_is_ever_counted_as_passed_in_a_batch",
+            "test_only_the_packs_ledger_number_is_unconfirmed",
+            "test_parse_time",
+            "test_the_2026_11_25_reset_is_listed_for_both_test_networks",
+            "test_the_unpinned_clock_reads_the_real_time",
+            "test_the_weaker_signal_names_the_result",
+            "test_which_lessons_an_announced_reset_covers"
+          ],
+          "hash": "55c50f828d64817d8abd2afa41b6ce4547f99ea60276541b299981e3f095f543",
+          "importOrder": [
+            "tests/helpers.py",
+            "xrpl_camp/__init__.py",
+            "xrpl_camp/proof_pack.py",
+            "xrpl_camp/resets.py",
+            "xrpl_camp/transport.py",
+            "xrpl_camp/cli.py",
+            "xrpl_camp/models.py"
+          ],
+          "importsFiles": [
+            "tests/helpers.py",
+            "xrpl_camp/__init__.py",
+            "xrpl_camp/cli.py",
+            "xrpl_camp/models.py",
+            "xrpl_camp/proof_pack.py",
+            "xrpl_camp/resets.py",
+            "xrpl_camp/transport.py"
+          ],
+          "path": "tests/test_history_signal.py",
+          "testFramework": "pytest"
+        },
+        {
+          "exports": [
             "capture",
             "real_wallet",
             "session",
@@ -853,6 +898,29 @@
             "xrpl_camp/proof_pack.py"
           ],
           "path": "tests/test_proof_pack.py"
+        },
+        {
+          "exports": [
+            "test_a_ledger_the_endpoint_holds_is_a_real_miss",
+            "test_a_plain_miss_still_reads_as_not_found",
+            "test_a_reset_miss_is_reported_as_uncheckable_not_as_a_forgery",
+            "test_after_a_full_reset_the_recorded_ledger_is_past_the_new_chain",
+            "test_an_unreadable_range_is_a_plain_miss",
+            "test_bounds_are_none_when_the_range_cannot_be_read",
+            "test_bounds_default_to_the_configured_endpoint",
+            "test_bounds_read_the_lowest_and_highest_ledger",
+            "test_discarded_old_history_is_still_history_gone",
+            "test_no_recorded_index_means_nothing_can_be_said",
+            "test_server_lag_is_not_a_reset"
+          ],
+          "hash": "ef6b8c092cd392b951f148fdddfa6f3249bf46c9ef3bf7193536d5c6816364bd",
+          "importsFiles": [
+            "xrpl_camp/__init__.py",
+            "xrpl_camp/proof_pack.py",
+            "xrpl_camp/transport.py"
+          ],
+          "path": "tests/test_reset_ledger_restart.py",
+          "testFramework": "pytest"
         },
         {
           "exports": [
@@ -1315,7 +1383,7 @@
               "line": 53
             }
           ],
-          "hash": "03961ca8cd837716a66ef86c22af0d0ea7880baa40d4629f6221105e885ab49a",
+          "hash": "709c578f8507f635ec8b493e580c087af41a8181296329646c4e4a9aa696b2bc",
           "path": "xrpl_camp/__init__.py",
           "sequences": []
         },
@@ -1685,140 +1753,140 @@
             {
               "in": "_verify_folder",
               "kind": "except",
-              "line": 1430
+              "line": 1440
             },
             {
               "in": "reset",
               "kind": "except",
-              "line": 1582
+              "line": 1597
             },
             {
               "in": "reset",
               "kind": "raise",
-              "line": 1583
+              "line": 1598
             },
             {
               "in": "reset",
               "kind": "except",
-              "line": 1603
+              "line": 1618
             },
             {
               "in": "reset",
               "kind": "except",
-              "line": 1612
+              "line": 1627
             },
             {
               "in": "reset",
               "kind": "except",
-              "line": 1616
+              "line": 1631
             },
             {
               "in": "reset",
               "kind": "raise",
-              "line": 1622
+              "line": 1637
             },
             {
               "in": "_dependency_version",
               "kind": "except",
-              "line": 1647
+              "line": 1662
             },
             {
               "in": "_tcp_probe",
               "kind": "except",
-              "line": 1692
+              "line": 1707
             },
             {
               "in": "_collect_network_checks",
               "kind": "except",
-              "line": 1729
+              "line": 1744
             },
             {
               "in": "_collect_checks",
               "kind": "except",
-              "line": 1776
+              "line": 1791
             },
             {
               "in": "_collect_checks",
               "kind": "except",
-              "line": 1785
+              "line": 1800
             },
             {
               "in": "_collect_checks",
               "kind": "except",
-              "line": 1799
+              "line": 1814
             },
             {
               "in": "_collect_checks",
               "kind": "except",
-              "line": 1811
+              "line": 1826
             },
             {
               "in": "_diagnostics",
               "kind": "except",
-              "line": 1856
+              "line": 1871
             },
             {
               "in": "self_check",
               "kind": "raise",
-              "line": 1877
+              "line": 1892
             },
             {
               "in": "self_check",
               "kind": "raise",
-              "line": 1896
+              "line": 1911
             },
             {
               "in": "support_bundle",
               "kind": "except",
-              "line": 1993
+              "line": 2008
             },
             {
               "in": "support_bundle",
               "kind": "except",
-              "line": 1999
+              "line": 2014
             },
             {
               "in": "support_bundle",
               "kind": "except",
-              "line": 2011
+              "line": 2026
             },
             {
               "in": "support_bundle",
               "kind": "raise",
-              "line": 2012
+              "line": 2027
             },
             {
               "in": "run",
               "kind": "except",
-              "line": 2045
+              "line": 2060
             },
             {
               "in": "run",
               "kind": "raise",
-              "line": 2049
+              "line": 2064
             },
             {
               "in": "run",
               "kind": "except",
-              "line": 2050
+              "line": 2065
             },
             {
               "in": "run",
               "kind": "raise",
-              "line": 2052
+              "line": 2067
             },
             {
               "in": "run",
               "kind": "except",
-              "line": 2053
+              "line": 2068
             },
             {
               "in": "run",
               "kind": "raise",
-              "line": 2061
+              "line": 2076
             }
           ],
-          "hash": "6c103098adba6e92eb2bd2cb6b1a2ecb438dc03faa981438610201891557360d",
+          "hash": "50e77a15f67341996fa72769918610b47d8d722b47f3a14df4bc190e284c0bae",
           "importsFiles": [
             "xrpl_camp/__init__.py",
             "xrpl_camp/certificate.py",
@@ -1826,6 +1894,7 @@
             "xrpl_camp/lessons.py",
             "xrpl_camp/models.py",
             "xrpl_camp/proof_pack.py",
+            "xrpl_camp/resets.py",
             "xrpl_camp/transport.py",
             "xrpl_camp/wallet.py"
           ],
@@ -3149,14 +3218,14 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1386,
+                  "line": 1395,
                   "name": "glob",
                   "target": null,
                   "via": "_packs_in"
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1415,
+                  "line": 1425,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3165,7 +3234,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1419,
+                  "line": 1429,
                   "name": "EXIT_USER",
                   "passed": true,
                   "target": {
@@ -3175,7 +3244,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1424,
+                  "line": 1434,
                   "name": "resolve_verification_endpoint",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3184,7 +3253,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1439,
+                  "line": 1449,
                   "name": "verify_proof_pack",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3193,7 +3262,16 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1352,
+                  "line": 1353,
+                  "name": "network_label_for_url",
+                  "target": {
+                    "file": "xrpl_camp/__init__.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "branch": "file.is_dir()",
+                  "line": 1356,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3202,7 +3280,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1355,
+                  "line": 1359,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3211,7 +3289,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1357,
+                  "line": 1361,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3220,7 +3298,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1364,
+                  "line": 1368,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3229,7 +3307,7 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1369,
+                  "line": 1373,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3239,19 +3317,10 @@
                 },
                 {
                   "branch": "file.is_dir()",
-                  "line": 1372,
-                  "name": "classify_lesson_online",
+                  "line": 1382,
+                  "name": "parse_time",
                   "target": {
-                    "file": "xrpl_camp/proof_pack.py"
-                  },
-                  "via": "_online_check_inner"
-                },
-                {
-                  "branch": "file.is_dir()",
-                  "line": 1377,
-                  "name": "summarize_online",
-                  "target": {
-                    "file": "xrpl_camp/proof_pack.py"
+                    "file": "xrpl_camp/resets.py"
                   },
                   "via": "_online_check_inner"
                 }
@@ -3362,7 +3431,15 @@
                   }
                 },
                 {
-                  "line": 1352,
+                  "line": 1353,
+                  "name": "network_label_for_url",
+                  "target": {
+                    "file": "xrpl_camp/__init__.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1356,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3370,7 +3447,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1355,
+                  "line": 1359,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3378,7 +3455,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1357,
+                  "line": 1361,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3386,7 +3463,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1364,
+                  "line": 1368,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3394,7 +3471,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1369,
+                  "line": 1373,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3403,7 +3480,23 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1372,
+                  "line": 1382,
+                  "name": "parse_time",
+                  "target": {
+                    "file": "xrpl_camp/resets.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1381,
+                  "name": "announced_reset_after",
+                  "target": {
+                    "file": "xrpl_camp/resets.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1376,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3411,7 +3504,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1377,
+                  "line": 1386,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3507,28 +3600,6 @@
                   "line": 1201,
                   "name": "read_text",
                   "target": null
-                },
-                {
-                  "line": 1211,
-                  "name": "CampError",
-                  "target": {
-                    "file": "xrpl_camp/errors.py"
-                  }
-                },
-                {
-                  "line": 1219,
-                  "name": "EXIT_RUNTIME",
-                  "passed": true,
-                  "target": {
-                    "file": "xrpl_camp/errors.py"
-                  }
-                },
-                {
-                  "line": 1226,
-                  "name": "verify_proof_pack",
-                  "target": {
-                    "file": "xrpl_camp/proof_pack.py"
-                  }
                 }
               ],
               "exported": false,
@@ -3540,7 +3611,15 @@
             {
               "calls": [
                 {
-                  "line": 1352,
+                  "line": 1353,
+                  "name": "network_label_for_url",
+                  "target": {
+                    "file": "xrpl_camp/__init__.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1356,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3548,7 +3627,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1355,
+                  "line": 1359,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3556,7 +3635,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1357,
+                  "line": 1361,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3564,7 +3643,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1364,
+                  "line": 1368,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3572,7 +3651,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1369,
+                  "line": 1373,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3581,7 +3660,23 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1372,
+                  "line": 1382,
+                  "name": "parse_time",
+                  "target": {
+                    "file": "xrpl_camp/resets.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1381,
+                  "name": "announced_reset_after",
+                  "target": {
+                    "file": "xrpl_camp/resets.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1376,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3589,7 +3684,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1377,
+                  "line": 1386,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3605,35 +3700,42 @@
             {
               "calls": [
                 {
-                  "line": 1352,
+                  "line": 1353,
+                  "name": "network_label_for_url",
+                  "target": {
+                    "file": "xrpl_camp/__init__.py"
+                  }
+                },
+                {
+                  "line": 1356,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1355,
+                  "line": 1359,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1357,
+                  "line": 1361,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1364,
+                  "line": 1368,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1369,
+                  "line": 1373,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3641,14 +3743,28 @@
                   }
                 },
                 {
-                  "line": 1372,
+                  "line": 1382,
+                  "name": "parse_time",
+                  "target": {
+                    "file": "xrpl_camp/resets.py"
+                  }
+                },
+                {
+                  "line": 1381,
+                  "name": "announced_reset_after",
+                  "target": {
+                    "file": "xrpl_camp/resets.py"
+                  }
+                },
+                {
+                  "line": 1376,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1377,
+                  "line": 1386,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3663,7 +3779,7 @@
             {
               "calls": [
                 {
-                  "line": 1386,
+                  "line": 1395,
                   "name": "glob",
                   "target": null
                 }
@@ -3676,14 +3792,14 @@
             {
               "calls": [
                 {
-                  "line": 1386,
+                  "line": 1395,
                   "name": "glob",
                   "target": null,
                   "via": "_packs_in"
                 },
                 {
                   "branch": "not packs",
-                  "line": 1415,
+                  "line": 1425,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3691,7 +3807,7 @@
                 },
                 {
                   "branch": "not packs",
-                  "line": 1419,
+                  "line": 1429,
                   "name": "EXIT_USER",
                   "passed": true,
                   "target": {
@@ -3733,21 +3849,29 @@
                   "via": "_simulating"
                 },
                 {
-                  "line": 1424,
+                  "line": 1434,
                   "name": "resolve_verification_endpoint",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1439,
+                  "line": 1449,
                   "name": "verify_proof_pack",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
                   }
                 },
                 {
-                  "line": 1352,
+                  "line": 1353,
+                  "name": "network_label_for_url",
+                  "target": {
+                    "file": "xrpl_camp/__init__.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1356,
                   "name": "online_lookup_plan",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3755,7 +3879,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1355,
+                  "line": 1359,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3763,7 +3887,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1357,
+                  "line": 1361,
                   "name": "try_network",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3771,7 +3895,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1364,
+                  "line": 1368,
                   "name": "lookup_tx",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3779,7 +3903,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1369,
+                  "line": 1373,
                   "name": "lookup_error",
                   "passed": true,
                   "target": {
@@ -3788,7 +3912,23 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1372,
+                  "line": 1382,
+                  "name": "parse_time",
+                  "target": {
+                    "file": "xrpl_camp/resets.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1381,
+                  "name": "announced_reset_after",
+                  "target": {
+                    "file": "xrpl_camp/resets.py"
+                  },
+                  "via": "_online_check_inner"
+                },
+                {
+                  "line": 1376,
                   "name": "classify_lesson_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3796,7 +3936,7 @@
                   "via": "_online_check_inner"
                 },
                 {
-                  "line": 1377,
+                  "line": 1386,
                   "name": "summarize_online",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3810,7 +3950,7 @@
                   "via": "_posix_path"
                 },
                 {
-                  "line": 1448,
+                  "line": 1458,
                   "name": "batch_summary",
                   "target": {
                     "file": "xrpl_camp/proof_pack.py"
@@ -3850,21 +3990,21 @@
                   "via": "_simulating"
                 },
                 {
-                  "line": 1575,
+                  "line": 1590,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1581,
+                  "line": 1596,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1583,
+                  "line": 1598,
                   "name": "STATE_DIR",
                   "passed": true,
                   "target": {
@@ -3872,7 +4012,7 @@
                   }
                 },
                 {
-                  "line": 1583,
+                  "line": 1598,
                   "name": "delete_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3895,7 +4035,7 @@
                   "via": "_fail"
                 },
                 {
-                  "line": 1611,
+                  "line": 1626,
                   "name": "STATE_DIR",
                   "passed": true,
                   "target": {
@@ -3903,14 +4043,14 @@
                   }
                 },
                 {
-                  "line": 1615,
+                  "line": 1630,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1622,
+                  "line": 1637,
                   "name": "STATE_DIR",
                   "passed": true,
                   "target": {
@@ -3918,7 +4058,7 @@
                   }
                 },
                 {
-                  "line": 1622,
+                  "line": 1637,
                   "name": "delete_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -3933,28 +4073,28 @@
             {
               "calls": [
                 {
-                  "line": 1708,
+                  "line": 1723,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1714,
+                  "line": 1729,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1728,
+                  "line": 1743,
                   "name": "get_network_id",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
-                  "line": 1742,
+                  "line": 1757,
                   "name": "get_faucet_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -3969,28 +4109,28 @@
             {
               "calls": [
                 {
-                  "line": 1791,
+                  "line": 1806,
                   "name": "get_state_dir",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1792,
+                  "line": 1807,
                   "name": "state_is_directory_local",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1793,
+                  "line": 1808,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 1795,
+                  "line": 1810,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4005,7 +4145,7 @@
             {
               "calls": [
                 {
-                  "line": 1791,
+                  "line": 1806,
                   "name": "get_state_dir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4013,7 +4153,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1792,
+                  "line": 1807,
                   "name": "state_is_directory_local",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4021,7 +4161,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1793,
+                  "line": 1808,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4029,7 +4169,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1795,
+                  "line": 1810,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4037,7 +4177,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1708,
+                  "line": 1723,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4045,7 +4185,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1714,
+                  "line": 1729,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4053,7 +4193,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1728,
+                  "line": 1743,
                   "name": "get_network_id",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4061,7 +4201,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1742,
+                  "line": 1757,
                   "name": "get_faucet_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4077,7 +4217,7 @@
             {
               "calls": [
                 {
-                  "line": 1791,
+                  "line": 1806,
                   "name": "get_state_dir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4085,7 +4225,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1792,
+                  "line": 1807,
                   "name": "state_is_directory_local",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4093,7 +4233,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1793,
+                  "line": 1808,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4101,7 +4241,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1795,
+                  "line": 1810,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4109,7 +4249,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1708,
+                  "line": 1723,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4117,7 +4257,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1714,
+                  "line": 1729,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4125,7 +4265,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1728,
+                  "line": 1743,
                   "name": "get_network_id",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4133,7 +4273,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1742,
+                  "line": 1757,
                   "name": "get_faucet_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4142,7 +4282,7 @@
                 },
                 {
                   "branch": "failed",
-                  "line": 1877,
+                  "line": 1892,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -4150,7 +4290,7 @@
                 },
                 {
                   "branch": "failed",
-                  "line": 1881,
+                  "line": 1896,
                   "name": "EXIT_USER",
                   "passed": true,
                   "target": {
@@ -4177,7 +4317,7 @@
                 },
                 {
                   "branch": "os.environ.get(\"XRPL_CAMP_RPC_URL\", \"\").strip()",
-                  "line": 1896,
+                  "line": 1911,
                   "name": "CampError",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -4185,7 +4325,7 @@
                 },
                 {
                   "branch": "os.environ.get(\"XRPL_CAMP_RPC_URL\", \"\").strip()",
-                  "line": 1900,
+                  "line": 1915,
                   "name": "EXIT_USER",
                   "passed": true,
                   "target": {
@@ -4201,7 +4341,7 @@
             {
               "calls": [
                 {
-                  "line": 1791,
+                  "line": 1806,
                   "name": "get_state_dir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4209,7 +4349,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1792,
+                  "line": 1807,
                   "name": "state_is_directory_local",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4217,7 +4357,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1793,
+                  "line": 1808,
                   "name": "exists",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4225,7 +4365,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1795,
+                  "line": 1810,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
@@ -4233,7 +4373,7 @@
                   "via": "_collect_checks"
                 },
                 {
-                  "line": 1708,
+                  "line": 1723,
                   "name": "get_rpc_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4241,7 +4381,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1714,
+                  "line": 1729,
                   "name": "network_label_for_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4249,7 +4389,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1728,
+                  "line": 1743,
                   "name": "get_network_id",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4257,7 +4397,7 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1742,
+                  "line": 1757,
                   "name": "get_faucet_url",
                   "target": {
                     "file": "xrpl_camp/__init__.py"
@@ -4265,39 +4405,18 @@
                   "via": "_collect_network_checks"
                 },
                 {
-                  "line": 1938,
+                  "line": 1953,
                   "name": "read_error_history",
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
                 },
                 {
-                  "line": 1967,
+                  "line": 1982,
                   "name": "STATE_DIR",
                   "passed": true,
                   "target": {
                     "file": "xrpl_camp/models.py"
-                  }
-                },
-                {
-                  "line": 1968,
-                  "name": "exists",
-                  "target": {
-                    "file": "xrpl_camp/models.py"
-                  }
-                },
-                {
-                  "line": 1969,
-                  "name": "get_rpc_url",
-                  "target": {
-                    "file": "xrpl_camp/__init__.py"
-                  }
-                },
-                {
-                  "line": 1970,
-                  "name": "network_label_for_url",
-                  "target": {
-                    "file": "xrpl_camp/__init__.py"
                   }
                 },
                 {
@@ -4308,14 +4427,35 @@
                   }
                 },
                 {
+                  "line": 1984,
+                  "name": "get_rpc_url",
+                  "target": {
+                    "file": "xrpl_camp/__init__.py"
+                  }
+                },
+                {
+                  "line": 1985,
+                  "name": "network_label_for_url",
+                  "target": {
+                    "file": "xrpl_camp/__init__.py"
+                  }
+                },
+                {
                   "line": 1998,
+                  "name": "exists",
+                  "target": {
+                    "file": "xrpl_camp/models.py"
+                  }
+                },
+                {
+                  "line": 2013,
                   "name": "iterdir",
                   "target": {
                     "file": "xrpl_camp/models.py"
                   }
                 },
                 {
-                  "line": 2012,
+                  "line": 2027,
                   "name": "write_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -4346,14 +4486,14 @@
             {
               "calls": [
                 {
-                  "line": 2047,
+                  "line": 2062,
                   "name": "record_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
                   }
                 },
                 {
-                  "line": 2048,
+                  "line": 2063,
                   "name": "format_error",
                   "target": {
                     "file": "xrpl_camp/errors.py"
@@ -9329,75 +9469,75 @@
             {
               "in": "_tool_version",
               "kind": "except",
-              "line": 122
+              "line": 125
             },
             {
               "in": "generate_proof_pack",
               "kind": "except",
-              "line": 281
+              "line": 284
             },
             {
               "in": "generate_proof_pack",
               "kind": "raise",
-              "line": 282
+              "line": 285
             },
             {
               "in": "save_proof_pack",
               "kind": "raise",
-              "line": 301
+              "line": 304
             },
             {
               "in": "write_proof_pack_atomic",
               "kind": "raise",
-              "line": 315
+              "line": 318
             },
             {
               "in": "write_proof_pack_atomic",
               "kind": "raise",
-              "line": 319
-            },
-            {
-              "in": "write_proof_pack_atomic",
-              "kind": "except",
               "line": 322
             },
             {
               "in": "write_proof_pack_atomic",
+              "kind": "except",
+              "line": 325
+            },
+            {
+              "in": "write_proof_pack_atomic",
               "kind": "raise",
-              "line": 324
+              "line": 327
             },
             {
               "in": "verify_proof_pack",
               "kind": "except",
-              "line": 367
+              "line": 370
             },
             {
               "in": "online_lookup_plan",
               "kind": "except",
-              "line": 606
+              "line": 629
             },
             {
               "in": "classify_lesson_online",
               "kind": "except",
-              "line": 760
+              "line": 807
             },
             {
               "in": "classify_lesson_online",
               "kind": "except",
-              "line": 815
+              "line": 862
             },
             {
               "in": "apply_attestation_warnings",
               "kind": "except",
-              "line": 983
+              "line": 1053
             },
             {
               "in": "apply_attestation_warnings",
               "kind": "raise",
-              "line": 984
+              "line": 1054
             }
           ],
-          "hash": "5e03ac9ea1a10ce26d0cacada8dc08416c256fd32f014ca43865802f2e3a588b",
+          "hash": "2eb319ac8990d67a6ead05468c8fe2541df71f428e4aa834c9d49816b1ace892",
           "importsFiles": [
             "xrpl_camp/__init__.py",
             "xrpl_camp/certificate.py",
@@ -9410,21 +9550,21 @@
             {
               "calls": [
                 {
-                  "line": 206,
+                  "line": 209,
                   "name": "_attested_network",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
                   }
                 },
                 {
-                  "line": 221,
+                  "line": 224,
                   "name": "explorer_url_for",
                   "target": {
                     "file": "xrpl_camp/transport.py"
                   }
                 },
                 {
-                  "line": 282,
+                  "line": 285,
                   "name": "PackGenerationError",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
@@ -9439,7 +9579,7 @@
             {
               "calls": [
                 {
-                  "line": 413,
+                  "line": 416,
                   "name": "_contains_xrpl_seed",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
@@ -9448,14 +9588,14 @@
                 },
                 {
                   "branch": "proof_pack_has_seed(pack)",
-                  "line": 301,
+                  "line": 304,
                   "name": "SeedLeakDetected",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
                   }
                 },
                 {
-                  "line": 303,
+                  "line": 306,
                   "name": "_write_artifact",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
@@ -9470,7 +9610,7 @@
             {
               "calls": [
                 {
-                  "line": 413,
+                  "line": 416,
                   "name": "_contains_xrpl_seed",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
@@ -9479,21 +9619,21 @@
                 },
                 {
                   "branch": "proof_pack_has_seed(pack)",
-                  "line": 315,
+                  "line": 318,
                   "name": "SeedLeakDetected",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
                   }
                 },
                 {
-                  "line": 321,
+                  "line": 324,
                   "name": "_write_through_tempfile",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
                   }
                 },
                 {
-                  "line": 324,
+                  "line": 327,
                   "name": "ArtifactWriteError",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
@@ -9508,7 +9648,7 @@
             {
               "calls": [
                 {
-                  "line": 413,
+                  "line": 416,
                   "name": "_contains_xrpl_seed",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
@@ -9523,7 +9663,7 @@
             {
               "calls": [
                 {
-                  "line": 984,
+                  "line": 1054,
                   "name": "PackGenerationError",
                   "target": {
                     "file": "xrpl_camp/certificate.py"
@@ -9539,11 +9679,27 @@
         },
         {
           "exports": [
+            "announced_reset_after",
+            "parse_time"
+          ],
+          "failurePaths": [
+            {
+              "in": "parse_time",
+              "kind": "except",
+              "line": 69
+            }
+          ],
+          "hash": "538c771685639b3c93c20117b3256b6d276467d68a2703f30d8cd30c5c5022fb",
+          "path": "xrpl_camp/resets.py"
+        },
+        {
+          "exports": [
             "account_exists",
             "account_nfts",
             "account_transactions",
             "assert_safe_network",
             "burn_nft",
+            "complete_ledger_bounds",
             "earliest_complete_ledger",
             "explorer_account_url_for",
             "explorer_url_for",
@@ -9662,62 +9818,47 @@
             {
               "in": "assert_safe_network",
               "kind": "raise",
-              "line": 1045
+              "line": 1060
             },
             {
               "in": "assert_safe_network",
               "kind": "raise",
-              "line": 1052
+              "line": 1067
             },
             {
               "in": "fund_wallet_detail",
               "kind": "except",
-              "line": 1153
+              "line": 1168
             },
             {
               "in": "fund_wallet_detail",
               "kind": "except",
-              "line": 1155
+              "line": 1170
             },
             {
               "in": "attempt",
               "kind": "except",
-              "line": 1178
+              "line": 1193
             },
             {
               "in": "attempt",
               "kind": "raise",
-              "line": 1183
+              "line": 1198
             },
             {
               "in": "fund_wallet_detail",
               "kind": "except",
-              "line": 1192
+              "line": 1207
             },
             {
               "in": "get_account_summary",
               "kind": "except",
-              "line": 1250
-            },
-            {
-              "in": "get_account_summary",
-              "kind": "raise",
-              "line": 1255
-            },
-            {
-              "in": "get_account_summary",
-              "kind": "raise",
               "line": 1265
             },
             {
               "in": "get_account_summary",
               "kind": "raise",
-              "line": 1271
-            },
-            {
-              "in": "get_account_summary",
-              "kind": "except",
-              "line": 1279
+              "line": 1270
             },
             {
               "in": "get_account_summary",
@@ -9725,54 +9866,59 @@
               "line": 1280
             },
             {
+              "in": "get_account_summary",
+              "kind": "raise",
+              "line": 1286
+            },
+            {
+              "in": "get_account_summary",
+              "kind": "except",
+              "line": 1294
+            },
+            {
+              "in": "get_account_summary",
+              "kind": "raise",
+              "line": 1295
+            },
+            {
               "in": "account_exists",
               "kind": "except",
-              "line": 1401
+              "line": 1416
             },
             {
               "in": "_resolve_after_lapse",
               "kind": "except",
-              "line": 1534
+              "line": 1549
             },
             {
               "in": "_resolve_after_lapse",
               "kind": "raise",
-              "line": 1535
+              "line": 1550
             },
             {
               "in": "_resolve_after_lapse",
               "kind": "raise",
-              "line": 1552
+              "line": 1567
             },
             {
               "in": "_resolve_after_lapse",
               "kind": "raise",
-              "line": 1554
+              "line": 1569
             },
             {
               "in": "resolve_in_flight",
               "kind": "except",
-              "line": 1590
+              "line": 1605
             },
             {
               "in": "resolve_in_flight",
               "kind": "raise",
-              "line": 1597
+              "line": 1612
             },
             {
               "in": "send_memo_payment",
               "kind": "raise",
-              "line": 1734
-            },
-            {
-              "in": "send_memo_payment",
-              "kind": "raise",
-              "line": 1740
-            },
-            {
-              "in": "send_memo_payment",
-              "kind": "raise",
-              "line": 1748
+              "line": 1749
             },
             {
               "in": "send_memo_payment",
@@ -9782,102 +9928,92 @@
             {
               "in": "send_memo_payment",
               "kind": "raise",
-              "line": 1788
+              "line": 1763
+            },
+            {
+              "in": "send_memo_payment",
+              "kind": "raise",
+              "line": 1770
+            },
+            {
+              "in": "send_memo_payment",
+              "kind": "raise",
+              "line": 1803
             },
             {
               "in": "send_memo_payment",
               "kind": "except",
-              "line": 1800
+              "line": 1815
             },
             {
               "in": "send_memo_payment",
               "kind": "raise",
-              "line": 1808
+              "line": 1823
             },
             {
               "in": "send_memo_payment",
               "kind": "except",
-              "line": 1846
+              "line": 1861
             },
             {
               "in": "send_memo_payment",
               "kind": "raise",
-              "line": 1848
+              "line": 1863
             },
             {
               "in": "send_memo_payment",
               "kind": "except",
-              "line": 1865
+              "line": 1880
             },
             {
               "in": "send_memo_payment",
               "kind": "raise",
-              "line": 1877
+              "line": 1892
             },
             {
               "in": "send_memo_payment",
               "kind": "raise",
-              "line": 1884
+              "line": 1899
             },
             {
               "in": "send_memo_payment",
               "kind": "raise",
-              "line": 1887
+              "line": 1902
             },
             {
               "in": "_fetch_tx",
               "kind": "except",
-              "line": 1940
+              "line": 1955
             },
             {
               "in": "_fetch_tx",
               "kind": "raise",
-              "line": 1943
+              "line": 1958
             },
             {
               "in": "lookup_tx",
               "kind": "raise",
-              "line": 2018
+              "line": 2050
             },
             {
               "in": "lookup_tx",
               "kind": "except",
-              "line": 2033
+              "line": 2065
             },
             {
               "in": "lookup_tx",
               "kind": "except",
-              "line": 2055
+              "line": 2087
             },
             {
               "in": "lookup_tx",
               "kind": "raise",
-              "line": 2056
+              "line": 2088
             },
             {
               "in": "simulate_tx",
               "kind": "except",
-              "line": 2179
-            },
-            {
-              "in": "simulate_tx",
-              "kind": "raise",
-              "line": 2180
-            },
-            {
-              "in": "simulate_tx",
-              "kind": "raise",
-              "line": 2189
-            },
-            {
-              "in": "simulate_tx",
-              "kind": "except",
-              "line": 2202
-            },
-            {
-              "in": "simulate_tx",
-              "kind": "raise",
-              "line": 2207
+              "line": 2211
             },
             {
               "in": "simulate_tx",
@@ -9887,77 +10023,82 @@
             {
               "in": "simulate_tx",
               "kind": "raise",
-              "line": 2220
+              "line": 2221
+            },
+            {
+              "in": "simulate_tx",
+              "kind": "except",
+              "line": 2234
+            },
+            {
+              "in": "simulate_tx",
+              "kind": "raise",
+              "line": 2239
+            },
+            {
+              "in": "simulate_tx",
+              "kind": "raise",
+              "line": 2244
+            },
+            {
+              "in": "simulate_tx",
+              "kind": "raise",
+              "line": 2252
             },
             {
               "in": "account_transactions",
               "kind": "raise",
-              "line": 2352
+              "line": 2384
             },
             {
               "in": "account_transactions",
               "kind": "except",
-              "line": 2367
+              "line": 2399
             },
             {
               "in": "account_transactions",
               "kind": "raise",
-              "line": 2372
+              "line": 2404
             },
             {
               "in": "account_transactions",
               "kind": "raise",
-              "line": 2379
+              "line": 2411
             },
             {
               "in": "account_transactions",
               "kind": "raise",
-              "line": 2386
+              "line": 2418
             },
             {
               "in": "account_transactions",
               "kind": "raise",
-              "line": 2390
+              "line": 2422
             },
             {
               "in": "_submit_signed",
               "kind": "except",
-              "line": 2508
+              "line": 2540
             },
             {
               "in": "_submit_signed",
               "kind": "except",
-              "line": 2514
+              "line": 2546
             },
             {
               "in": "_submit_signed",
               "kind": "raise",
-              "line": 2525
+              "line": 2557
             },
             {
               "in": "_submit_signed",
               "kind": "raise",
-              "line": 2532
+              "line": 2564
             },
             {
               "in": "_submit_signed",
               "kind": "raise",
-              "line": 2545
-            },
-            {
-              "in": "_resolve_submitted_tx",
-              "kind": "raise",
-              "line": 2568
-            },
-            {
-              "in": "_resolve_submitted_tx",
-              "kind": "except",
-              "line": 2580
-            },
-            {
-              "in": "_resolve_submitted_tx",
-              "kind": "raise",
-              "line": 2581
+              "line": 2577
             },
             {
               "in": "_resolve_submitted_tx",
@@ -9966,46 +10107,61 @@
             },
             {
               "in": "_resolve_submitted_tx",
+              "kind": "except",
+              "line": 2612
+            },
+            {
+              "in": "_resolve_submitted_tx",
               "kind": "raise",
-              "line": 2610
+              "line": 2613
+            },
+            {
+              "in": "_resolve_submitted_tx",
+              "kind": "raise",
+              "line": 2632
+            },
+            {
+              "in": "_resolve_submitted_tx",
+              "kind": "raise",
+              "line": 2642
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2687
+              "line": 2719
             },
             {
               "in": "account_nfts",
               "kind": "except",
-              "line": 2697
+              "line": 2729
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2698
+              "line": 2730
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2704
+              "line": 2736
             },
             {
               "in": "account_nfts",
               "kind": "raise",
-              "line": 2708
+              "line": 2740
             },
             {
               "in": "mint_nft",
               "kind": "raise",
-              "line": 2738
+              "line": 2770
             },
             {
               "in": "burn_nft",
               "kind": "raise",
-              "line": 2768
+              "line": 2800
             }
           ],
-          "hash": "6d49c6ab6b35afe1b743075c16e0d31022625ffd6c3d2edb834bf0c9d33b227a",
+          "hash": "a57ca386b7d7c868e03bf4687dad167968781da84fec9ed45dbd7cb1eb397d4f",
           "importsFiles": [
             "xrpl_camp/errors.py"
           ],
@@ -10105,7 +10261,7 @@
       "outsideReads": 10,
       "outsideWrites": 5,
       "role": "code",
-      "testedBy": 23,
+      "testedBy": 25,
       "unresolvedNamed": [
         {
           "path": "xrpl_camp/cli.py",
@@ -10341,12 +10497,12 @@
         {
           "boundary": "tests",
           "depth": 0,
-          "files": 26
+          "files": 28
         },
         {
           "boundary": "xrpl_camp",
           "depth": 0,
-          "files": 10
+          "files": 11
         }
       ],
       "readers": [],
@@ -11014,7 +11170,7 @@
         {
           "boundary": "xrpl_camp",
           "depth": 0,
-          "files": 10
+          "files": 11
         }
       ],
       "readers": [],
@@ -11410,7 +11566,7 @@
         {
           "boundary": "xrpl_camp",
           "depth": 0,
-          "files": 9
+          "files": 10
         }
       ],
       "readers": [],
@@ -11454,8 +11610,8 @@
   ],
   "engine": "1.26.0",
   "generatedFrom": {
-    "commit": "d3a2bb2e202f8a4ae7b61c6496417c70ac754433",
-    "tracked": 1006
+    "commit": "c10abfb7a17c3d5f8e38beac324d65bdeed0b5c2",
+    "tracked": 1059
   },
   "landings": [
     {
@@ -11668,7 +11824,7 @@
   "overlaps": [],
   "submodules": [],
   "symlinks": [],
-  "testFiles": 34,
+  "testFiles": 36,
   "testsNotRun": [
     "tests/test_certificate.py",
     "tests/test_check_bundle.py",
@@ -11678,10 +11834,12 @@
     "tests/test_errors.py",
     "tests/test_failure_gate.py",
     "tests/test_features.py",
+    "tests/test_history_signal.py",
     "tests/test_lessons.py",
     "tests/test_live_testnet.py",
     "tests/test_models.py",
     "tests/test_proof_pack.py",
+    "tests/test_reset_ledger_restart.py",
     "tests/test_seed_guard.py",
     "tests/test_state_hygiene.py",
     "tests/test_transport.py",
@@ -15346,6 +15504,206 @@
     {
       "hash": "4a0f6be24a9fa565932119b5888154e1ee73d03887cf07658c8ab3b2a69efa62",
       "path": "docs/receipts/1.5.2-live-check/testnet/verify/packs/honest.json"
+    },
+    {
+      "hash": "e62285a9ccdd88ebcccc942608eab3ef24515c38bbf1955b74b05f0faed6b9ac",
+      "path": "docs/receipts/1.6.0-live-check/README.md"
+    },
+    {
+      "hash": "8e27e77a6b8bb32739f2cdd148d097b6b0f64192d805397ffe9bec8a7f274ff4",
+      "path": "docs/receipts/1.6.0-live-check/testnet/01-start.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.6.0-live-check/testnet/01-start.err"
+    },
+    {
+      "hash": "780fcc80d03b78a23a26028dbafb623a443ee013993b2d7f64257bc9cfd22132",
+      "path": "docs/receipts/1.6.0-live-check/testnet/01-start.out"
+    },
+    {
+      "hash": "74aca6302c654c2e5a03a865af3f3051314966e9d901049a7080609de60fb24f",
+      "path": "docs/receipts/1.6.0-live-check/testnet/02-forge.txt"
+    },
+    {
+      "hash": "8d3da97a1c3e5195592457af806cbe648ff092dfad8bea389930516143a4873e",
+      "path": "docs/receipts/1.6.0-live-check/testnet/03-endpoint-range.txt"
+    },
+    {
+      "hash": "1962979eb596a52a8119e9dfc138f2e3c7d16b3db17a7cbe8f1db9b3ea3d61e9",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid-json.err"
+    },
+    {
+      "hash": "4972be0e458046db07635d07a8187f2846f3b27aafcbc51f43aa0822b9638576",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid-json.out"
+    },
+    {
+      "hash": "a256ed1c8240a70ca4728da9725da505204a25648d6eaca79acf1be971cb5cf2",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_future_ledger-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_future_ledger-json.err"
+    },
+    {
+      "hash": "3d23a02c11ffa6b50ac836148396729c17b7869f4240e0ce810a748665006046",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_future_ledger-json.out"
+    },
+    {
+      "hash": "e550517d87a166f34d594c42d76c3c86e8430f9691fe0bba56ae11779e8c0eb4",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_pruned_ledger-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_pruned_ledger-json.err"
+    },
+    {
+      "hash": "94320919ab65a6ae0bf2b29a0b387408288194aa88e455bd3f487727f2b099ea",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-fake_txid_pruned_ledger-json.out"
+    },
+    {
+      "hash": "7b19f40731ba66f337b387155acb6cc59bd01562bb08dd8fbe60b46fa13f207e",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-honest-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-honest-json.err"
+    },
+    {
+      "hash": "8c0153cfe34e6a88133232b9dc46a7cd6226ed434b05d47869addc3c8de27fee",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-honest-json.out"
+    },
+    {
+      "hash": "b9922ab6cb16c5d9548bada6d7a8d2b238e12458dc60b5108c3c88fd906295f5",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-real_txid_future_ledger-json.cmd"
+    },
+    {
+      "hash": "55cbf11481558542a30724565c2cba05fc0ba50cdaab9d070e21a14fb8266243",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-real_txid_future_ledger-json.err"
+    },
+    {
+      "hash": "1f330c7d11e66fd15516013a63b783805816dc2fab3c9ab13bd251e34b669204",
+      "path": "docs/receipts/1.6.0-live-check/testnet/10-verify-real_txid_future_ledger-json.out"
+    },
+    {
+      "hash": "432dd4ff6f77a21cab1d347d48ccdba73438eac49332ec7cecbb611f1dec6151",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid.err"
+    },
+    {
+      "hash": "467e0082035bc322baad1b70cb2c0e26de2b72efb5cc50e985669d6963f5471e",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid.out"
+    },
+    {
+      "hash": "15504927a8cc92a2de2ebd1e7c709d912aa648ac81926314c11449d16cdfb852",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_future_ledger.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_future_ledger.err"
+    },
+    {
+      "hash": "223afad9f276ac93ed09c32f1c36975823159e35c3055f57082d80785f36d1cd",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_future_ledger.out"
+    },
+    {
+      "hash": "1ecf53ca679dcb9688d532fb7a0ed189e3289d0c8acb9df440b926cb0a48c5ad",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_pruned_ledger.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_pruned_ledger.err"
+    },
+    {
+      "hash": "2debd11815ac757aa3d28a20ecca5a5488bd45b81289af63b53366d88161fd3f",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-fake_txid_pruned_ledger.out"
+    },
+    {
+      "hash": "3db40c176cce6b8a257b5fff3f5cf4ded96a431acafdda4975b27d27b03cb5b2",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-honest.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-honest.err"
+    },
+    {
+      "hash": "437843522c4197d4d49eeaa703402b94c871f6b950821993e61421fc8a3fed7a",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-honest.out"
+    },
+    {
+      "hash": "8cd6eaa1ab3a290b2701826d4beece1adeaaa8a0d004c8912c120118aa878ad1",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-real_txid_future_ledger.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-real_txid_future_ledger.err"
+    },
+    {
+      "hash": "8fc84d7c3cec2a306a60a3a0e538d49dc74099b4bde3844288cd7b3a87207100",
+      "path": "docs/receipts/1.6.0-live-check/testnet/11-verify-real_txid_future_ledger.out"
+    },
+    {
+      "hash": "46d31a33f25a9104cae678f15da5e19b664e1802441eb6f0fa8468811c193fde",
+      "path": "docs/receipts/1.6.0-live-check/testnet/20-folder-unconfirmed-json.cmd"
+    },
+    {
+      "hash": "855824616132104f9adfb34aff37b17ed11ee1b019d49d663e3f6b31c82bb0de",
+      "path": "docs/receipts/1.6.0-live-check/testnet/20-folder-unconfirmed-json.err"
+    },
+    {
+      "hash": "7d0aeee0e8d836deb74172ab6e05553c31a2259348b9d13bb2dbd863e47b963d",
+      "path": "docs/receipts/1.6.0-live-check/testnet/20-folder-unconfirmed-json.out"
+    },
+    {
+      "hash": "cc0a7144a12171b83f87b5b4b12747b6f7a5566ab2f4d0b7aee165d31f6cee58",
+      "path": "docs/receipts/1.6.0-live-check/testnet/21-folder-unconfirmed.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.6.0-live-check/testnet/21-folder-unconfirmed.err"
+    },
+    {
+      "hash": "d662bfdfee75fd9909c1a0864c8a03ac7904369494eead7fca2bf5fd36b4492b",
+      "path": "docs/receipts/1.6.0-live-check/testnet/21-folder-unconfirmed.out"
+    },
+    {
+      "hash": "0d16997853b9ea7ca87bb0ce6fbfda46365d80ac8d2372d530ff05871d3d9e93",
+      "path": "docs/receipts/1.6.0-live-check/testnet/22-folder-all-json.cmd"
+    },
+    {
+      "hash": "acc73a5746ab20a683fab74dd0bbc5f93bd1ce04d557474a0e8c2bb609b1ebe2",
+      "path": "docs/receipts/1.6.0-live-check/testnet/22-folder-all-json.err"
+    },
+    {
+      "hash": "df5bc93ae579ff5571ab46db6f1c70a3188189c669e553d016bd053bdb22ef9f",
+      "path": "docs/receipts/1.6.0-live-check/testnet/22-folder-all-json.out"
+    },
+    {
+      "hash": "a06c38ec65c4438458c3f872285bb0bc3a1c2ae1b829c1ed5cb4b252a43d85e1",
+      "path": "docs/receipts/1.6.0-live-check/testnet/30-verify-honest-offline.cmd"
+    },
+    {
+      "hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "path": "docs/receipts/1.6.0-live-check/testnet/30-verify-honest-offline.err"
+    },
+    {
+      "hash": "94ac21d235c9d953da2544f8bfb1296d93879184f38a1ee4b4e134b0e6a2095b",
+      "path": "docs/receipts/1.6.0-live-check/testnet/30-verify-honest-offline.out"
+    },
+    {
+      "hash": "1da2031334e8a6ee6ec1ff07420b8f0c5f67cc7aea07974c8e05b00548350721",
+      "path": "docs/receipts/1.6.0-live-check/testnet/code.txt"
+    },
+    {
+      "hash": "ee103d1ab9f19e7d0abae1f86949aac4c3615740e4097cfbb5cce17811ad56ba",
+      "path": "docs/receipts/1.6.0-live-check/testnet/preflight.txt"
     }
   ]
 }

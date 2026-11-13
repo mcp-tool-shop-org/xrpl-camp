@@ -1,0 +1,30 @@
+
+  ✅ PASS — Proof pack integrity verified.
+
+  File:     packs/fake_txid.json
+  Schema:   xrpl-camp-proof-pack-v1
+  Address:  rBWTSrV4JB6fhWmz9u8FcnTqFXbn9PnDX3
+  Network:  testnet
+  Lessons:  6
+  SHA-256:  sha256:8b4668fc41fdd3750fe31dfd0269885ee4a0e9957913d4c2d140297cdf3f4444
+
+  Checking lesson 4 against the ledger... done.
+  ─── Ledger check ───
+  Verified against: https://s.altnet.rippletest.net:51234/
+  This pack claims testnet at https://s.altnet.rippletest.net:51234/, which is what was checked.
+
+  SKIPPED   Mental Model
+           this lesson records no transaction
+  SKIPPED   Create Wallet
+           this lesson records no transaction
+  SKIPPED   Fund Wallet
+           this lesson records no transaction
+  MISSING   Send Payment
+           no transaction with this hash is on the ledger
+  SKIPPED   Verify Transaction
+           this lesson records no transaction
+  SKIPPED   Certificate
+           this lesson records no transaction
+
+  1 of 1 transactions are absent from a ledger whose history covers the period this pack claims.
+

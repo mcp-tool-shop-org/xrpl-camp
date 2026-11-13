@@ -1,0 +1,153 @@
+{
+  "valid": true,
+  "hash_match": true,
+  "recorded": false,
+  "file": "packs/fake_txid_pruned_ledger.json",
+  "schema": "xrpl-camp-proof-pack-v1",
+  "address": "rBWTSrV4JB6fhWmz9u8FcnTqFXbn9PnDX3",
+  "network": "testnet",
+  "lessons_completed": 6,
+  "tool_version": "1.6.0",
+  "sha256": "sha256:e8f0769209fd69ad9594d8dd180759a63445c4bddf56fee800df4ccce588c3e6",
+  "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. UNCONFIRMED: 1 of 1 transactions are missing, and only this pack says the endpoint's history no longer covers them. That is a claim, not evidence. Nothing was confirmed.",
+  "endpoint": "https://s.altnet.rippletest.net:51234/",
+  "online": {
+    "status": "history_unconfirmed",
+    "message": "UNCONFIRMED: 1 of 1 transactions are missing, and only this pack says the endpoint's history no longer covers them. That is a claim, not evidence. Nothing was confirmed.",
+    "counts": {
+      "not_checkable": 5,
+      "miss_history_unconfirmed": 1
+    },
+    "checked": 1,
+    "total_lookups": 1,
+    "history_signal": "pack_claim"
+  },
+  "lessons": [
+    {
+      "lesson": 1,
+      "name": "Mental Model",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "history_signal": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    },
+    {
+      "lesson": 2,
+      "name": "Create Wallet",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "history_signal": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    },
+    {
+      "lesson": 3,
+      "name": "Fund Wallet",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "history_signal": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    },
+    {
+      "lesson": 4,
+      "name": "Send Payment",
+      "txid": "F00DFACEF00DFACEF00DFACEF00DFACEF00DFACEF00DFACEF00DFACEF00DFACE",
+      "checks": {
+        "exists": false,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "UNCONFIRMED: the pack claims a ledger this endpoint does not hold, and nothing else confirms a reset. This endpoint does not hold ledger 5000000, where this transaction was recorded as closing. No announced reset covers the time this lesson was completed, so this rests on the pack alone: anyone can write that number"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "ledger_history_gone",
+      "history_signal": "pack_claim",
+      "status": "miss_history_unconfirmed",
+      "proves": "The endpoint does not hold the ledger this pack records for the transaction. That is all. The ledger number is the pack's own word, and no announced reset covers the time the lesson was completed.",
+      "does_not_prove": "That there was a reset, or that the transaction was ever real. Anyone can write a ledger number into a pack. An endpoint with deeper history, or an archival explorer, is the only way to settle it."
+    },
+    {
+      "lesson": 5,
+      "name": "Verify Transaction",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "history_signal": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    },
+    {
+      "lesson": 6,
+      "name": "Certificate",
+      "txid": "",
+      "checks": {
+        "exists": null,
+        "account_binding": null,
+        "validated_success": null,
+        "memo_binding": null,
+        "ledger_provenance": null
+      },
+      "problems": [
+        "this lesson records no transaction"
+      ],
+      "ledger_index_seen": 0,
+      "ledger_reason": "",
+      "history_signal": "",
+      "status": "not_checkable",
+      "proves": "Nothing about the ledger. This lesson records no usable transaction hash, so there was nothing to look up.",
+      "does_not_prove": "That the lesson was not completed -- several lessons are offline by design and legitimately have no transaction."
+    }
+  ]
+}
