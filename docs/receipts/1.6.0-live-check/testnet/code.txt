@@ -1,0 +1,1 @@
+code: mcp-tool-shop-org/xrpl-camp @ c10abfb; xrpl-camp 1.6.0

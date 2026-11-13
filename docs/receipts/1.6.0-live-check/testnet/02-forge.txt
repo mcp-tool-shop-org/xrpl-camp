@@ -1,0 +1,4 @@
+forged packs/fake_txid.json: txid F00DFACEF00D, ledger_index keep
+forged packs/fake_txid_future_ledger.json: txid F00DFACEF00D, ledger_index 99000000
+forged packs/fake_txid_pruned_ledger.json: txid F00DFACEF00D, ledger_index 5000000
+forged packs/real_txid_future_ledger.json: txid keep, ledger_index 99000000

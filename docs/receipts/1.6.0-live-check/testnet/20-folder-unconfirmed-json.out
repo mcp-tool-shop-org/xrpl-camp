@@ -1,0 +1,66 @@
+{
+  "folder": "folder_gone",
+  "checked": 2,
+  "passed": 1,
+  "failed": 0,
+  "unverifiable": 1,
+  "packs": [
+    {
+      "file": "folder_gone/fake_txid_future_ledger.json",
+      "valid": true,
+      "hash_match": true,
+      "address": "rBWTSrV4JB6fhWmz9u8FcnTqFXbn9PnDX3",
+      "network": "testnet",
+      "lessons_completed": 6,
+      "sha256": "sha256:cdc8fd723568bb4d78a8015a07de3b144bd2cb9af360bd2e52d136177386901f",
+      "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. UNCONFIRMED: 1 of 1 transactions are missing, and only this pack says the endpoint's history no longer covers them. That is a claim, not evidence. Nothing was confirmed.",
+      "online": {
+        "status": "history_unconfirmed",
+        "message": "UNCONFIRMED: 1 of 1 transactions are missing, and only this pack says the endpoint's history no longer covers them. That is a claim, not evidence. Nothing was confirmed.",
+        "counts": {
+          "not_checkable": 5,
+          "miss_history_unconfirmed": 1
+        },
+        "checked": 1,
+        "total_lookups": 1,
+        "history_signal": "pack_claim"
+      }
+    },
+    {
+      "file": "folder_gone/honest.json",
+      "valid": true,
+      "hash_match": true,
+      "address": "rBWTSrV4JB6fhWmz9u8FcnTqFXbn9PnDX3",
+      "network": "testnet",
+      "lessons_completed": 6,
+      "sha256": "sha256:946b69b2d197b64edf610ff8da8014e66b0efd7e44ab74e6999a6e8986c32757",
+      "message": "Proof pack integrity verified against schema xrpl-camp-proof-pack-v1: contents match their own recorded hash. All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.",
+      "online": {
+        "status": "confirmed",
+        "message": "All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.",
+        "counts": {
+          "not_checkable": 5,
+          "ok": 1
+        },
+        "checked": 1,
+        "total_lookups": 1,
+        "history_signal": ""
+      }
+    }
+  ],
+  "endpoint": "https://s.altnet.rippletest.net:51234/",
+  "summary": {
+    "total": 2,
+    "passed": 1,
+    "needs_attention": [
+      {
+        "file": "folder_gone/fake_txid_future_ledger.json",
+        "address": "rBWTSrV4JB6fhWmz9u8FcnTqFXbn9PnDX3",
+        "reason": "unconfirmed: the pack claims a ledger the endpoint does not hold, and nothing else confirms a reset",
+        "online_status": "history_unconfirmed",
+        "hash_ok": true
+      }
+    ],
+    "message": "1 of 2 proof packs need a look; 1 passed."
+  }
+}
