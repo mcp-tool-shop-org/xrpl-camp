@@ -34,7 +34,10 @@ from xrpl_camp.transport import (
 __all__ = [
     "ArtifactWriteError",
     "ONLINE_MISMATCH",
+    "HISTORY_SIGNAL_ANNOUNCED",
+    "HISTORY_SIGNAL_PACK_CLAIM",
     "ONLINE_MISS_HISTORY_GONE",
+    "ONLINE_MISS_HISTORY_UNCONFIRMED",
     "ONLINE_MISS_NOT_FOUND",
     "ONLINE_NOT_CHECKABLE",
     "ONLINE_OK",
@@ -440,6 +443,14 @@ def proof_pack_has_seed(pack: dict) -> bool:
 ONLINE_OK = "ok"
 ONLINE_MISMATCH = "mismatch"
 ONLINE_MISS_HISTORY_GONE = "miss_ledger_history_gone"
+#: The endpoint does not hold the ledger the pack recorded, and only the pack
+#: says the transaction was ever in it. A claim, not evidence.
+ONLINE_MISS_HISTORY_UNCONFIRMED = "miss_history_unconfirmed"
+
+#: What a "history gone" verdict rests on. `announced` does not depend on the
+#: pack; `pack_claim` is the pack's own recorded ledger index and nothing else.
+HISTORY_SIGNAL_ANNOUNCED = "announced"
+HISTORY_SIGNAL_PACK_CLAIM = "pack_claim"
 ONLINE_MISS_NOT_FOUND = "miss_not_found"
 ONLINE_UNREACHABLE = "unreachable"
 ONLINE_NOT_CHECKABLE = "not_checkable"
@@ -448,6 +459,7 @@ ONLINE_NOT_CHECKABLE = "not_checkable"
 SUMMARY_CONFIRMED = "confirmed"
 SUMMARY_CONTRADICTED = "contradicted"
 SUMMARY_HISTORY_GONE = "ledger_history_gone"
+SUMMARY_HISTORY_UNCONFIRMED = "history_unconfirmed"
 SUMMARY_UNKNOWN = "unknown"
 SUMMARY_NOTHING_TO_CHECK = "nothing_to_check"
 
@@ -466,12 +478,23 @@ _ONLINE_MEANING = {
         "the pack is the thing being checked.",
     ),
     ONLINE_MISS_HISTORY_GONE: (
-        "The endpoint no longer holds history reaching back to the ledger "
-        "this transaction closed in. XRPL Testnet is periodically wiped; "
-        "this is that, not a forgery.",
+        "The endpoint does not hold the ledger this pack records for the "
+        "transaction, and an announced reset of the network covers the time "
+        "the lesson was completed. So a missing transaction is what a real "
+        "one would look like now.",
         "That the transaction was real. It cannot be re-checked here at "
-        "all -- an endpoint with deeper history, or an archival explorer, "
-        "is the only way to settle it now.",
+        "all, and a made-up hash dated before the reset reads the same way. "
+        "Only the pack's hash is left as evidence.",
+    ),
+    ONLINE_MISS_HISTORY_UNCONFIRMED: (
+        "The endpoint does not hold the ledger this pack records for the "
+        "transaction. That is all. The ledger number is the pack's own "
+        "word, and no announced reset covers the time the lesson was "
+        "completed.",
+        "That there was a reset, or that the transaction was ever real. "
+        "Anyone can write a ledger number into a pack. An endpoint with "
+        "deeper history, or an archival explorer, is the only way to settle "
+        "it.",
     ),
     ONLINE_MISS_NOT_FOUND: (
         "The endpoint has history covering the period this pack claims and "
@@ -650,8 +673,14 @@ def classify_lesson_online(
     live: object,
     *,
     unreachable_reason: str = "",
+    announced_reset: str = "",
 ) -> dict:
     """Classify ONE lesson entry against ONE already-fetched lookup result.
+
+    ``announced_reset`` is the label of an announced network reset that covers
+    this lesson's completion time, or "" (see ``xrpl_camp.resets``). The
+    caller works it out, so this function still needs no clock. It decides
+    whether a "history gone" miss rests on something outside the pack.
 
     Pure. No network, no clock, no disk. `live` is a
     ``transport.lookup_tx``-shaped dict; pass ``None`` (with
@@ -700,6 +729,7 @@ def classify_lesson_online(
         "problems": [],
         "ledger_index_seen": 0,
         "ledger_reason": "",
+        "history_signal": "",
     }
 
     def finish(status: str, problems: list[str] | None = None) -> dict:
@@ -739,11 +769,25 @@ def classify_lesson_online(
             # Reporting this as a forgery is the exact failure --online exists
             # to prevent, and it is why online_lookup_plan insists the
             # recorded index be passed through.
-            return finish(ONLINE_MISS_HISTORY_GONE, [
+            held = (
                 "this endpoint does not hold ledger "
                 f"{entry.get('ledger_index', 'unknown')}, where this "
-                "transaction was recorded as closing: the network was reset "
-                "or its old history was discarded",
+                "transaction was recorded as closing"
+            )
+            if announced_reset:
+                # Independent of the pack: the network really was reset after
+                # this lesson. Still not a pass.
+                result["history_signal"] = HISTORY_SIGNAL_ANNOUNCED
+                return finish(ONLINE_MISS_HISTORY_GONE, [
+                    f"{held}: {announced_reset}, after this lesson was completed",
+                ])
+            # Only the pack's own ledger number says the history is gone.
+            result["history_signal"] = HISTORY_SIGNAL_PACK_CLAIM
+            return finish(ONLINE_MISS_HISTORY_UNCONFIRMED, [
+                "UNCONFIRMED: the pack claims a ledger this endpoint does not "
+                f"hold, and nothing else confirms a reset. {held[0].upper()}{held[1:]}. "
+                "No announced reset covers the time this lesson was completed, "
+                "so this rests on the pack alone: anyone can write that number",
             ])
         problems = ["no transaction with this hash is on the ledger"]
         if not entry.get("ledger_index"):
@@ -846,9 +890,13 @@ def summarize_online(results: list) -> dict:
                              passing does not dilute it.
     - any UNREACHABLE     -> unknown. A pack cannot be called confirmed when
                              part of it was never actually checked.
-    - any HISTORY GONE    -> ledger_history_gone. Not a failure. The network
-                             was reset; there is nothing left here to check
-                             and nobody did anything wrong.
+    - any HISTORY UNCONFIRMED -> history_unconfirmed. Only the pack's own
+                             ledger number says the history is gone. A
+                             claim, not evidence. It outranks HISTORY GONE:
+                             the weaker signal names the result.
+    - any HISTORY GONE    -> ledger_history_gone. Not a failure, not a pass.
+                             An announced reset covers the lesson's time and
+                             the endpoint does not hold its ledger.
     - any MISS NOT FOUND  -> contradicted. History is present and the
                              transaction is not in it.
     - nothing checkable   -> nothing_to_check.
@@ -864,14 +912,15 @@ def summarize_online(results: list) -> dict:
         counts.get(s, 0)
         for s in (
             ONLINE_OK, ONLINE_MISMATCH, ONLINE_MISS_HISTORY_GONE,
-            ONLINE_MISS_NOT_FOUND,
+            ONLINE_MISS_HISTORY_UNCONFIRMED, ONLINE_MISS_NOT_FOUND,
         )
     )
     total_lookups = sum(
         counts.get(s, 0)
         for s in (
             ONLINE_OK, ONLINE_MISMATCH, ONLINE_MISS_HISTORY_GONE,
-            ONLINE_MISS_NOT_FOUND, ONLINE_UNREACHABLE,
+            ONLINE_MISS_HISTORY_UNCONFIRMED, ONLINE_MISS_NOT_FOUND,
+            ONLINE_UNREACHABLE,
         )
     )
 
@@ -896,13 +945,23 @@ def summarize_online(results: list) -> dict:
             "transactions are absent from a ledger whose history covers the "
             "period this pack claims."
         )
+    elif counts.get(ONLINE_MISS_HISTORY_UNCONFIRMED):
+        # The weaker signal names the result, even beside an announced reset.
+        status = SUMMARY_HISTORY_UNCONFIRMED
+        message = (
+            f"UNCONFIRMED: {counts[ONLINE_MISS_HISTORY_UNCONFIRMED]} of "
+            f"{total_lookups} transactions are missing, and only this pack "
+            "says the endpoint's history no longer covers them. That is a "
+            "claim, not evidence. Nothing was confirmed."
+        )
     elif counts.get(ONLINE_MISS_HISTORY_GONE):
         status = SUMMARY_HISTORY_GONE
         message = (
             f"{counts[ONLINE_MISS_HISTORY_GONE]} of {total_lookups} "
-            "transactions predate this endpoint's earliest retained ledger. "
-            "XRPL Testnet is periodically wiped -- this is that, not a "
-            "forgery, and it cannot be re-checked here."
+            "transactions can no longer be checked: the network was reset "
+            "after these lessons were completed, and this endpoint does not "
+            "hold the ledgers they were recorded in. Not a failure, and not "
+            "a pass: only the pack's hash is left."
         )
     elif total_lookups == 0:
         status = SUMMARY_NOTHING_TO_CHECK
@@ -918,12 +977,20 @@ def summarize_online(results: list) -> dict:
             "sent by this pack's address, and closed successfully."
         )
 
+    if counts.get(ONLINE_MISS_HISTORY_UNCONFIRMED):
+        history_signal = HISTORY_SIGNAL_PACK_CLAIM
+    elif counts.get(ONLINE_MISS_HISTORY_GONE):
+        history_signal = HISTORY_SIGNAL_ANNOUNCED
+    else:
+        history_signal = ""
+
     return {
         "status": status,
         "message": message,
         "counts": counts,
         "checked": checked,
         "total_lookups": total_lookups,
+        "history_signal": history_signal,
     }
 
 
@@ -1003,7 +1070,9 @@ def online_exit_code(summary: object) -> int:
         status = str(summary.get("status", ""))
     if status == SUMMARY_CONTRADICTED:
         return EXIT_USER
-    if status in (SUMMARY_UNKNOWN, SUMMARY_HISTORY_GONE):
+    if status in (
+        SUMMARY_UNKNOWN, SUMMARY_HISTORY_GONE, SUMMARY_HISTORY_UNCONFIRMED,
+    ):
         return EXIT_PARTIAL
     return EXIT_OK
 
@@ -1117,6 +1186,11 @@ def batch_summary(rows: list) -> dict:
             reason = "the ledger contradicts this pack"
         elif online_status == SUMMARY_UNKNOWN:
             reason = "could not be checked against the ledger"
+        elif online_status == SUMMARY_HISTORY_UNCONFIRMED:
+            reason = (
+                "unconfirmed: the pack claims a ledger the endpoint does not "
+                "hold, and nothing else confirms a reset"
+            )
         elif online_status == SUMMARY_HISTORY_GONE:
             reason = "the network was reset; the ledger no longer holds this"
         else:

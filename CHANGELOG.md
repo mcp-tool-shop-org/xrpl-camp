@@ -31,6 +31,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
   - A pack that recorded no ledger index for a lesson (made before 1.4.2)
     still can't tell a reset from a fabricated hash, and still says so.
 
+### Changed
+
+- **A "history gone" verdict now names what it rests on, and a claim only
+  the pack makes is UNCONFIRMED.** `proof verify --online` decides "history
+  gone" from the ledger index recorded in the pack, and anyone can write that
+  number. So:
+  - `history_signal` is on each lesson and on the result, in `--json`:
+    - `announced`: an announced reset of the endpoint's network covers the
+      time the lesson was completed (`xrpl_camp/resets.py` lists Testnet and
+      Devnet, 2026-11-25). The verdict stays `ledger_history_gone`, shown as
+      NO HISTORY, with the reset named.
+    - `pack_claim`: only the pack's ledger number says so. New lesson status
+      `miss_history_unconfirmed` and result status `history_unconfirmed`,
+      shown as **UNCONFIRMED: the pack claims a ledger this endpoint does not
+      hold, and nothing else confirms a reset**.
+  - Both are exit code 3, as before. Neither is ever a pass, alone or in a
+    folder run. When lessons rest on different signals, the weaker one names
+    the result.
+  - The network is the endpoint's, never one the pack names.
+  - **Behaviour change:** before 2026-11-24 10:00 UTC (when the 25th begins
+    anywhere), and for any lesson completed after 2026-11-26 12:00 UTC, a
+    history miss that read `ledger_history_gone` now reads
+    `history_unconfirmed`. The exit code is the same. The earlier wording
+    "this is that, not a forgery" is gone: the tool could not know that.
+
 ## [1.5.2] - 2026-10-23
 
 ### Fixed

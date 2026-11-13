@@ -58,8 +58,11 @@ Two properties of that check are security-relevant:
   the endpoint named inside the pack being checked, because a forged pack can name a server its
   author controls.
 - A transaction that does not resolve is not automatically fraud. The XRPL Testnet is periodically
-  reset, and honest transactions vanish with it. The pack records each transaction's ledger index
-  so a reset is reported as *unverifiable* (exit 3), distinct from *contradicted* (exit 1).
+  reset, and honest transactions vanish with it. When the endpoint does not hold the ledger a
+  transaction was recorded in, the result is *unverifiable* (exit 3), distinct from *contradicted*
+  (exit 1). The recorded ledger index is the pack's own word, so the output names what the verdict
+  rests on: an announced reset that covers the lesson's time (`history_signal: announced`), or the
+  pack's ledger number alone (`pack_claim`, reported as UNCONFIRMED). Neither is ever a pass.
 
 Offline verification makes no network calls and remains the default.
 
