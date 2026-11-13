@@ -997,11 +997,11 @@ def get_network_id(url: str | None = None) -> int | None:
     return _int_or_none(state.get("network_id", 0))
 
 
-def earliest_complete_ledger(url: str | None = None) -> int | None:
-    """Lowest ledger index the endpoint still has, from ``complete_ledgers``.
+def complete_ledger_bounds(url: str | None = None) -> tuple[int, int] | None:
+    """The lowest and highest ledger index the endpoint holds, or None.
 
-    This is how "the Testnet was reset and your history is gone" becomes a
-    sentence the tool can say instead of a silent empty result.
+    Read from ``complete_ledgers`` ("a-b,c-d"). None when the endpoint could
+    not be read or reports no ledgers.
     """
     state = _server_state(url or get_rpc_url())
     if state is None:
@@ -1010,12 +1010,27 @@ def earliest_complete_ledger(url: str | None = None) -> int | None:
     if not raw or raw.lower() in ("empty", "none"):
         return None
     lowest: int | None = None
+    highest: int | None = None
     for span in raw.split(","):
-        head = span.strip().split("-")[0].strip()
-        value = _int_or_none(head)
-        if value is not None and (lowest is None or value < lowest):
-            lowest = value
-    return lowest
+        lo, _, hi = span.strip().partition("-")
+        low, high = _int_or_none(lo.strip()), _int_or_none((hi or lo).strip())
+        if low is not None and (lowest is None or low < lowest):
+            lowest = low
+        if high is not None and (highest is None or high > highest):
+            highest = high
+    if lowest is None or highest is None:
+        return None
+    return lowest, highest
+
+
+def earliest_complete_ledger(url: str | None = None) -> int | None:
+    """Lowest ledger index the endpoint still has, from ``complete_ledgers``.
+
+    This is how "the Testnet was reset and your history is gone" becomes a
+    sentence the tool can say instead of a silent empty result.
+    """
+    bounds = complete_ledger_bounds(url)
+    return None if bounds is None else bounds[0]
 
 
 def assert_safe_network(url: str | None = None) -> None:
@@ -1945,6 +1960,12 @@ def _fetch_tx(txid: str, url: str):
     return response, (response.result or {})
 
 
+#: Servers of one network can sit a few ledgers apart. A ledger closes every
+#: 3 to 5 seconds, so 1,000 ledgers is about an hour: far more than lag, far
+#: less than the drop a reset causes.
+_LEDGER_LAG_TOLERANCE = 1_000
+
+
 def _miss_reason(url: str, recorded_ledger_index: int) -> str:
     """Why a transaction is missing: never recorded, or history discarded.
 
@@ -1955,8 +1976,19 @@ def _miss_reason(url: str, recorded_ledger_index: int) -> str:
     """
     if recorded_ledger_index <= 0:
         return REASON_NOT_FOUND
-    earliest = earliest_complete_ledger(url)
-    if earliest is not None and earliest > recorded_ledger_index:
+    bounds = complete_ledger_bounds(url)
+    if bounds is None:
+        return REASON_NOT_FOUND
+    earliest, latest = bounds
+    # Old history discarded: the endpoint starts after the recorded ledger.
+    if earliest > recorded_ledger_index:
+        return REASON_HISTORY_GONE
+    # The network restarted: the recorded ledger is far past the endpoint's
+    # newest one. A full reset (Testnet and Devnet on 2026-11-25) deletes
+    # every ledger and counts again from the start, so an index recorded
+    # before it is one the new chain has not reached. Ledgers only grow, so
+    # this is not something a live network does on its own.
+    if recorded_ledger_index > latest + _LEDGER_LAG_TOLERANCE:
         return REASON_HISTORY_GONE
     return REASON_NOT_FOUND
 
@@ -2819,6 +2851,7 @@ __all__ = [
     "account_transactions",
     "assert_safe_network",
     "burn_nft",
+    "complete_ledger_bounds",
     "earliest_complete_ledger",
     "explorer_account_url_for",
     "explorer_url_for",
