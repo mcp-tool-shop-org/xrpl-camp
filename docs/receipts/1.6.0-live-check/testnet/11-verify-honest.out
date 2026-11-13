@@ -1,0 +1,29 @@
+
+  ✅ PASS — Proof pack integrity verified.
+
+  File:     packs/honest.json
+  Schema:   xrpl-camp-proof-pack-v1
+  Address:  rBWTSrV4JB6fhWmz9u8FcnTqFXbn9PnDX3
+  Network:  testnet
+  Lessons:  6
+  SHA-256:  sha256:946b69b2d197b64edf610ff8da8014e66b0efd7e44ab74e6999a6e8986c32757
+
+  Checking lesson 4 against the ledger... done.
+  ─── Ledger check ───
+  Verified against: https://s.altnet.rippletest.net:51234/
+  This pack claims testnet at https://s.altnet.rippletest.net:51234/, which is what was checked.
+
+  SKIPPED   Mental Model
+           this lesson records no transaction
+  SKIPPED   Create Wallet
+           this lesson records no transaction
+  SKIPPED   Fund Wallet
+           this lesson records no transaction
+  OK        Send Payment
+  SKIPPED   Verify Transaction
+           this lesson records no transaction
+  SKIPPED   Certificate
+           this lesson records no transaction
+
+  All 1 recorded transactions are on the ledger, were sent by this pack's address, and closed successfully.
+

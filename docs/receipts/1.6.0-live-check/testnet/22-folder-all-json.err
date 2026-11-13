@@ -1,0 +1,5 @@
+  fake_txid.json: Checking lesson 4 against the ledger... done.
+  fake_txid_future_ledger.json: Checking lesson 4 against the ledger... done.
+  fake_txid_pruned_ledger.json: Checking lesson 4 against the ledger... done.
+  honest.json: Checking lesson 4 against the ledger... done.
+  real_txid_future_ledger.json: Checking lesson 4 against the ledger... done.
