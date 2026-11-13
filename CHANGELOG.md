@@ -5,7 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.6.0] - 2026-11-13
+
+Testnet and Devnet are wiped on 2026-11-25. This release is for that: a proof
+pack made before the wipe is not reported as a forgery afterwards, and the
+"history gone" verdict now says what it rests on.
+
+Minor, not patch: `proof verify --online` has a new result status
+(`history_unconfirmed`), a new lesson status (`miss_history_unconfirmed`) and a
+new field (`history_signal`). A script that branches on the status string
+should handle the new one. Exit codes are unchanged.
 
 ### Fixed
 
