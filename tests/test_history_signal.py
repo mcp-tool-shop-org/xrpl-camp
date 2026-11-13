@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, date, datetime
+from urllib.parse import urlparse
 
 import pytest
 from typer.testing import CliRunner
@@ -24,9 +25,8 @@ from xrpl_camp.models import Session
 
 runner = CliRunner()
 TESTNET = "https://s.altnet.rippletest.net:51234"
-RESET_LABEL = (
-    "Testnet was reset on 2026-11-25 (https://xrpl.org/blog/2026/testnet-devnet-reset)"
-)
+RESET_SOURCE = "https://xrpl.org/blog/2026/testnet-devnet-reset"
+RESET_LABEL = f"Testnet was reset on 2026-11-25 ({RESET_SOURCE})"
 BEFORE = datetime(2026, 11, 20, tzinfo=UTC)
 AFTER = datetime(2026, 12, 1, tzinfo=UTC)
 GONE = {"found": False, "reason": transport.REASON_HISTORY_GONE}
@@ -52,6 +52,13 @@ def test_the_2026_11_25_reset_is_listed_for_both_test_networks():
     }
 
 
+def test_every_listed_reset_cites_the_xrpl_org_notice():
+    for reset in resets.KNOWN_RESETS:
+        source = urlparse(reset.source)
+        assert (source.scheme, source.hostname) == ("https", "xrpl.org")
+        assert reset.source == RESET_SOURCE
+
+
 def test_a_reset_day_spans_every_timezone():
     r = resets.KnownReset("testnet", date(2026, 11, 25), "src")
     assert r.starts == datetime(2026, 11, 24, 10, 0, tzinfo=UTC)
@@ -75,9 +82,8 @@ def test_a_reset_day_spans_every_timezone():
 )
 def test_which_lessons_an_announced_reset_covers(network, recorded, now, covered):
     label = resets.announced_reset_after(network, recorded, now=now)
-    assert bool(label) is covered
-    if covered:
-        assert "was reset on 2026-11-25" in label and "xrpl.org" in label
+    expected = f"{network.capitalize()} was reset on 2026-11-25 ({RESET_SOURCE})" if covered else ""
+    assert label == expected
 
 
 @pytest.mark.parametrize(
