@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/),
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **A proof pack from before a full network reset is no longer reported as a
+  forgery.** Testnet and Devnet are wiped on 2026-11-25
+  ([xrpl.org notice](https://xrpl.org/blog/2026/testnet-devnet-reset)): every
+  ledger is deleted and the count starts again. `proof verify --online`
+  recognised a missing transaction as "history gone" only when the recorded
+  ledger was *older* than the endpoint's earliest one, which is what discarded
+  history looks like. After a full reset the recorded ledger is far *newer*
+  than anything on the new chain, so the check fell through to "no transaction
+  with this hash is on the ledger".
+  - A recorded ledger index more than 1,000 ledgers past the endpoint's newest
+    one now also reads as history gone: the lesson is reported as
+    unverifiable (exit code 3, as before for discarded history), not as
+    contradicted (exit code 1). 1,000 ledgers is about an hour of closes, so a
+    server a few ledgers behind is not mistaken for a reset.
+  - The message now covers both cases: "this endpoint does not hold ledger N,
+    where this transaction was recorded as closing: the network was reset or
+    its old history was discarded".
+  - This is not a pass. A pack whose lessons can't be checked is never
+    reported as confirmed; only its hash is left as evidence.
+  - A pack that recorded no ledger index for a lesson (made before 1.4.2)
+    still can't tell a reset from a fabricated hash, and still says so.
+
 ## [1.5.2] - 2026-10-23
 
 ### Fixed

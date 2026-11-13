@@ -732,15 +732,18 @@ def classify_lesson_online(
     if not live.get("found", False):
         checks["exists"] = False
         if result["ledger_reason"] == REASON_HISTORY_GONE:
-            # NOT fraud. The recorded ledger_index predates the earliest
-            # ledger this endpoint still holds, which is what a Testnet reset
-            # looks like from here. Reporting this as a forgery is the exact
-            # failure --online exists to prevent, and it is why
-            # online_lookup_plan insists the recorded index be passed through.
+            # NOT fraud. The endpoint does not hold the recorded ledger:
+            # either it discarded old history (the recorded index is before
+            # its earliest ledger) or the network was reset and counts again
+            # from the start (the recorded index is far past its newest one).
+            # Reporting this as a forgery is the exact failure --online exists
+            # to prevent, and it is why online_lookup_plan insists the
+            # recorded index be passed through.
             return finish(ONLINE_MISS_HISTORY_GONE, [
-                "this endpoint's history no longer reaches back to ledger "
+                "this endpoint does not hold ledger "
                 f"{entry.get('ledger_index', 'unknown')}, where this "
-                "transaction was recorded as closing",
+                "transaction was recorded as closing: the network was reset "
+                "or its old history was discarded",
             ])
         problems = ["no transaction with this hash is on the ledger"]
         if not entry.get("ledger_index"):
